@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Services\AgentService;
+
+class AgentController extends Controller
+{
+    protected $agentService;
+
+    public function __construct(AgentService $agentService)
+    {
+        $this->agentService = $agentService;
+    }
+
+    public function index()
+    {
+        $dataAgent = $this->agentService->getAll();
+        return view('pages.data-agent.index', ['title' => 'Data Agent', 'dataAgent' => $dataAgent]);
+    }
+
+    public function create()
+    {
+        // Auto-generate kode_agent: A-001, A-002, etc.
+        $lastAgent = \App\Models\Agent::orderBy('id', 'desc')->first();
+        $lastNumber = $lastAgent ? intval(substr($lastAgent->kode_agent, 2)) : 0;
+        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        $kodeAgent = 'A-' . $newNumber;
+
+        return view('pages.data-agent.create', [
+            'title' => 'Tambah Data Agent',
+            'kodeAgent' => $kodeAgent
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'kode_agent' => 'required|string|unique:agents,kode_agent',
+            'nik_agent' => 'required|string|unique:agents,nik_agent|max:16',
+            'nama_agent' => 'required|string|max:255',
+            'kontak_agent' => 'required|string|max:20',
+            'email_agent' => 'required|email|unique:agents,email_agent',
+            'kabupaten_kota' => 'required|string',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'tempat_lahir' => 'required|string',
+            'tanggal_lahir' => 'required|date',
+            'status_agent' => 'required|in:Active,Non Active',
+            'komisi_paket_umroh' => 'required|numeric|min:0',
+            'komisi_paket_haji' => 'required|numeric|min:0',
+            'alamat_agent' => 'required|string',
+            'catatan_agent' => 'nullable|string',
+        ]);
+
+        $this->agentService->create($validated);
+
+        return redirect()->route('data-agent')->with('success', 'Data agent berhasil ditambahkan');
+    }
+
+    public function edit($id)
+    {
+        $agent = $this->agentService->getById($id);
+
+        if (!$agent) {
+            return redirect()->route('data-agent')->with('error', 'Data agent tidak ditemukan');
+        }
+
+        return view('pages.data-agent.edit', [
+            'title' => 'Edit Data Agent',
+            'agent' => $agent
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nik_agent' => 'required|string|max:16|unique:agents,nik_agent,' . $id,
+            'nama_agent' => 'required|string|max:255',
+            'kontak_agent' => 'required|string|max:20',
+            'email_agent' => 'required|email|unique:agents,email_agent,' . $id,
+            'kabupaten_kota' => 'required|string',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'tempat_lahir' => 'required|string',
+            'tanggal_lahir' => 'required|date',
+            'status_agent' => 'required|in:Active,Non Active',
+            'komisi_paket_umroh' => 'required|numeric|min:0',
+            'komisi_paket_haji' => 'required|numeric|min:0',
+            'alamat_agent' => 'required|string',
+            'catatan_agent' => 'nullable|string',
+        ]);
+
+        $agent = $this->agentService->update($id, $validated);
+
+        if (!$agent) {
+            return redirect()->route('data-agent')->with('error', 'Data agent tidak ditemukan');
+        }
+
+        return redirect()->route('data-agent')->with('success', 'Data agent berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $deleted = $this->agentService->delete($id);
+
+        if (!$deleted) {
+            return response()->json(['success' => false, 'message' => 'Data agent tidak ditemukan'], 404);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Data agent berhasil dihapus']);
+    }
+
+    public function show($id)
+    {
+        $agent = $this->agentService->getById($id);
+
+        if (!$agent) {
+            return redirect()->route('data-agent')->with('error', 'Data agent tidak ditemukan');
+        }
+
+        return view('pages.data-agent.show', [
+            'title' => 'Detail Data Agent',
+            'agent' => $agent
+        ]);
+    }
+
+    public function printData()
+    {
+        $agents = $this->agentService->getAll();
+        return view('pages.data-agent.print', [
+            'agents' => $agents,
+            'title' => 'Laporan Data Agent'
+        ]);
+    }
+}

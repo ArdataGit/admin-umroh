@@ -1,0 +1,91 @@
+@extends('layouts.app')
+
+@section('content')
+<x-common.page-breadcrumb pageTitle="Edit Data Produk" :breadcrumbs="[
+    ['label' => 'Data Produk', 'url' => route('data-produk')],
+    ['label' => 'Edit', 'url' => '#']
+]" />
+
+<div class="grid grid-cols-12 gap-4 md:gap-6">
+    <div class="col-span-12">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
+            <form action="{{ route('data-produk.update', $produk->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    
+                    <!-- Kode Produk (Readonly) -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kode Produk</label>
+                        <input type="text" name="kode_produk" value="{{ $produk->kode_produk }}" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" />
+                    </div>
+
+                    <!-- Nama Produk -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Produk</label>
+                        <input type="text" name="nama_produk" value="{{ old('nama_produk', $produk->nama_produk) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Nama Produk" required />
+                        @error('nama_produk') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Standar Stok -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Standar Stok</label>
+                        <input type="number" name="standar_stok" value="{{ old('standar_stok', $produk->standar_stok) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        @error('standar_stok') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Aktual Stok -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Aktual Stok</label>
+                        <input type="number" name="aktual_stok" value="{{ old('aktual_stok', $produk->aktual_stok) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        @error('aktual_stok') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Satuan Unit -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Satuan Unit</label>
+                        <select name="satuan_unit" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
+                            <option value="">Pilih Satuan Unit</option>
+                            @foreach(['Pcs', 'Set', 'Pack', 'Dus', 'Lot', 'Pax', 'Room', 'Seat'] as $satuan)
+                                <option value="{{ $satuan }}" {{ old('satuan_unit', $produk->satuan_unit) == $satuan ? 'selected' : '' }}>{{ $satuan }}</option>
+                            @endforeach
+                        </select>
+                         @error('satuan_unit') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Harga Beli -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Beli</label>
+                        <input type="number" name="harga_beli" value="{{ old('harga_beli', $produk->harga_beli) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        @error('harga_beli') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Harga Jual -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
+                        <input type="number" name="harga_jual" value="{{ old('harga_jual', $produk->harga_jual) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Catatan Produk -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Catatan Produk</label>
+                        <textarea name="catatan_produk" rows="3" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Catatan (Opsional)">{{ old('catatan_produk', $produk->catatan_produk) }}</textarea>
+                        @error('catatan_produk') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <a href="{{ route('data-produk') }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">
+                        Batal
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-blue-600">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
