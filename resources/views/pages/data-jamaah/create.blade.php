@@ -26,7 +26,7 @@
                         <!-- NIK -->
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">NIK Jamaah</label>
-                            <input type="text" name="nik_jamaah" value="{{ old('nik_jamaah') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan NIK" required />
+                            <input type="text" name="nik_jamaah" value="{{ old('nik_jamaah') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan NIK" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" required />
                             @error('nik_jamaah') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
@@ -65,7 +65,7 @@
                         <!-- Kontak Jamaah -->
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kontak Jamaah</label>
-                            <input type="text" name="kontak_jamaah" value="{{ old('kontak_jamaah') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="No HP/WA" required />
+                            <input type="text" name="kontak_jamaah" value="{{ old('kontak_jamaah') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="No HP/WA" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" required />
                             @error('kontak_jamaah') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
@@ -165,32 +165,32 @@
                         <!-- Foto Jamaah -->
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Jamaah</label>
-                            <input type="file" name="foto_jamaah" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/*" />
+                            <input type="file" name="foto_jamaah" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/png, image/jpeg, image/jpg" />
                             @error('foto_jamaah') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                         </div>
 
                          <!-- Foto KTP -->
                          <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto KTP</label>
-                            <input type="file" name="foto_ktp" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/*" />
+                            <input type="file" name="foto_ktp" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/png, image/jpeg, image/jpg" />
                         </div>
 
                          <!-- Foto KK -->
                          <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto KK</label>
-                            <input type="file" name="foto_kk" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/*" />
+                            <input type="file" name="foto_kk" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/png, image/jpeg, image/jpg" />
                         </div>
 
                          <!-- Foto Paspor 1 -->
                          <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Paspor 1</label>
-                            <input type="file" name="foto_paspor_1" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/*" />
+                            <input type="file" name="foto_paspor_1" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/png, image/jpeg, image/jpg" />
                         </div>
 
                          <!-- Foto Paspor 2 -->
                          <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Paspor 2</label>
-                            <input type="file" name="foto_paspor_2" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/*" />
+                            <input type="file" name="foto_paspor_2" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none" accept="image/png, image/jpeg, image/jpg" />
                         </div>
 
                     </div>

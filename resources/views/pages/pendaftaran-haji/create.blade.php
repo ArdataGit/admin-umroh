@@ -50,7 +50,7 @@
                             </div>
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Lahir</label>
-                                <input type="date" x-model="form.tanggal_lahir" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                                <input type="text" x-model="form.tanggal_lahir" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="YYYY" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
                             </div>
                         </div>
                          <div>

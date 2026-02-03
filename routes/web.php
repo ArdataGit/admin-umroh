@@ -23,7 +23,44 @@ use App\Http\Controllers\PembelianProdukController;
 use App\Http\Controllers\PengeluaranProdukController;
 use App\Http\Controllers\PendaftaranHajiController;
 
+use App\Http\Controllers\TransaksiLayananController;
+use App\Http\Controllers\TransaksiTiketController;
+use App\Http\Controllers\KeberangkatanUmrohController;
+use App\Http\Controllers\CustomerUmrohController;
+use App\Http\Controllers\KeberangkatanHajiController;
+use App\Http\Controllers\CustomerHajiController;
+use App\Http\Controllers\PendaftaranUmrohController;
+use App\Http\Controllers\BonusAgentController;
+use App\Http\Controllers\PembayaranUmrohController;
+use App\Http\Controllers\PembayaranHajiController;
+use App\Http\Controllers\PengeluaranUmrohController;
+use App\Http\Controllers\PengeluaranHajiController;
+use App\Http\Controllers\PengeluaranUmumController;
+use App\Http\Controllers\PemasukanUmumController;
+use App\Http\Controllers\SuratRekomendasiController;
+use App\Http\Controllers\SuratIzinCutiController;
+use App\Http\Controllers\LaporanUmrohController;
+use App\Http\Controllers\LaporanHajiController;
+use App\Http\Controllers\PembayaranTiketController;
+use App\Http\Controllers\PembayaranLayananController;
+use App\Http\Controllers\LaporanKeuanganController;
+use App\Http\Controllers\RugiLabaPenjualanController;
+use App\Http\Controllers\ProfileController;
 
+
+
+
+// Authentication Routes
+use App\Http\Controllers\AuthController;
+Route::get('/signin', [AuthController::class, 'login'])->name('login');
+Route::post('/signin', [AuthController::class, 'authenticate'])->name('login.authenticate');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/signup', function () {
+    return view('pages.auth.signup', ['title' => 'Sign Up']);
+})->name('signup');
+
+Route::middleware('auth')->group(function () {
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
@@ -199,7 +236,7 @@ Route::put('/pengeluaran-produk/{id}', [PengeluaranProdukController::class, 'upd
 Route::delete('/pengeluaran-produk/{id}', [PengeluaranProdukController::class, 'destroy'])->name('pengeluaran-produk.destroy');
 
 // Transaksi Layanan Routes
-use App\Http\Controllers\TransaksiLayananController;
+
 
 Route::get('/transaksi-layanan', [TransaksiLayananController::class, 'index'])->name('transaksi-layanan.index');
 Route::get('/transaksi-layanan/create', [TransaksiLayananController::class, 'create'])->name('transaksi-layanan.create');
@@ -210,7 +247,7 @@ Route::put('/transaksi-layanan/{id}', [TransaksiLayananController::class, 'updat
 Route::delete('/transaksi-layanan/{id}', [TransaksiLayananController::class, 'destroy'])->name('transaksi-layanan.destroy');
 
 // Transaksi Tiket Routes
-use App\Http\Controllers\TransaksiTiketController;
+
 
 Route::get('/transaksi-tiket', [TransaksiTiketController::class, 'index'])->name('transaksi-tiket.index');
 Route::get('/transaksi-tiket/create', [TransaksiTiketController::class, 'create'])->name('transaksi-tiket.create');
@@ -221,7 +258,7 @@ Route::put('/transaksi-tiket/{id}', [TransaksiTiketController::class, 'update'])
 Route::delete('/transaksi-tiket/{id}', [TransaksiTiketController::class, 'destroy'])->name('transaksi-tiket.destroy');
 
 // Keberangkatan Umroh Routes
-use App\Http\Controllers\KeberangkatanUmrohController;
+
 
 Route::get('/keberangkatan-umroh', [KeberangkatanUmrohController::class, 'index'])->name('keberangkatan-umroh.index');
 Route::get('/keberangkatan-umroh/create', [KeberangkatanUmrohController::class, 'create'])->name('keberangkatan-umroh.create');
@@ -232,13 +269,13 @@ Route::put('/keberangkatan-umroh/{id}', [KeberangkatanUmrohController::class, 'u
 Route::delete('/keberangkatan-umroh/{id}', [KeberangkatanUmrohController::class, 'destroy'])->name('keberangkatan-umroh.destroy');
 
 // Customer Umroh (Manifest) Routes
-use App\Http\Controllers\CustomerUmrohController;
+
 Route::get('/customer-umroh/{id}', [CustomerUmrohController::class, 'index'])->name('customer-umroh.index');
 Route::get('/customer-umroh/{id}/create', [CustomerUmrohController::class, 'create'])->name('customer-umroh.create');
 Route::post('/customer-umroh/{id}', [CustomerUmrohController::class, 'store'])->name('customer-umroh.store');
 
 // Keberangkatan Haji Routes
-use App\Http\Controllers\KeberangkatanHajiController;
+
 
 Route::get('/keberangkatan-haji', [KeberangkatanHajiController::class, 'index'])->name('keberangkatan-haji.index');
 Route::get('/keberangkatan-haji/create', [KeberangkatanHajiController::class, 'create'])->name('keberangkatan-haji.create');
@@ -249,13 +286,13 @@ Route::put('/keberangkatan-haji/{id}', [KeberangkatanHajiController::class, 'upd
 Route::delete('/keberangkatan-haji/{id}', [KeberangkatanHajiController::class, 'destroy'])->name('keberangkatan-haji.destroy');
 
 // Customer Haji (Manifest) Routes
-use App\Http\Controllers\CustomerHajiController;
+
 Route::get('/customer-haji/{id}', [CustomerHajiController::class, 'index'])->name('customer-haji.index');
 Route::get('/customer-haji/{id}/create', [CustomerHajiController::class, 'create'])->name('customer-haji.create');
 Route::post('/customer-haji/{id}', [CustomerHajiController::class, 'store'])->name('customer-haji.store');
 
 // Unified Pendaftaran Umroh Routes
-use App\Http\Controllers\PendaftaranUmrohController;
+
 Route::get('/pendaftaran-umroh', [PendaftaranUmrohController::class, 'index'])->name('pendaftaran-umroh.index');
 Route::get('/pendaftaran-umroh/create', [PendaftaranUmrohController::class, 'create'])->name('pendaftaran-umroh.create');
 Route::post('/pendaftaran-umroh', [PendaftaranUmrohController::class, 'store'])->name('pendaftaran-umroh.store');
@@ -286,7 +323,7 @@ Route::put('/setoran-haji/transaksi/{id}', [SetoranHajiController::class, 'updat
 Route::delete('/setoran-haji/transaksi/{id}', [SetoranHajiController::class, 'destroy'])->name('setoran-haji.destroy');
 
 // Bonus Agent Routes
-use App\Http\Controllers\BonusAgentController;
+
 Route::get('/bonus-agent/export', [BonusAgentController::class, 'export'])->name('bonus-agent.export');
 Route::get('/bonus-agent/print', [BonusAgentController::class, 'printData'])->name('bonus-agent.print');
 Route::get('/bonus-agent', [BonusAgentController::class, 'index'])->name('bonus-agent.index');
@@ -301,7 +338,7 @@ Route::put('/bonus-agent/payment/{id}', [BonusAgentController::class, 'update'])
 Route::get('/payment-agent/{id}', [BonusAgentController::class, 'showPaymentHistory'])->name('payment-agent.show');
 
 // Pembayaran Umroh Routes
-use App\Http\Controllers\PembayaranUmrohController;
+
 Route::get('/pembayaran-umroh', [PembayaranUmrohController::class, 'index'])->name('pembayaran-umroh.index');
 Route::get('/pembayaran-umroh/detail/{id}', [PembayaranUmrohController::class, 'show'])->name('pembayaran-umroh.show'); // Renamed URL, keep name for now or update? Better update name to .detail to be clear, but user might have used .show. Let's keep .show name OR update references. Plan said rename route. Let's rename URL + Name and update controller return view if needed? No, controller returns view.
 // Wait, I should keep .show name if I don't want to break existing links? But I need to change the URL.
@@ -314,7 +351,7 @@ Route::put('/pembayaran-umroh/{id}', [PembayaranUmrohController::class, 'update'
 Route::get('/pembayaran-umroh/create/{id}', [PembayaranUmrohController::class, 'createPayment'])->name('pembayaran-umroh.create-payment');
 Route::post('/pembayaran-umroh/store/{id}', [PembayaranUmrohController::class, 'storePayment'])->name('pembayaran-umroh.store-payment');
 
-use App\Http\Controllers\PembayaranHajiController;
+
 Route::get('/pembayaran-haji', [PembayaranHajiController::class, 'index'])->name('pembayaran-haji.index');
 Route::get('/pembayaran-haji/{id}', [PembayaranHajiController::class, 'history'])->name('pembayaran-haji.history');
 Route::get('/pembayaran-haji/detail/{id}', [PembayaranHajiController::class, 'show'])->name('pembayaran-haji.detail');
@@ -323,43 +360,43 @@ Route::put('/pembayaran-haji/{id}', [PembayaranHajiController::class, 'update'])
 Route::get('/pembayaran-haji/create/{id}', [PembayaranHajiController::class, 'createPayment'])->name('pembayaran-haji.create-payment');
 Route::post('/pembayaran-haji/store/{id}', [PembayaranHajiController::class, 'storePayment'])->name('pembayaran-haji.store-payment');
 
-use App\Http\Controllers\PengeluaranUmrohController;
+
 Route::resource('pengeluaran-umroh', PengeluaranUmrohController::class);
 
-use App\Http\Controllers\PengeluaranHajiController;
+
 Route::resource('pengeluaran-haji', PengeluaranHajiController::class);
 
-use App\Http\Controllers\PengeluaranUmumController;
+
 Route::resource('pengeluaran-umum', PengeluaranUmumController::class);
 
-use App\Http\Controllers\PemasukanUmumController;
+
 Route::resource('pemasukan-umum', PemasukanUmumController::class);
 
-use App\Http\Controllers\SuratRekomendasiController;
+
 Route::get('surat-rekomendasi/export', [SuratRekomendasiController::class, 'export'])->name('surat-rekomendasi.export');
 Route::get('surat-rekomendasi/print', [SuratRekomendasiController::class, 'printData'])->name('surat-rekomendasi.print');
 Route::get('surat-rekomendasi/{id}/export-pdf', [SuratRekomendasiController::class, 'exportPdf'])->name('surat-rekomendasi.export-pdf');
 Route::resource('surat-rekomendasi', SuratRekomendasiController::class);
 
-use App\Http\Controllers\SuratIzinCutiController;
+
 Route::get('surat-izin-cuti/{id}/export-pdf', [SuratIzinCutiController::class, 'exportPdf'])->name('surat-izin-cuti.export-pdf');
 Route::resource('surat-izin-cuti', SuratIzinCutiController::class);
 
-use App\Http\Controllers\LaporanUmrohController;
+
 Route::get('laporan-umroh', [LaporanUmrohController::class, 'index'])->name('laporan-umroh.index');
 Route::get('laporan-umroh/{id}', [LaporanUmrohController::class, 'show'])->name('laporan-umroh.show');
 
-use App\Http\Controllers\LaporanHajiController;
+
 Route::get('laporan-haji', [LaporanHajiController::class, 'index'])->name('laporan-haji.index');
 Route::get('laporan-haji/{id}', [LaporanHajiController::class, 'show'])->name('laporan-haji.show');
 
-use App\Http\Controllers\PembayaranTiketController;
+
 Route::get('pembayaran-tiket', [PembayaranTiketController::class, 'index'])->name('pembayaran-tiket.index');
 Route::get('pembayaran-tiket/{id}', [PembayaranTiketController::class, 'show'])->name('pembayaran-tiket.show');
 Route::get('pembayaran-tiket/{id}/create-payment', [PembayaranTiketController::class, 'createPayment'])->name('pembayaran-tiket.create-payment');
 Route::post('pembayaran-tiket/{id}/store-payment', [PembayaranTiketController::class, 'storePayment'])->name('pembayaran-tiket.store-payment');
 
-use App\Http\Controllers\PembayaranLayananController;
+
 Route::get('/pembayaran-layanan', [PembayaranLayananController::class, 'index'])->name('pembayaran-layanan.index');
 Route::get('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'show'])->name('pembayaran-layanan.show');
 Route::get('/pembayaran-layanan/{id}/create-payment', [PembayaranLayananController::class, 'createPayment'])->name('pembayaran-layanan.create-payment');
@@ -369,16 +406,14 @@ Route::post('/pembayaran-layanan/{id}/store-payment', [PembayaranLayananControll
 
 
 // dashboard pages
-use App\Http\Controllers\LaporanKeuanganController;
+
 Route::get('laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
 Route::get('laporan-keuangan/export', [LaporanKeuanganController::class, 'export'])->name('laporan-keuangan.export');
 
-use App\Http\Controllers\RugiLabaPenjualanController;
+
 Route::get('rugi-laba-penjualan', [RugiLabaPenjualanController::class, 'index'])->name('rugi-laba-penjualan.index');
 
-Route::get('/', function () {
-    return view('pages.dashboard.ecommerce', ['title' => 'E-commerce Dashboard']);
-})->name('dashboard');
+Route::redirect('/', '/dashboard');
 
 // calender pages
 Route::get('/calendar', function () {
@@ -419,21 +454,11 @@ Route::get('/bar-chart', function () {
 
 
 // authentication pages
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProfileController;
 
-Route::get('/signin', [AuthController::class, 'login'])->name('login');
-Route::post('/signin', [AuthController::class, 'authenticate'])->name('login.authenticate');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/signup', function () {
-    return view('pages.auth.signup', ['title' => 'Sign Up']);
-})->name('signup');
 
-Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-});
 
 // ui elements pages
 Route::get('/alerts', function () {
@@ -481,3 +506,4 @@ Route::get('/videos', function () {
 
 
 
+});
