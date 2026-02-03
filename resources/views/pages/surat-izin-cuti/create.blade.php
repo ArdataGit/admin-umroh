@@ -60,7 +60,7 @@
                      <!-- NIK Instansi -->
                      <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">NIK / Nomor Induk Karyawan</label>
-                        <input type="text" name="nik_instansi" value="{{ old('nik_instansi') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="Optional" />
+                        <input type="text" name="nik_instansi" value="{{ old('nik_instansi') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="Optional" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" />
                         @error('nik_instansi') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 

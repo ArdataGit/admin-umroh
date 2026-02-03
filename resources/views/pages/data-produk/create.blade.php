@@ -9,7 +9,7 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12">
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-            <form action="{{ route('data-produk.store') }}" method="POST">
+            <form action="{{ route('data-produk.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     
@@ -29,30 +29,25 @@
                     <!-- Standar Stok -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Standar Stok</label>
-                        <input type="number" name="standar_stok" value="{{ old('standar_stok') }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        <input type="number" name="standar_stok" value="{{ old('standar_stok', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         @error('standar_stok') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Aktual Stok -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Aktual Stok</label>
-                        <input type="number" name="aktual_stok" value="{{ old('aktual_stok') }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        <input type="number" name="aktual_stok" value="{{ old('aktual_stok', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         @error('aktual_stok') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Satuan Unit -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Satuan Unit</label>
-                        <select name="satuan_unit" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
-                            <option value="">Pilih Satuan Unit</option>
-                            <option value="Pcs" {{ old('satuan_unit') == 'Pcs' ? 'selected' : '' }}>Pcs</option>
-                            <option value="Set" {{ old('satuan_unit') == 'Set' ? 'selected' : '' }}>Set</option>
-                            <option value="Pack" {{ old('satuan_unit') == 'Pack' ? 'selected' : '' }}>Pack</option>
-                            <option value="Dus" {{ old('satuan_unit') == 'Dus' ? 'selected' : '' }}>Dus</option>
-                            <option value="Lot" {{ old('satuan_unit') == 'Lot' ? 'selected' : '' }}>Lot</option>
-                            <option value="Pax" {{ old('satuan_unit') == 'Pax' ? 'selected' : '' }}>Pax</option>
-                            <option value="Room" {{ old('satuan_unit') == 'Room' ? 'selected' : '' }}>Room</option>
-                            <option value="Seat" {{ old('satuan_unit') == 'Seat' ? 'selected' : '' }}>Seat</option>
+                        <select name="satuan_unit" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" required>
+                            <option value="">Pilih Satuan</option>
+                            @foreach(['Pcs', 'Set', 'Pack', 'Dus', 'Lot', 'Pax', 'Room', 'Seat'] as $unit)
+                                <option value="{{ $unit }}" {{ old('satuan_unit') == $unit ? 'selected' : '' }}>{{ $unit }}</option>
+                            @endforeach
                         </select>
                          @error('satuan_unit') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
@@ -60,15 +55,29 @@
                     <!-- Harga Beli -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Beli</label>
-                        <input type="number" name="harga_beli" value="{{ old('harga_beli') }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                         <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">Rp</span>
+                            <input type="number" name="harga_beli" value="{{ old('harga_beli', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        </div>
                         @error('harga_beli') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Harga Jual -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
-                        <input type="number" name="harga_jual" value="{{ old('harga_jual') }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                         <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">Rp</span>
+                            <input type="number" name="harga_jual" value="{{ old('harga_jual', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                        </div>
                         @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
+
+                    <!-- Foto Produk -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Produk</label>
+                        <input type="file" name="foto_produk" accept="image/*" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                        <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG. Max: 2MB.</p>
+                        @error('foto_produk') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Catatan Produk -->

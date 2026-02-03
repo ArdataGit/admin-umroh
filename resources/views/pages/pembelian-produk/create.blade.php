@@ -221,9 +221,9 @@
                         nama_produk: produk.nama_produk,
                         standar_stok: produk.standar_stok, // Display only
                         aktual_stok: produk.aktual_stok,   // Display only
-                        harga_satuan: produk.harga_beli,   // Default to Harga Beli
+                        harga_satuan: parseFloat(produk.harga_beli) || 0,   // Default to Harga Beli
                         quantity: 1,
-                        total_harga: produk.harga_beli
+                        total_harga: parseFloat(produk.harga_beli) || 0
                     });
                 }
                 this.searchQuery = '';
@@ -240,7 +240,7 @@
                 this.calculateGrandTotal();
             },
             calculateGrandTotal() {
-                this.subtotal = this.form.details.reduce((sum, item) => sum + item.total_harga, 0);
+                this.subtotal = this.form.details.reduce((sum, item) => sum + parseFloat(item.total_harga || 0), 0);
                 this.taxAmount = (this.subtotal * this.form.tax_percentage) / 100;
                 this.discountAmount = (this.subtotal * this.form.discount_percentage) / 100;
                 

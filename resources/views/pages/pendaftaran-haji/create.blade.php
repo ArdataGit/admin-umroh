@@ -50,7 +50,7 @@
                             </div>
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Lahir</label>
-                                <input type="text" x-model="form.tanggal_lahir" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" placeholder="YYYY" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required />
+                                <input type="date" x-model="form.tanggal_lahir" max="9999-12-31" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
                             </div>
                         </div>
                          <div>
@@ -66,7 +66,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">No. HP / WA</label>
-                                <input type="text" x-model="form.kontak_jamaah" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                                <input type="text" x-model="form.kontak_jamaah" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
                             </div>
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Email (Opsional)</label>
@@ -121,11 +121,11 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tgl Aktif</label>
-                                <input type="date" x-model="form.tgl_paspor_aktif" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700" />
+                                <input type="date" x-model="form.tgl_paspor_aktif" max="9999-12-31" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700" />
                             </div>
                              <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tgl Expired</label>
-                                <input type="date" x-model="form.tgl_paspor_expired" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700" />
+                                <input type="date" x-model="form.tgl_paspor_expired" max="9999-12-31" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700" />
                             </div>
                         </div>
                         
@@ -133,23 +133,23 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Jamaah</label>
-                                <input type="file" @change="handleFile($event, 'foto_jamaah')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" />
+                                <input type="file" @change="handleFile($event, 'foto_jamaah')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" accept="image/png, image/jpeg, image/jpg" />
                             </div>
                              <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto KTP</label>
-                                <input type="file" @change="handleFile($event, 'foto_ktp')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" />
+                                <input type="file" @change="handleFile($event, 'foto_ktp')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" accept="image/png, image/jpeg, image/jpg" />
                             </div>
                              <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto KK</label>
-                                <input type="file" @change="handleFile($event, 'foto_kk')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" />
+                                <input type="file" @change="handleFile($event, 'foto_kk')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" accept="image/png, image/jpeg, image/jpg" />
                             </div>
                              <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Paspor (Hal 1)</label>
-                                <input type="file" @change="handleFile($event, 'foto_paspor_1')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" />
+                                <input type="file" @change="handleFile($event, 'foto_paspor_1')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" accept="image/png, image/jpeg, image/jpg" />
                             </div>
                             <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Paspor (Hal 2)</label>
-                                <input type="file" @change="handleFile($event, 'foto_paspor_2')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" />
+                                <input type="file" @change="handleFile($event, 'foto_paspor_2')" class="text-sm file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-blue-700 hover:file:bg-blue-100 dark:text-white" accept="image/png, image/jpeg, image/jpg" />
                             </div>
                         </div>
                      </div>

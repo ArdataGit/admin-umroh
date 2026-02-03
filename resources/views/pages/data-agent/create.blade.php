@@ -22,7 +22,7 @@
                     <!-- NIK Agent -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">NIK Agent</label>
-                        <input type="text" name="nik_agent" value="{{ old('nik_agent') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan NIK" required />
+                        <input type="text" name="nik_agent" value="{{ old('nik_agent') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan NIK" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" required />
                         @error('nik_agent') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
@@ -36,7 +36,7 @@
                     <!-- Kontak Agent -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kontak Agent</label>
-                        <input type="text" name="kontak_agent" value="{{ old('kontak_agent') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Kontak" required />
+                        <input type="text" name="kontak_agent" value="{{ old('kontak_agent') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Kontak" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" required />
                         @error('kontak_agent') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
@@ -75,7 +75,7 @@
                     <!-- Tanggal Lahir -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Lahir</label>
-                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                        <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" max="9999-12-31" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
                         @error('tanggal_lahir') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 

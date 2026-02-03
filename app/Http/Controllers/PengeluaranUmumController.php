@@ -59,4 +59,67 @@ class PengeluaranUmumController extends Controller
 
         return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil ditambahkan');
     }
+    public function show($id)
+    {
+        $pengeluaran = PengeluaranUmum::findOrFail($id);
+        return view('pages.pengeluaran-umum.show', [
+            'title' => 'Detail Pengeluaran Umum',
+            'pengeluaran' => $pengeluaran
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $pengeluaran = PengeluaranUmum::findOrFail($id);
+        return view('pages.pengeluaran-umum.edit', [
+            'title' => 'Edit Pengeluaran Umum',
+            'pengeluaran' => $pengeluaran
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pengeluaran = PengeluaranUmum::findOrFail($id);
+
+        $validated = $request->validate([
+            'tanggal_pengeluaran' => 'required|date',
+            'jenis_pengeluaran' => 'required|string',
+            'nama_pengeluaran' => 'required|string',
+            'jumlah_pengeluaran' => 'required|numeric',
+            'catatan_pengeluaran' => 'nullable|string',
+            'bukti_pengeluaran' => 'nullable|image|max:2048'
+        ]);
+
+        $path = $pengeluaran->bukti_pengeluaran;
+        if ($request->hasFile('bukti_pengeluaran')) {
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+            $path = $request->file('bukti_pengeluaran')->store('bukti_pengeluaran', 'public');
+        }
+
+        $pengeluaran->update([
+            'tanggal_pengeluaran' => $validated['tanggal_pengeluaran'],
+            'jenis_pengeluaran' => $validated['jenis_pengeluaran'],
+            'nama_pengeluaran' => $validated['nama_pengeluaran'],
+            'jumlah_pengeluaran' => $validated['jumlah_pengeluaran'],
+            'catatan_pengeluaran' => $validated['catatan_pengeluaran'],
+            'bukti_pengeluaran' => $path
+        ]);
+
+        return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pengeluaran = PengeluaranUmum::findOrFail($id);
+        
+        if ($pengeluaran->bukti_pengeluaran && Storage::disk('public')->exists($pengeluaran->bukti_pengeluaran)) {
+            Storage::disk('public')->delete($pengeluaran->bukti_pengeluaran);
+        }
+
+        $pengeluaran->delete();
+
+        return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil dihapus');
+    }
 }

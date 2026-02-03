@@ -235,9 +235,9 @@
                         nama_tiket: ticket.nama_tiket,
                         kode_tiket: ticket.kode_tiket,
                         stok: ticket.jumlah_tiket,
-                        harga_satuan: ticket.harga_jual,
+                        harga_satuan: parseFloat(ticket.harga_jual) || 0,
                         quantity: 1,
-                        total_harga: ticket.harga_jual
+                        total_harga: parseFloat(ticket.harga_jual) || 0
                     });
                 }
                 this.searchQuery = '';
@@ -258,7 +258,7 @@
                 this.calculateGrandTotal();
             },
             calculateGrandTotal() {
-                this.subtotal = this.form.details.reduce((sum, item) => sum + item.total_harga, 0);
+                this.subtotal = this.form.details.reduce((sum, item) => sum + parseFloat(item.total_harga || 0), 0);
                 this.taxAmount = (this.subtotal * this.form.tax_percentage) / 100;
                 this.discountAmount = (this.subtotal * this.form.discount_percentage) / 100;
                 

@@ -27,7 +27,7 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 NIK Karyawan <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="nik_karyawan" value="{{ old('nik_karyawan') }}" placeholder="Masukkan NIK" required maxlength="16"
+                            <input type="text" name="nik_karyawan" value="{{ old('nik_karyawan') }}" placeholder="Masukkan NIK" required maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric"
                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('nik_karyawan') border-red-500 @enderror" />
                             @error('nik_karyawan')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -51,7 +51,7 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Kontak Karyawan <span class="text-red-500">*</span>
                             </label>
-                            <input type="tel" name="kontak_karyawan" value="{{ old('kontak_karyawan') }}" placeholder="08xxxxxxxxxx" required
+                            <input type="tel" name="kontak_karyawan" value="{{ old('kontak_karyawan') }}" placeholder="08xxxxxxxxxx" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric"
                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('kontak_karyawan') border-red-500 @enderror" />
                              @error('kontak_karyawan')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -126,7 +126,7 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Tanggal Lahir <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required
+                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required max="9999-12-31"
                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('tanggal_lahir') border-red-500 @enderror" />
                              @error('tanggal_lahir')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -153,7 +153,7 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Foto Karyawan
                             </label>
-                            <input type="file" name="foto_karyawan" accept="image/*"
+                            <input type="file" name="foto_karyawan" accept="image/png, image/jpeg, image/jpg, image/gif"
                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('foto_karyawan') border-red-500 @enderror" />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: JPG, PNG, GIF. Maks: 2MB</p>
                              @error('foto_karyawan')

@@ -74,4 +74,45 @@ class PembayaranLayananController extends Controller
 
         return redirect()->route('pembayaran-layanan.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
     }
+
+    public function edit($id)
+    {
+        $pembayaran = PembayaranLayanan::with('transaksiLayanan.pelanggan')->findOrFail($id);
+        
+        return view('pages.pembayaran-layanan.edit', [
+            'title' => 'Edit Pembayaran',
+            'pembayaran' => $pembayaran
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pembayaran = PembayaranLayanan::findOrFail($id);
+
+        $validated = $request->validate([
+            'jumlah_pembayaran' => 'required|numeric|min:1',
+            'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
+            'tanggal_pembayaran' => 'required|date',
+            'catatan' => 'nullable|string',
+            'kode_referensi' => 'nullable|string',
+        ]);
+
+        $pembayaran->update([
+            'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
+            'jumlah_pembayaran' => $validated['jumlah_pembayaran'],
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'catatan' => $validated['catatan'],
+            'kode_referensi' => $validated['kode_referensi']
+        ]);
+
+        return redirect()->route('pembayaran-layanan.index')->with('success', 'Pembayaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pembayaran = PembayaranLayanan::findOrFail($id);
+        $pembayaran->delete();
+
+        return redirect()->route('pembayaran-layanan.index')->with('success', 'Pembayaran berhasil dihapus');
+    }
 }

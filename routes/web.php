@@ -401,6 +401,9 @@ Route::get('/pembayaran-layanan', [PembayaranLayananController::class, 'index'])
 Route::get('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'show'])->name('pembayaran-layanan.show');
 Route::get('/pembayaran-layanan/{id}/create-payment', [PembayaranLayananController::class, 'createPayment'])->name('pembayaran-layanan.create-payment');
 Route::post('/pembayaran-layanan/{id}/store-payment', [PembayaranLayananController::class, 'storePayment'])->name('pembayaran-layanan.store-payment');
+    Route::get('/pembayaran-layanan/{id}/edit', [PembayaranLayananController::class, 'edit'])->name('pembayaran-layanan.edit');
+    Route::put('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'update'])->name('pembayaran-layanan.update');
+    Route::delete('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'destroy'])->name('pembayaran-layanan.destroy');
 
 
 

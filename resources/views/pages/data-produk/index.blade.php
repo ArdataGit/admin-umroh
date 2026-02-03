@@ -205,11 +205,16 @@
                         <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
                             <td class="px-4 py-4">
-                                <div class="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
+                                <template x-if="produk.foto_produk">
+                                    <img :src="'/storage/' + produk.foto_produk" alt="Product Image" class="h-12 w-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700">
+                                </template>
+                                <template x-if="!produk.foto_produk">
+                                    <div class="h-12 w-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                </template>
                             </td>
                             <td class="px-4 py-4 text-sm font-medium text-gray-800 dark:text-white" x-text="produk.kode_produk"></td>
                             <td class="px-4 py-4 text-sm text-gray-800 dark:text-gray-300" x-text="produk.nama_produk"></td>
@@ -221,23 +226,15 @@
                                 <span :class="produk.aktual_stok < produk.standar_stok ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'" class="px-2 py-1 rounded text-xs font-semibold uppercase" x-text="produk.aktual_stok < produk.standar_stok ? 'Low Stock' : 'Safe'"></span>
                             </td>
                             <td class="px-4 py-4 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <a :href="`/data-produk/${produk.id}`" title="View" class="inline-flex items-center justify-center rounded-lg bg-green-500 p-2 text-white hover:bg-green-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" fill="currentColor"/>
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M0.458008 10C1.73201 5.943 5.52201 3 10.002 3C14.482 3 18.272 5.943 19.546 10C18.272 14.057 14.482 17 10.002 17C5.52201 17 1.73201 14.057 0.458008 10ZM14 10C14 12.2091 12.2091 14 10 14C7.79086 14 6 12.2091 6 10C6 7.79086 7.79086 6 10 6C12.2091 6 14 7.79086 14 10Z" fill="currentColor"/>
-                                        </svg>
+                                <div class="flex items-center justify-center gap-2">
+                                    <a :href="`/data-produk/${produk.id}`" class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
-                                    <a :href="`/data-produk/${produk.id}/edit`" title="Edit" class="inline-flex items-center justify-center rounded-lg bg-blue-500 p-2 text-white hover:bg-blue-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z" fill="currentColor"/>
-                                            <path d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z" fill="currentColor"/>
-                                        </svg>
+                                    <a :href="`/data-produk/${produk.id}/edit`" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </a>
-                                    <button @click="openDeleteModal(produk.id, produk.nama_produk)" title="Delete" class="inline-flex items-center justify-center rounded-lg bg-red-500 p-2 text-white hover:bg-red-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 2C8.62123 2 8.27497 2.214 8.10557 2.55279L7.38197 4H4C3.44772 4 3 4.44772 3 5C3 5.55228 3.44772 6 4 6V16C4 17.1046 4.89543 18 6 18H14C15.1046 18 16 17.1046 16 16V6C16.5523 6 17 5.55228 17 5C17 4.44772 16.5523 4 16 4H12.618L11.8944 2.55279C11.725 2.214 11.3788 2 11 2H9ZM7 8C7 7.44772 7.44772 7 8 7C8.55228 7 9 7.44772 9 8V14C9 14.5523 8.55228 15 8 15C7.44772 15 7 14.5523 7 14V8ZM12 7C11.4477 7 11 7.44772 11 8V14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14V8C13 7.44772 12.5523 7 12 7Z" fill="currentColor"/>
-                                        </svg>
+                                    <button @click="openDeleteModal(produk.id, produk.nama_produk)" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </div>
                             </td>

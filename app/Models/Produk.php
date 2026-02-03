@@ -14,7 +14,8 @@ class Produk extends Model
         'satuan_unit',
         'harga_beli',
         'harga_jual',
-        'catatan_produk'
+        'catatan_produk',
+        'foto_produk'
     ];
 
     public function stockOpnames()

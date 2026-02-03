@@ -23,7 +23,7 @@
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Keberangkatan</label>
-                    <input type="date" name="tanggal_keberangkatan" value="{{ old('tanggal_keberangkatan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="date" name="tanggal_keberangkatan" value="{{ old('tanggal_keberangkatan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required max="9999-12-31" />
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Jumlah Hari</label>

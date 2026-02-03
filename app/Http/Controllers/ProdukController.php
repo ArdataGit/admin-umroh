@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ProdukService;
+use Illuminate\Support\Facades\Storage;
 
 class ProdukController extends Controller
 {
@@ -45,7 +46,24 @@ class ProdukController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'catatan_produk' => 'nullable|string',
+            'foto_produk' => 'nullable|image|max:2048',
         ]);
+
+        \Illuminate\Support\Facades\Log::info('Store Produk Request', [
+            'has_file' => $request->hasFile('foto_produk'),
+            'file_valid' => $request->hasFile('foto_produk') ? $request->file('foto_produk')->isValid() : false,
+            'all_files' => $request->allFiles(),
+            'validated_data' => $validated
+        ]);
+
+        $path = null;
+        if ($request->hasFile('foto_produk')) {
+            $path = $request->file('foto_produk')->store('produk', 'public');
+            $validated['foto_produk'] = $path;
+            \Illuminate\Support\Facades\Log::info('File stored at: ' . $path);
+        } else {
+             \Illuminate\Support\Facades\Log::info('No file detected in request');
+        }
 
         $this->produkService->create($validated);
 
@@ -76,12 +94,21 @@ class ProdukController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'catatan_produk' => 'nullable|string',
+            'foto_produk' => 'nullable|image|max:2048',
         ]);
 
-        $produk = $this->produkService->update($id, $validated);
-
-        if (!$produk) {
-            return redirect()->route('data-produk')->with('error', 'Data produk tidak ditemukan');
+        $produk = $this->produkService->getById($id);
+        
+        if ($produk) {
+            if ($request->hasFile('foto_produk')) {
+                if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+                    Storage::disk('public')->delete($produk->foto_produk);
+                }
+                $validated['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
+            }
+            $this->produkService->update($id, $validated);
+        } else {
+             return redirect()->route('data-produk')->with('error', 'Data produk tidak ditemukan');
         }
 
         return redirect()->route('data-produk')->with('success', 'Data produk berhasil diperbarui');
@@ -89,11 +116,17 @@ class ProdukController extends Controller
 
     public function destroy($id)
     {
-        $deleted = $this->produkService->delete($id);
+        $produk = $this->produkService->getById($id);
 
-        if (!$deleted) {
+        if (!$produk) {
             return response()->json(['success' => false, 'message' => 'Data produk tidak ditemukan'], 404);
         }
+
+        if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+            Storage::disk('public')->delete($produk->foto_produk);
+        }
+
+        $this->produkService->delete($id);
 
         return response()->json(['success' => true, 'message' => 'Data produk berhasil dihapus']);
     }
