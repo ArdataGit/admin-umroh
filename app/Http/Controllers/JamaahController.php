@@ -161,4 +161,70 @@ class JamaahController extends Controller
             'title' => 'Laporan Data Jamaah'
         ]);
     }
+
+    public function exportData()
+    {
+        $jamaahs = $this->jamaahService->getAll();
+
+        // Set headers for Excel file
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="data-jamaah-' . date('Y-m-d') . '.xls"');
+        header('Cache-Control: max-age=0');
+
+        // Start output buffering
+        ob_start();
+        ?>
+        <table border="1">
+            <thead>
+                <tr style="background-color: #4F46E5; color: white; font-weight: bold;">
+                    <th>No</th>
+                    <th>Kode Jamaah</th>
+                    <th>NIK</th>
+                    <th>Nama Jamaah</th>
+                    <th>Jenis Kelamin</th>
+                    <th>Tempat Lahir</th>
+                    <th>Tanggal Lahir</th>
+                    <th>Kontak</th>
+                    <th>Email</th>
+                    <th>Alamat</th>
+                    <th>Kecamatan</th>
+                    <th>Kabupaten/Kota</th>
+                    <th>Provinsi</th>
+                    <th>Nomor Paspor</th>
+                    <th>Nama Paspor</th>
+                    <th>Kantor Imigrasi</th>
+                    <th>Tgl Paspor Aktif</th>
+                    <th>Tgl Paspor Expired</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $no = 1; ?>
+                <?php foreach ($jamaahs as $jamaah): ?>
+                <tr>
+                    <td><?= $no++ ?></td>
+                    <td><?= $jamaah->kode_jamaah ?></td>
+                    <td><?= $jamaah->nik_jamaah ?></td>
+                    <td><?= $jamaah->nama_jamaah ?></td>
+                    <td><?= $jamaah->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' ?></td>
+                    <td><?= $jamaah->tempat_lahir ?></td>
+                    <td><?= date('d/m/Y', strtotime($jamaah->tanggal_lahir)) ?></td>
+                    <td><?= $jamaah->kontak_jamaah ?></td>
+                    <td><?= $jamaah->email_jamaah ?? '-' ?></td>
+                    <td><?= $jamaah->alamat_jamaah ?></td>
+                    <td><?= $jamaah->kecamatan ?></td>
+                    <td><?= $jamaah->kabupaten_kota ?></td>
+                    <td><?= $jamaah->provinsi ?></td>
+                    <td><?= $jamaah->nomor_paspor ?? '-' ?></td>
+                    <td><?= $jamaah->nama_paspor ?? '-' ?></td>
+                    <td><?= $jamaah->kantor_imigrasi ?? '-' ?></td>
+                    <td><?= $jamaah->tgl_paspor_aktif ? date('d/m/Y', strtotime($jamaah->tgl_paspor_aktif)) : '-' ?></td>
+                    <td><?= $jamaah->tgl_paspor_expired ? date('d/m/Y', strtotime($jamaah->tgl_paspor_expired)) : '-' ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
+        echo ob_get_clean();
+        exit;
+    }
 }

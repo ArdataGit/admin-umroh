@@ -10,12 +10,45 @@ use Illuminate\Support\Collection;
 
 class RugiLabaPenjualanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $period = $request->input('period', 'today'); // Default to today
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Determine Date Range
+        $now = \Carbon\Carbon::now();
+        if ($period == 'today') {
+            $startDate = $now->format('Y-m-d');
+            $endDate = $now->format('Y-m-d');
+            $periodLabel = $now->format('d-m-Y');
+        } elseif ($period == 'month') {
+            $startDate = $now->startOfMonth()->format('Y-m-d');
+            $endDate = $now->endOfMonth()->format('Y-m-d');
+            $periodLabel = $now->translatedFormat('F Y');
+        } elseif ($period == 'year') {
+            $startDate = $now->startOfYear()->format('Y-m-d');
+            $endDate = $now->endOfYear()->format('Y-m-d');
+            $periodLabel = $now->format('Y');
+        } elseif ($period == 'custom') {
+            // Use provided start_date and end_date
+            if (!$startDate) $startDate = $now->format('Y-m-d');
+            if (!$endDate) $endDate = $now->format('Y-m-d');
+            $periodLabel = \Carbon\Carbon::parse($startDate)->format('d-m-Y') . ' / ' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+        } else {
+             // Fallback
+             $startDate = $now->format('Y-m-d');
+             $endDate = $now->format('Y-m-d');
+             $periodLabel = $now->format('d-m-Y');
+        }
+
         $reportData = new Collection();
 
         // 1. Transactions Tiket
-        $tiketDetails = TransaksiTiketDetail::with(['transaksiTiket', 'ticket'])->get();
+        $tiketDetails = TransaksiTiketDetail::whereHas('transaksiTiket', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+        })->with(['transaksiTiket', 'ticket'])->get();
+
         foreach ($tiketDetails as $detail) {
             if (!$detail->transaksiTiket) continue;
 
@@ -39,7 +72,10 @@ class RugiLabaPenjualanController extends Controller
         }
 
         // 2. Transactions Layanan
-        $layananDetails = TransaksiLayananDetail::with(['transaksiLayanan', 'layanan'])->get();
+        $layananDetails = TransaksiLayananDetail::whereHas('transaksiLayanan', function($q) use ($startDate, $endDate) {
+             $q->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+        })->with(['transaksiLayanan', 'layanan'])->get();
+
         foreach ($layananDetails as $detail) {
             if (!$detail->transaksiLayanan) continue;
 
@@ -63,8 +99,10 @@ class RugiLabaPenjualanController extends Controller
         }
 
         // 3. Transactions Produk (PengeluaranProduk)
-        // Assuming PengeluaranProduk is Sales
-        $produkDetails = PengeluaranProdukDetail::with(['pengeluaran', 'produk'])->get();
+        $produkDetails = PengeluaranProdukDetail::whereHas('pengeluaran', function($q) use ($startDate, $endDate) {
+             $q->whereBetween('tanggal_pengeluaran', [$startDate, $endDate]);
+        })->with(['pengeluaran', 'produk'])->get();
+
         foreach ($produkDetails as $detail) {
             if (!$detail->pengeluaran) continue;
 
@@ -100,7 +138,11 @@ class RugiLabaPenjualanController extends Controller
             'reportData' => $sortedData,
             'totalRevenue' => $totalRevenue,
             'totalCOGS' => $totalCOGS,
-            'totalProfit' => $totalProfit
+            'totalProfit' => $totalProfit,
+            'currentPeriod' => $period,
+            'periodLabel' => $periodLabel,
+            'startDate' => $startDate,
+            'endDate' => $endDate
         ]);
     }
 }

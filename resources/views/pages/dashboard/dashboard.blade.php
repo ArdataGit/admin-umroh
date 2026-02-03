@@ -193,17 +193,7 @@
       <h3 class="text-lg font-semibold text-gray-700 dark:text-white/80 mb-4">Tabel : Data Paket Keberangkatan Umroh</h3>
     </div>
 
-    <div class="col-span-12" x-data="{
-      departures: @json($keberangkatanUmroh),
-      getStatusClass(status) {
-        const classes = {
-          'Aktif': 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
-          'Penuh': 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
-          'Menunggu': 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500'
-        };
-        return classes[status] || 'bg-gray-50 text-gray-600';
-      }
-    }">
+    <div class="col-span-12">
       <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="max-w-full overflow-x-auto custom-scrollbar">
             <table class="w-full min-w-[1400px]">
@@ -245,43 +235,55 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="(departure, index) in departures" :key="departure.id">
+                    @forelse($keberangkatanUmroh as $index => $departure)
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="index + 1"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $index + 1 }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="departure.code"></p>
+                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">{{ $departure['code'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-800 text-theme-sm dark:text-white/90" x-text="departure.name"></p>
+                                <p class="text-gray-800 text-theme-sm dark:text-white/90">{{ $departure['name'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.date"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['date'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.location"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['location'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.airline"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['airline'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.duration + ' hari'"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['duration'] }} hari</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.quota"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['quota'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.filled"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['filled'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-theme-sm" :class="departure.remaining === 0 ? 'text-error-600 dark:text-error-500' : 'text-gray-500 dark:text-gray-400'" x-text="departure.remaining"></p>
+                                <p class="font-medium text-theme-sm {{ $departure['remaining'] === 0 ? 'text-error-600 dark:text-error-500' : 'text-gray-500 dark:text-gray-400' }}">{{ $departure['remaining'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium" :class="getStatusClass(departure.status)" x-text="departure.status"></span>
+                                @php
+                                    $statusClass = match($departure['status']) {
+                                        'Aktif' => 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
+                                        'Penuh' => 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
+                                        'Menunggu' => 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500',
+                                        default => 'bg-gray-50 text-gray-600'
+                                    };
+                                @endphp
+                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium {{ $statusClass }}">{{ $departure['status'] }}</span>
                             </td>
                         </tr>
-                    </template>
+                    @empty
+                        <tr>
+                            <td colspan="11" class="px-4 py-4 text-center text-gray-500 dark:text-gray-400">Tidak ada data keberangkatan umroh mendatang.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -294,17 +296,7 @@
       <h3 class="text-lg font-semibold text-gray-700 dark:text-white/80 mb-4">Tabel : Data Paket Keberangkatan Haji</h3>
     </div>
 
-    <div class="col-span-12" x-data="{
-      departures: @json($keberangkatanHaji),
-      getStatusClass(status) {
-        const classes = {
-          'Aktif': 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
-          'Penuh': 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
-          'Menunggu': 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500'
-        };
-        return classes[status] || 'bg-gray-50 text-gray-600';
-      }
-    }">
+    <div class="col-span-12">
       <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="max-w-full overflow-x-auto custom-scrollbar">
             <table class="w-full min-w-[1400px]">
@@ -346,43 +338,55 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="(departure, index) in departures" :key="departure.id">
+                    @forelse($keberangkatanHaji as $index => $departure)
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="index + 1"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $index + 1 }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="departure.code"></p>
+                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">{{ $departure['code'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-800 text-theme-sm dark:text-white/90" x-text="departure.name"></p>
+                                <p class="text-gray-800 text-theme-sm dark:text-white/90">{{ $departure['name'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.date"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['date'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.location"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['location'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.airline"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['airline'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.duration + ' hari'"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['duration'] }} hari</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.quota"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['quota'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="departure.filled"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $departure['filled'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-theme-sm" :class="departure.remaining === 0 ? 'text-error-600 dark:text-error-500' : 'text-gray-500 dark:text-gray-400'" x-text="departure.remaining"></p>
+                                <p class="font-medium text-theme-sm {{ $departure['remaining'] === 0 ? 'text-error-600 dark:text-error-500' : 'text-gray-500 dark:text-gray-400' }}">{{ $departure['remaining'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium" :class="getStatusClass(departure.status)" x-text="departure.status"></span>
+                                @php
+                                    $statusClass = match($departure['status']) {
+                                        'Aktif' => 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
+                                        'Penuh' => 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
+                                        'Menunggu' => 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500',
+                                        default => 'bg-gray-50 text-gray-600'
+                                    };
+                                @endphp
+                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium {{ $statusClass }}">{{ $departure['status'] }}</span>
                             </td>
                         </tr>
-                    </template>
+                    @empty
+                        <tr>
+                            <td colspan="11" class="px-4 py-4 text-center text-gray-500 dark:text-gray-400">Tidak ada data keberangkatan haji mendatang.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -399,20 +403,7 @@
       <h3 class="text-lg font-semibold text-gray-700 dark:text-white/80 mb-4">Tabel : Data Paket Perlengkapan Sudah Habis</h3>
     </div>
 
-    <div class="col-span-12" x-data="{
-      products: @json($lowStockProducts),
-      getStockStatusClass(status) {
-        const classes = {
-          'Habis': 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
-          'Menipis': 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500',
-          'Aman': 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
-        };
-        return classes[status] || 'bg-gray-50 text-gray-600';
-      },
-      formatCurrency(amount) {
-        return 'Rp ' + amount.toLocaleString('id-ID');
-      }
-    }">
+    <div class="col-span-12">
       <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="max-w-full overflow-x-auto custom-scrollbar">
             <table class="w-full min-w-[1000px]">
@@ -442,31 +433,43 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <template x-for="(product, index) in products" :key="product.id">
+                    @forelse($lowStockProducts as $index => $product)
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="index + 1"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $index + 1 }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="product.code"></p>
+                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">{{ $product['code'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-800 text-theme-sm dark:text-white/90" x-text="product.name"></p>
+                                <p class="text-gray-800 text-theme-sm dark:text-white/90">{{ $product['name'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatCurrency(product.purchasePrice)"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">Rp {{ number_format($product['purchasePrice'], 0, ',', '.') }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="product.standardStock"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $product['standardStock'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-error-600 dark:text-error-500 text-theme-sm" x-text="product.actualStock"></p>
+                                <p class="font-medium text-error-600 dark:text-error-500 text-theme-sm">{{ $product['actualStock'] }}</p>
                             </td>
                             <td class="px-4 py-4">
-                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium" :class="getStockStatusClass(product.status)" x-text="product.status"></span>
+                                @php
+                                    $stockClass = match($product['status']) {
+                                        'Habis' => 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500',
+                                        'Menipis' => 'bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-warning-500',
+                                        'Aman' => 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500',
+                                        default => 'bg-gray-50 text-gray-600'
+                                    };
+                                @endphp
+                                <span class="text-theme-xs inline-block rounded-full px-3 py-1 font-medium {{ $stockClass }}">{{ $product['status'] }}</span>
                             </td>
                         </tr>
-                    </template>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-4 text-center text-gray-500 dark:text-gray-400">Tidak ada data produk dengan stok menipis.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

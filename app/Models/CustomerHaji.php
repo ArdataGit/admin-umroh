@@ -40,4 +40,9 @@ class CustomerHaji extends Model
     {
         return $this->belongsTo(Agent::class);
     }
+
+    public function pembayaranHaji()
+    {
+        return $this->hasMany(PembayaranHaji::class);
+    }
 }

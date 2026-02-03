@@ -67,6 +67,13 @@
                     <h3 class="font-semibold text-gray-800 dark:text-white">Rincian Transaksi</h3>
                 </div>
                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <a href="{{ route('laporan-keuangan.export') }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-green-700">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.5 7.5L8 12M8 7.5L12.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15.8333 3.33334H4.16667C3.70643 3.33334 3.33333 3.70644 3.33333 4.16667V15.8333C3.33333 16.2936 3.70643 16.6667 4.16667 16.6667H15.8333C16.2936 16.6667 16.6667 16.2936 16.6667 15.8333V4.16667C16.6667 3.70644 16.2936 3.33334 15.8333 3.33334Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Export Excel
+                    </a>
                     <div class="relative">
                         <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari Transaksi..." class="h-[40px] w-full rounded-lg border border-gray-300 bg-transparent px-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white xl:w-[250px]"/>
                     </div>

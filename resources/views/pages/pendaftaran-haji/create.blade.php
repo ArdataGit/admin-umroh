@@ -5,7 +5,7 @@
     ['label' => 'Unified Registration', 'url' => '#']
 ]" />
 
-<div class="col-span-12" x-data="pendaftaranForm()">
+<div class="col-span-12" x-data="pendaftaranHajiForm()">
     <form @submit.prevent="submitForm" enctype="multipart/form-data">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
@@ -159,12 +159,12 @@
             <!-- SECTION 2: DATA MANIFEST / KEBERANGKATAN -->
             <div class="space-y-6">
                 <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 sticky top-6">
-                     <h3 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white border-b pb-2">3. Data Keberangkatan Haji</h3>
+                     <h3 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white border-b pb-2">3. Data Keberangkatan (Manifest)</h3>
                      
                      <div class="space-y-4">
                         <!-- Paket Selection -->
                         <div>
-                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pilih Jadwal Haji</label>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pilih Jadwal Keberangkatan</label>
                             <select x-model="form.keberangkatan_haji_id" @change="onPaketChange" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
                                 <option value="">-- Pilih Jadwal --</option>
                                 @foreach($keberangkatans as $k)
@@ -261,7 +261,7 @@
                         </div>
 
                         <button type="submit" class="w-full rounded-lg bg-blue-600 px-6 py-3 text-white font-medium hover:bg-blue-700 transition">
-                            Simpan Data & Daftar Haji
+                            Simpan Data & Daftar Manifest
                         </button>
                      </div>
                 </div>
@@ -272,7 +272,7 @@
 </div>
 
 <script>
-    function pendaftaranForm() {
+    function pendaftaranHajiForm() {
         return {
             form: {
                 kode_jamaah: '{{ $kodeJamaah }}',
@@ -300,7 +300,7 @@
 
                 // Files (Handled separately)
                 
-                // Manifest Haji
+                // Manifest
                 keberangkatan_haji_id: '',
                 tipe_kamar: '',
                 jumlah_jamaah: 1,

@@ -11,9 +11,14 @@ class BonusPayout extends Model
 
     protected $fillable = [
         'agent_id',
+        'kode_transaksi',
         'jumlah_bayar',
+        'metode_pembayaran',
+        'kode_referensi_mutasi',
         'tanggal_bayar',
-        'catatan'
+        'bukti_pembayaran',
+        'catatan',
+        'status_pembayaran'
     ];
 
     public function agent()

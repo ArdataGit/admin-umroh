@@ -66,12 +66,16 @@
                     <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th class="px-6 py-3">No</th>
-                            <th class="px-6 py-3">Tanggal</th>
+                            <th class="px-6 py-3">Tanggal Transaksi</th>
                             <th class="px-6 py-3">Kode Transaksi</th>
-                            <th class="px-6 py-3">Pelanggan</th>
-                            <th class="px-6 py-3 text-center">Qty</th>
-                            <th class="px-6 py-3">Total</th>
-                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Nama Pelanggan</th>
+                            <th class="px-6 py-3 text-center">Jumlah Tiket</th>
+                            <th class="px-6 py-3">Total Harga</th>
+                            <th class="px-6 py-3">Total Bayar</th>
+                            <th class="px-6 py-3">Sisa Bayar</th>
+                            <th class="px-6 py-3">Metode Pembayaran</th>
+                            <th class="px-6 py-3">Status Transaksi</th>
+                            <th class="px-6 py-3">Status Pembayaran</th>
                             <th class="px-6 py-3 text-center">Action</th>
                         </tr>
                     </thead>
@@ -84,6 +88,13 @@
                                 <td class="px-6 py-4" x-text="item.pelanggan?.nama_pelanggan"></td>
                                 <td class="px-6 py-4 text-center" x-text="item.details?.reduce((acc, curr) => acc + curr.quantity, 0) || 0"></td>
                                 <td class="px-6 py-4 font-bold" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.total_transaksi)"></td>
+                                <td class="px-6 py-4 text-green-600 font-medium" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.pembayaran_tikets?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0)"></td>
+                                <td class="px-6 py-4 text-red-600 font-medium" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.total_transaksi - (item.pembayaran_tikets?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0))"></td>
+                                <td class="px-6 py-4">
+                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                         <span x-text="item.pembayaran_tikets?.length > 0 ? [...new Set(item.pembayaran_tikets.map(p => p.metode_pembayaran))].join(', ') : '-'"></span>
+                                     </span>
+                                </td>
                                 <td class="px-6 py-4">
                                      <span :class="{
                                         'bg-blue-100 text-blue-800': item.status_transaksi === 'process',
@@ -91,12 +102,18 @@
                                         'bg-green-100 text-green-800': item.status_transaksi === 'completed'
                                      }" class="px-2 py-1 rounded text-xs font-semibold uppercase" x-text="item.status_transaksi"></span>
                                 </td>
+                                <td class="px-6 py-4">
+                                    <span :class="{
+                                        'bg-green-100 text-green-800': (item.total_transaksi - (item.pembayaran_tikets?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0)) <= 0,
+                                        'bg-yellow-100 text-yellow-800': (item.total_transaksi - (item.pembayaran_tikets?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0)) > 0
+                                     }" class="px-2 py-1 rounded text-xs font-semibold uppercase" x-text="(item.total_transaksi - (item.pembayaran_tikets?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0)) <= 0 ? 'LUNAS' : 'BELUM LUNAS'"></span>
+                                </td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
                                         <a :href="`/transaksi-tiket/${item.id}`" class="text-gray-500 hover:text-gray-700" title="Lihat">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                               <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                              <path stroke-linecap="round" stroke-linejoin="round" d="M11 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
                                             </svg>
                                         </a>
                                         <a :href="`/transaksi-tiket/${item.id}/edit`" class="text-blue-500 hover:text-blue-700" title="Edit">

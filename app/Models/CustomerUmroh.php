@@ -40,4 +40,9 @@ class CustomerUmroh extends Model
     {
         return $this->belongsTo(Agent::class);
     }
+
+    public function pembayaranUmroh()
+    {
+        return $this->hasMany(PembayaranUmroh::class);
+    }
 }

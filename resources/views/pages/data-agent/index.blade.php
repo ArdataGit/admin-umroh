@@ -44,7 +44,7 @@
           const query = this.searchQuery.toLowerCase();
           return agent.kode_agent.toLowerCase().includes(query) ||
                  agent.nama_agent.toLowerCase().includes(query) ||
-                 agent.email_agent.toLowerCase().includes(query);
+                 (agent.nik_agent && agent.nik_agent.toLowerCase().includes(query));
         });
       },
       get sortedAgents() {
@@ -111,6 +111,17 @@
       goToPage(page) {
         if (page !== "...") this.currentPage = page;
       },
+      calculateAge(dateString) {
+        if (!dateString) return "-";
+        const today = new Date();
+        const birthDate = new Date(dateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age + " Tahun";
+      },
       openDeleteModal(id, name) {
         this.deleteTarget = { id, name };
         this.showDeleteModal = true;
@@ -157,6 +168,14 @@
                     <label class="text-sm text-gray-600 dark:text-gray-400">entries</label>
                 </div>
 
+                <a href="{{ route('data-agent.export') }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-green-700">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.5 7.5L8 12M8 7.5L12.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M15.8333 3.33334H4.16667C3.70643 3.33334 3.33333 3.70644 3.33333 4.16667V15.8333C3.33333 16.2936 3.70643 16.6667 4.16667 16.6667H15.8333C16.2936 16.6667 16.6667 16.2936 16.6667 15.8333V4.16667C16.6667 3.70644 16.2936 3.33334 15.8333 3.33334Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Export Excel
+                </a>
+                
                 <a href="{{ route('data-agent.print') }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-gray-600">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                          <path d="M17 17H19C20.1046 17 21 16.1046 21 15V11C21 9.89543 20.1046 9 19 9H5C3.89543 9 3 9.89543 3 11V15C3 16.1046 3.89543 17 5 17H7M17 17V13H7V17M17 17H7M15 9V3H9V9H15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -186,7 +205,7 @@
         </div>
       <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="max-w-full overflow-x-auto custom-scrollbar">
-            <table class="w-full min-w-[1200px]">
+            <table class="w-full min-w-[2000px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
                         <th class="px-4 py-3 text-left">
@@ -200,6 +219,14 @@
                                 </svg>
                             </div>
                         </th>
+                         <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800" @click="sortBy('nik_agent')">
+                            <div class="flex items-center gap-1">
+                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">NIK Agent</p>
+                                <svg class="w-4 h-4" :class="sortField === 'nik_agent' && sortDirection === 'asc' ? 'text-blue-500' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                                </svg>
+                            </div>
+                        </th>
                         <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800" @click="sortBy('nama_agent')">
                             <div class="flex items-center gap-1">
                                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Nama Agent</p>
@@ -208,27 +235,28 @@
                                 </svg>
                             </div>
                         </th>
-                        <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800" @click="sortBy('kontak_agent')">
-                            <div class="flex items-center gap-1">
-                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kontak</p>
-                                <svg class="w-4 h-4" :class="sortField === 'kontak_agent' && sortDirection === 'asc' ? 'text-blue-500' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                                </svg>
-                            </div>
+                        <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kontak Agent</p>
+                        </th>
+                         <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Jenis Kelamin</p>
+                        </th>
+                         <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Tanggal Lahir</p>
+                        </th>
+                         <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Umur</p>
+                        </th>
+                        <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kota / Kabupaten</p>
                         </th>
                          <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-5 dark:hover:bg-gray-800" @click="sortBy('status_agent')">
                             <div class="flex items-center gap-1">
-                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status</p>
+                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status Agent</p>
                                 <svg class="w-4 h-4" :class="sortField === 'status_agent' && sortDirection === 'asc' ? 'text-blue-500' : 'text-gray-400'" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                                 </svg>
                             </div>
-                        </th>
-                        <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Komisi Umrah</p>
-                        </th>
-                         <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Komisi Haji</p>
                         </th>
                         <th class="px-4 py-3 text-center">
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Action</p>
@@ -244,11 +272,26 @@
                             <td class="px-4 py-4">
                                 <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="agent.kode_agent"></p>
                             </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-800 text-theme-sm dark:text-white/90" x-text="agent.nik_agent || '-'"></p>
+                            </td>
                             <td class="px-4 py-4">
                                 <p class="text-gray-800 text-theme-sm dark:text-gray-400" x-text="agent.nama_agent"></p>
                             </td>
                              <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="agent.kontak_agent"></p>
+                            </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="agent.jenis_kelamin || '-'"></p>
+                            </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="agent.tanggal_lahir ? new Date(agent.tanggal_lahir).toLocaleDateString('id-ID') : '-'"></p>
+                            </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="calculateAge(agent.tanggal_lahir)"></p>
+                            </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="agent.kabupaten_kota || '-'"></p>
                             </td>
                             <td class="px-4 py-4">
                                 <span :class="agent.status_agent === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'" class="inline-flex rounded-full px-2 py-1 text-xs font-medium">
@@ -256,28 +299,21 @@
                                 </span>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(agent.komisi_paket_umroh)"></p>
-                            </td>
-                            <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(agent.komisi_paket_haji)"></p>
-                            </td>
-                            <td class="px-4 py-4">
-                                <div class="flex justify-center gap-2">
-                                    <a :href="`/data-agent/${agent.id}`" title="View" class="inline-flex items-center justify-center rounded-lg bg-green-500 p-2 text-white hover:bg-green-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10 12C11.1046 12 12 11.1046 12 10C12 8.89543 11.1046 8 10 8C8.89543 8 8 8.89543 8 10C8 11.1046 8.89543 12 10 12Z" fill="currentColor"/>
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M0.458008 10C1.73201 5.943 5.52201 3 10.002 3C14.482 3 18.272 5.943 19.546 10C18.272 14.057 14.482 17 10.002 17C5.52201 17 1.73201 14.057 0.458008 10ZM14 10C14 12.2091 12.2091 14 10 14C7.79086 14 6 12.2091 6 10C6 7.79086 7.79086 6 10 6C12.2091 6 14 7.79086 14 10Z" fill="currentColor"/>
+                                <div class="flex items-center justify-center gap-2">
+                                    <a :href="`/data-agent/${agent.id}`" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" title="View">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </a>
-                                    <a :href="`/data-agent/${agent.id}/edit`" title="Edit" class="inline-flex items-center justify-center rounded-lg bg-blue-500 p-2 text-white hover:bg-blue-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13.5858 3.58579C14.3668 2.80474 15.6332 2.80474 16.4142 3.58579C17.1953 4.36683 17.1953 5.63316 16.4142 6.41421L15.6213 7.20711L12.7929 4.37868L13.5858 3.58579Z" fill="currentColor"/>
-                                            <path d="M11.3787 5.79289L3 14.1716V17H5.82842L14.2071 8.62132L11.3787 5.79289Z" fill="currentColor"/>
+                                    <a :href="`/data-agent/${agent.id}/edit`" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500" title="Edit">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
                                     </a>
-                                    <button @click="openDeleteModal(agent.id, agent.nama_agent)" title="Delete" class="inline-flex items-center justify-center rounded-lg bg-red-500 p-2 text-white hover:bg-red-600">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9 2C8.62123 2 8.27497 2.214 8.10557 2.55279L7.38197 4H4C3.44772 4 3 4.44772 3 5C3 5.55228 3.44772 6 4 6V16C4 17.1046 4.89543 18 6 18H14C15.1046 18 16 17.1046 16 16V6C16.5523 6 17 5.55228 17 5C17 4.44772 16.5523 4 16 4H12.618L11.8944 2.55279C11.725 2.214 11.3788 2 11 2H9ZM7 8C7 7.44772 7.44772 7 8 7C8.55228 7 9 7.44772 9 8V14C9 14.5523 8.55228 15 8 15C7.44772 15 7 14.5523 7 14V8ZM12 7C11.4477 7 11 7.44772 11 8V14C11 14.5523 11.4477 15 12 15C12.5523 15 13 14.5523 13 14V8C13 7.44772 12.5523 7 12 7Z" fill="currentColor"/>
+                                    <button @click="openDeleteModal(agent.id, agent.nama_agent)" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500" title="Delete">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
                                     </button>
                                 </div>

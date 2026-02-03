@@ -132,4 +132,63 @@ class AgentController extends Controller
             'title' => 'Laporan Data Agent'
         ]);
     }
+
+    public function export()
+    {
+        $agents = $this->agentService->getAll();
+        $filename = "data_agent_" . date('Y-m-d_H-i-s') . ".csv";
+
+        $headers = [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $columns = [
+            'Kode Agent', 
+            'NIK', 
+            'Nama Agent', 
+            'Kontak', 
+            'Email', 
+            'Kota/Kabupaten', 
+            'Jenis Kelamin', 
+            'Tempat Lahir', 
+            'Tanggal Lahir', 
+            'Status', 
+            'Komisi Umroh', 
+            'Komisi Haji', 
+            'Alamat', 
+            'Catatan'
+        ];
+
+        $callback = function() use ($agents, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($agents as $agent) {
+                fputcsv($file, [
+                    $agent->kode_agent,
+                    $agent->nik_agent,
+                    $agent->nama_agent,
+                    $agent->kontak_agent,
+                    $agent->email_agent,
+                    $agent->kabupaten_kota,
+                    $agent->jenis_kelamin,
+                    $agent->tempat_lahir,
+                    $agent->tanggal_lahir,
+                    $agent->status_agent,
+                    $agent->komisi_paket_umroh,
+                    $agent->komisi_paket_haji,
+                    $agent->alamat_agent,
+                    $agent->catatan_agent
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

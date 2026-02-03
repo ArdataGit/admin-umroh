@@ -35,11 +35,6 @@
         sortField: "",
         sortDirection: "asc",
         searchQuery: "",
-        paymentModalOpen: false,
-        selectedAgent: null,
-        paymentAmount: 0,
-        paymentDate: "{{ date('Y-m-d') }}",
-        paymentNote: "",
         
         get filteredAgents() {
             if (!this.searchQuery) return this.agents;
@@ -80,8 +75,8 @@
                 for (let i = 1; i <= this.totalPages; i++) pages.push(i);
             } else {
                 pages.push(1);
-                 pages.push("...");
-                 pages.push(this.totalPages);
+                pages.push("...");
+                pages.push(this.totalPages);
             }
              return pages;
         },
@@ -96,15 +91,6 @@
         },
         formatPrice(price) {
             return "Rp " + Number(price).toLocaleString("id-ID");
-        },
-        openPaymentModal(agent) {
-            this.selectedAgent = agent;
-            this.paymentAmount = agent.sisa_bonus;
-            this.paymentModalOpen = true;
-        },
-        closePaymentModal() {
-            this.paymentModalOpen = false;
-            this.selectedAgent = null;
         }
     }'>
 
@@ -122,6 +108,20 @@
                 </div>
             </div>
              <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div class="flex gap-3">
+                    <a href="{{ route('bonus-agent.print') }}" target="_blank" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        Print
+                    </a>
+                    <a href="{{ route('bonus-agent.export') }}" target="_blank" class="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-green-700">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export Excel
+                    </a>
+                </div>
                 <form>
                     <div class="relative">
                         <button type="button" class="absolute -translate-y-1/2 left-4 top-1/2">
@@ -206,10 +206,10 @@
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="agent.kontak_agent"></p>
                                 </td>
                                 <td class="px-4 py-4 text-center">
-                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" x-text="agent.umroh_count + ' Pax'"></span>
+                                     <a :href="`/bonus-agent/${agent.id}/jamaah-umroh`" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 cursor-pointer transition-colors" x-text="agent.umroh_count + ' Pax'"></a>
                                 </td>
                                 <td class="px-4 py-4 text-center">
-                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300" x-text="agent.haji_count + ' Pax'"></span>
+                                     <a :href="`/bonus-agent/${agent.id}/jamaah-haji`" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 cursor-pointer transition-colors" x-text="agent.haji_count + ' Pax'"></a>
                                 </td>
                                 <td class="px-4 py-4 text-right">
                                      <p class="font-medium text-blue-600 text-theme-sm" x-text="formatPrice(agent.total_bonus)"></p>
@@ -221,17 +221,22 @@
                                      <p class="font-bold text-theme-sm" :class="agent.sisa_bonus > 0 ? 'text-red-600' : 'text-gray-500'" x-text="formatPrice(agent.sisa_bonus)"></p>
                                 </td>
                                 <td class="px-4 py-4 text-center">
-                                    <template x-if="agent.sisa_bonus > 0">
-                                        <button @click="openPaymentModal(agent)" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                            Bayar
-                                        </button>
-                                    </template>
-                                     <template x-if="agent.sisa_bonus <= 0">
-                                        <span class="text-green-500 text-xs font-bold flex items-center justify-center gap-1">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Lunas
-                                        </span>
-                                    </template>
+                                    <div class="flex items-center justify-center gap-2">
+                                        <template x-if="agent.sisa_bonus > 0">
+                                            <a :href="`/bonus-agent/${agent.id}`" class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Add Payment">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                                </svg>
+                                            </a>
+                                        </template>
+                                        
+                                        <a :href="`/payment-agent/${agent.id}`" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500" title="Show Payment">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                          </template>
@@ -251,65 +256,6 @@
                         Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
                     </span>
                      <button @click="currentPage++" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 hover:bg-gray-50">Next</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payment Modal -->
-        <div x-show="paymentModalOpen" style="display: none;" x-cloak class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-gray-900/50 backdrop-blur-sm">
-            <div @click.away="closePaymentModal()" class="relative w-full max-w-md bg-white rounded-xl shadow-2xl dark:bg-gray-800 mx-4 transform transition-all">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pembayaran Bonus</h3>
-                    <button @click="closePaymentModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-                
-                <div class="p-6">
-                    <div class="mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Agent:</span>
-                            <span class="font-semibold text-gray-900 dark:text-white" x-text="selectedAgent?.nama_agent"></span>
-                        </div>
-                         <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Sisa Bonus:</span>
-                            <span class="font-bold text-blue-600" x-text="selectedAgent ? formatPrice(selectedAgent.sisa_bonus) : 0"></span>
-                        </div>
-                    </div>
-
-                    <form action="{{ route('bonus-agent.store') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <input type="hidden" name="agent_id" :value="selectedAgent?.id">
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Pembayaran</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">Rp</span>
-                                </div>
-                                <input type="number" name="jumlah_bayar" x-model="paymentAmount" :max="selectedAgent?.sisa_bonus" class="pl-10 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
-                            </div>
-                        </div>
-
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tanggal</label>
-                            <input type="date" name="tanggal_bayar" x-model="paymentDate" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catatan</label>
-                            <textarea name="catatan" x-model="paymentNote" rows="3" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-                        </div>
-
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" @click="closePaymentModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
-                                Batal
-                            </button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Simpan Pembayaran
-                            </button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>

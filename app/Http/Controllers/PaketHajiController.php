@@ -25,11 +25,10 @@ class PaketHajiController extends Controller
 
     public function create()
     {
-        // Auto-generate kode_paket: PH-001, PH-002, etc.
+        // Auto-generate kode_paket: PH-1, PH-2, etc. (Next ID)
         $lastPaket = PaketHaji::orderBy('id', 'desc')->first();
-        $lastNumber = $lastPaket ? intval(substr($lastPaket->kode_paket, 3)) : 0;
-        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        $kodePaket = 'PH-' . $newNumber;
+        $nextId = $lastPaket ? $lastPaket->id + 1 : 1;
+        $kodePaket = 'PH-' . $nextId;
 
         $maskapais = Maskapai::all();
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
@@ -178,6 +177,54 @@ class PaketHajiController extends Controller
         return view('pages.paket-haji.show', [
             'title' => 'Detail Paket Haji',
             'paketHaji' => $paketHaji
+        ]);
+    }
+    public function export()
+    {
+        $pakets = $this->paketHajiService->getAll();
+        $filename = "paket_haji_" . date('Y-m-d_H-i-s') . ".csv";
+
+        $headers = [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $columns = ['Kode Paket', 'Nama Paket', 'Tanggal Keberangkatan', 'Jumlah Hari', 'Maskapai', 'Status', 'Kuota', 'Rute', 'Lokasi', 'Harga Quad 1'];
+
+        $callback = function () use ($pakets, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($pakets as $paket) {
+                fputcsv($file, [
+                    $paket->kode_paket,
+                    $paket->nama_paket,
+                    $paket->tanggal_keberangkatan,
+                    $paket->jumlah_hari,
+                    $paket->maskapai ? $paket->maskapai->nama_maskapai : '-',
+                    $paket->status_paket,
+                    $paket->kuota_jamaah,
+                    $paket->rute_penerbangan,
+                    $paket->lokasi_keberangkatan,
+                    $paket->harga_quad_1
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function printData()
+    {
+        $paketHajis = $this->paketHajiService->getAll();
+        return view('pages.paket-haji.print', [
+            'paketHajis' => $paketHajis,
+            'title' => 'Laporan Paket Haji'
         ]);
     }
 }

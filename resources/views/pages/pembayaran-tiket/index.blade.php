@@ -132,7 +132,7 @@
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="item.transaksi_tiket?.kode_transaksi || '-'"></p>
                                 </td>
                                 <td class="px-4 py-4">
-                                     <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="item.transaksi_tiket?.pelanggan?.nama_pelanggan || '-'"></p>
+                                     <a :href="'/pembayaran-tiket/' + (item.transaksi_tiket_id || '#')" class="text-blue-600 hover:text-blue-700 font-medium hover:underline" x-text="item.transaksi_tiket?.pelanggan?.nama_pelanggan || '-'"></a>
                                 </td>
                                 <td class="px-4 py-4">
                                      <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="formatCurrency(item.jumlah_pembayaran)"></p>

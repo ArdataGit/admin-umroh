@@ -132,7 +132,7 @@
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="item.transaksi_layanan?.kode_transaksi || '-'"></p>
                                 </td>
                                 <td class="px-4 py-4">
-                                     <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="item.transaksi_layanan?.pelanggan?.nama_pelanggan || '-'"></p>
+                                     <a :href="'{{ route('pembayaran-layanan.show', ':id') }}'.replace(':id', item.transaksi_layanan_id)" class="font-medium text-blue-600 hover:text-blue-800 text-theme-sm hover:underline" x-text="item.transaksi_layanan?.pelanggan?.nama_pelanggan || '-'"></a>
                                 </td>
                                 <td class="px-4 py-4">
                                      <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="formatCurrency(item.jumlah_pembayaran)"></p>

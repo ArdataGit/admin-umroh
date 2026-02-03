@@ -18,4 +18,60 @@ class PembayaranLayananController extends Controller
             'pembayarans' => $pembayarans
         ]);
     }
+
+    public function show($id)
+    {
+        // Assuming ID is TransaksiLayanan ID based on "Partner" context
+        $transaksi = \App\Models\TransaksiLayanan::with(['pelanggan', 'details', 'pembayaranLayanans'])->findOrFail($id);
+        
+        return view('pages.pembayaran-layanan.show', [
+            'title' => 'Riwayat Pembayaran - ' . ($transaksi->pelanggan->nama_pelanggan ?? 'Umum'),
+            'transaksi' => $transaksi,
+            'pembayarans' => $transaksi->pembayaranLayanans()->latest()->get()
+        ]);
+    }
+
+    public function createPayment($id)
+    {
+        $transaksi = \App\Models\TransaksiLayanan::with(['pelanggan'])->findOrFail($id);
+        
+        return view('pages.pembayaran-layanan.create_payment', [
+            'title' => 'Tambah Pembayaran',
+            'transaksi' => $transaksi
+        ]);
+    }
+
+    public function storePayment(Request $request, $id)
+    {
+        $transaksi = \App\Models\TransaksiLayanan::findOrFail($id);
+
+        $validated = $request->validate([
+            'jumlah_pembayaran' => 'required|numeric|min:1',
+            'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
+            'tanggal_pembayaran' => 'required|date',
+            'catatan' => 'nullable|string',
+            'kode_referensi' => 'nullable|string',
+        ]);
+
+        // Generate Code for Payment: PS-ID-XXX (Payment Service)
+        $countPayment = PembayaranLayanan::count() + 1;
+        $kodePembayaran = 'PS-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+
+        PembayaranLayanan::create([
+            'transaksi_layanan_id' => $transaksi->id,
+            'kode_transaksi' => $kodePembayaran,
+            'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
+            'jumlah_pembayaran' => $validated['jumlah_pembayaran'],
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'status_pembayaran' => 'paid', // Direct 'paid' for manual entry
+            'catatan' => $validated['catatan'],
+            'kode_referensi' => $validated['kode_referensi']
+        ]);
+
+        // NOTE: We do not update total_bayar in TransaksiLayanan table directly as it doesn't seem to have that column 
+        // based on previous file views (checked TransaksiLayanan model fillable). 
+        // The total paid is calculated on the fly in the view.
+
+        return redirect()->route('pembayaran-layanan.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
+    }
 }

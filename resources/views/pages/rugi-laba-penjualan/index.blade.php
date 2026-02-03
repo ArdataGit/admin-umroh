@@ -8,19 +8,123 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12 space-y-4">
         
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-                <div class="text-sm text-gray-500 dark:text-gray-400">Total Penjualan (Omzet)</div>
-                <div class="mt-2 text-2xl font-bold text-gray-800 dark:text-white">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
+        <!-- Header & Filters -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white">Rugi Laba Penjualan</h2>
+            
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('rugi-laba-penjualan.index', ['period' => 'today']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'today' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Hari-ini
+                </a>
+                <a href="{{ route('rugi-laba-penjualan.index', ['period' => 'month']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Bulan-ini
+                </a>
+                <a href="{{ route('rugi-laba-penjualan.index', ['period' => 'year']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Tahun-ini
+                </a>
+                
+                <!-- Custom Date Trigger (using Alpine for modal or simple redirect - keeping simple for now) -->
+                <div x-data="{ open: {{ $currentPeriod == 'custom' ? 'true' : 'false' }}, start: '{{ $startDate }}', end: '{{ $endDate }}' }" class="relative">
+                    <button @click="open = !open" 
+                            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'custom' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                        Kustom
+                    </button>
+                    
+                    <div x-show="open" @click.away="open = false" 
+                         class="absolute right-0 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50 dark:border-gray-800 dark:bg-gray-900"
+                         style="display: none;">
+                        <form action="{{ route('rugi-laba-penjualan.index') }}" method="GET" class="space-y-3">
+                            <input type="hidden" name="period" value="custom">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Mulai Tanggal</label>
+                                <input type="date" name="start_date" x-model="start" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Sampai Tanggal</label>
+                                <input type="date" name="end_date" x-model="end" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700">
+                            </div>
+                            <button type="submit" class="w-full rounded-lg bg-blue-600 py-2 text-sm text-white hover:bg-blue-700">Terapkan</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-                <div class="text-sm text-gray-500 dark:text-gray-400">Total HPP (Modal)</div>
-                <div class="mt-2 text-2xl font-bold text-red-500">Rp {{ number_format($totalCOGS, 0, ',', '.') }}</div>
-            </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-                <div class="text-sm text-gray-500 dark:text-gray-400">Total Laba Kotor</div>
-                <div class="mt-2 text-2xl font-bold {{ $totalProfit >= 0 ? 'text-green-500' : 'text-red-500' }}">Rp {{ number_format($totalProfit, 0, ',', '.') }}</div>
+        </div>
+
+        <!-- Summary Table Card -->
+        <div class="rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
+            <div class="p-6">
+                <!-- Period Label -->
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Periode</p>
+                    <p class="text-xl font-bold text-gray-800 dark:text-white">{{ $periodLabel }}</p>
+                </div>
+
+                <!-- Main Summary Table -->
+                <div class="overflow-hidden rounded-lg border border-gray-100 dark:border-gray-800">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-500 dark:text-gray-400">Keterangan</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-500 dark:text-gray-400">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <!-- Penjualan -->
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-200">Penjualan</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-lg font-bold text-gray-800 dark:text-white">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</span>
+                                </td>
+                            </tr>
+                            
+                            <!-- Pembelian (HPP) -->
+                            <tr>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-200">Pembelian</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-lg font-bold text-red-500">Rp {{ number_format($totalCOGS, 0, ',', '.') }}</span>
+                                </td>
+                            </tr>
+
+                            <!-- Laba / Rugi -->
+                            <tr class="bg-gray-50/50 dark:bg-gray-800/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full {{ $totalProfit >= 0 ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' }}">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="font-bold text-gray-800 dark:text-white">Laba / Rugi</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-xl font-bold {{ $totalProfit >= 0 ? 'text-green-600' : 'text-red-600' }}">Rp {{ number_format($totalProfit, 0, ',', '.') }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

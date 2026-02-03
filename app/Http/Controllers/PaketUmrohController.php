@@ -25,11 +25,10 @@ class PaketUmrohController extends Controller
 
     public function create()
     {
-        // Auto-generate kode_paket: PU-001, PU-002, etc.
-        $lastPaket = PaketUmroh::orderBy('id', 'desc')->first();
-        $lastNumber = $lastPaket ? intval(substr($lastPaket->kode_paket, 3)) : 0;
-        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        $kodePaket = 'PU-' . $newNumber;
+        // Auto-generate kode_paket: PU-{next_id}
+        $maxId = PaketUmroh::max('id') ?? 0;
+        $nextId = $maxId + 1;
+        $kodePaket = 'PU-' . $nextId;
 
         $maskapais = Maskapai::all();
         // Assuming Hotel model has 'lokasi_hotel' attribute or similar logic needed

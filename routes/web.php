@@ -21,6 +21,7 @@ use App\Http\Controllers\SetoranHajiController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\PembelianProdukController;
 use App\Http\Controllers\PengeluaranProdukController;
+use App\Http\Controllers\PendaftaranHajiController;
 
 
 
@@ -59,6 +60,7 @@ Route::get('/data-karyawan/{id}', [KaryawanController::class, 'show'])->name('da
 Route::get('/data-agent', [AgentController::class, 'index'])->name('data-agent');
 Route::get('/data-agent/create', [AgentController::class, 'create'])->name('data-agent.create');
 Route::post('/data-agent', [AgentController::class, 'store'])->name('data-agent.store');
+Route::get('/data-agent/export', [AgentController::class, 'export'])->name('data-agent.export');
 Route::get('/data-agent/print', [AgentController::class, 'printData'])->name('data-agent.print');
 Route::get('/data-agent/{id}/edit', [AgentController::class, 'edit'])->name('data-agent.edit');
 Route::put('/data-agent/{id}', [AgentController::class, 'update'])->name('data-agent.update');
@@ -105,6 +107,7 @@ Route::get('/data-jamaah', [JamaahController::class, 'index'])->name('data-jamaa
 Route::get('/data-jamaah/create', [JamaahController::class, 'create'])->name('data-jamaah.create');
 Route::post('/data-jamaah', [JamaahController::class, 'store'])->name('data-jamaah.store');
 Route::get('/data-jamaah/print', [JamaahController::class, 'printData'])->name('data-jamaah.print');
+Route::get('/data-jamaah/export', [JamaahController::class, 'exportData'])->name('data-jamaah.export');
 Route::get('/data-jamaah/{id}/edit', [JamaahController::class, 'edit'])->name('data-jamaah.edit');
 Route::put('/data-jamaah/{id}', [JamaahController::class, 'update'])->name('data-jamaah.update');
 Route::delete('/data-jamaah/{id}', [JamaahController::class, 'destroy'])->name('data-jamaah.destroy');
@@ -113,6 +116,8 @@ Route::get('/data-jamaah/{id}', [JamaahController::class, 'show'])->name('data-j
 Route::get('/paket-umroh', [PaketUmrohController::class, 'index'])->name('paket-umroh');
 Route::get('/paket-umroh/create', [PaketUmrohController::class, 'create'])->name('paket-umroh.create');
 Route::post('/paket-umroh', [PaketUmrohController::class, 'store'])->name('paket-umroh.store');
+Route::get('/paket-umroh/export', [PaketUmrohController::class, 'export'])->name('paket-umroh.export');
+Route::get('/paket-umroh/print', [PaketUmrohController::class, 'printData'])->name('paket-umroh.print');
 Route::get('/paket-umroh/{id}/edit', [PaketUmrohController::class, 'edit'])->name('paket-umroh.edit');
 Route::put('/paket-umroh/{id}', [PaketUmrohController::class, 'update'])->name('paket-umroh.update');
 Route::delete('/paket-umroh/{id}', [PaketUmrohController::class, 'destroy'])->name('paket-umroh.destroy');
@@ -121,6 +126,8 @@ Route::get('/paket-umroh/{id}', [PaketUmrohController::class, 'show'])->name('pa
 Route::get('/paket-haji', [PaketHajiController::class, 'index'])->name('paket-haji');
 Route::get('/paket-haji/create', [PaketHajiController::class, 'create'])->name('paket-haji.create');
 Route::post('/paket-haji', [PaketHajiController::class, 'store'])->name('paket-haji.store');
+Route::get('/paket-haji/export', [PaketHajiController::class, 'export'])->name('paket-haji.export');
+Route::get('/paket-haji/print', [PaketHajiController::class, 'printData'])->name('paket-haji.print');
 Route::get('/paket-haji/{id}/edit', [PaketHajiController::class, 'edit'])->name('paket-haji.edit');
 Route::put('/paket-haji/{id}', [PaketHajiController::class, 'update'])->name('paket-haji.update');
 Route::delete('/paket-haji/{id}', [PaketHajiController::class, 'destroy'])->name('paket-haji.destroy');
@@ -252,12 +259,24 @@ use App\Http\Controllers\PendaftaranUmrohController;
 Route::get('/pendaftaran-umroh', [PendaftaranUmrohController::class, 'index'])->name('pendaftaran-umroh.index');
 Route::get('/pendaftaran-umroh/create', [PendaftaranUmrohController::class, 'create'])->name('pendaftaran-umroh.create');
 Route::post('/pendaftaran-umroh', [PendaftaranUmrohController::class, 'store'])->name('pendaftaran-umroh.store');
+Route::get('/pendaftaran-umroh/export', [PendaftaranUmrohController::class, 'export'])->name('pendaftaran-umroh.export');
+Route::get('/pendaftaran-umroh/print', [PendaftaranUmrohController::class, 'printData'])->name('pendaftaran-umroh.print');
+Route::get('/pendaftaran-umroh/{id}', [PendaftaranUmrohController::class, 'show'])->name('pendaftaran-umroh.show');
+Route::get('/pendaftaran-umroh/{id}/edit', [PendaftaranUmrohController::class, 'edit'])->name('pendaftaran-umroh.edit');
+Route::put('/pendaftaran-umroh/{id}', [PendaftaranUmrohController::class, 'update'])->name('pendaftaran-umroh.update');
+Route::delete('/pendaftaran-umroh/{id}', [PendaftaranUmrohController::class, 'destroy'])->name('pendaftaran-umroh.destroy');
 
-// Unified Pendaftaran Haji Routes
-use App\Http\Controllers\PendaftaranHajiController;
 Route::get('/pendaftaran-haji', [PendaftaranHajiController::class, 'index'])->name('pendaftaran-haji.index');
 Route::get('/pendaftaran-haji/create', [PendaftaranHajiController::class, 'create'])->name('pendaftaran-haji.create');
 Route::post('/pendaftaran-haji', [PendaftaranHajiController::class, 'store'])->name('pendaftaran-haji.store');
+Route::get('/pendaftaran-haji/export', [PendaftaranHajiController::class, 'export'])->name('pendaftaran-haji.export');
+Route::get('/pendaftaran-haji/print', [PendaftaranHajiController::class, 'printData'])->name('pendaftaran-haji.print');
+Route::get('/pendaftaran-haji/{id}', [PendaftaranHajiController::class, 'show'])->name('pendaftaran-haji.show');
+Route::get('/pendaftaran-haji/{id}/edit', [PendaftaranHajiController::class, 'edit'])->name('pendaftaran-haji.edit');
+Route::put('/pendaftaran-haji/{id}', [PendaftaranHajiController::class, 'update'])->name('pendaftaran-haji.update');
+Route::delete('/pendaftaran-haji/{id}', [PendaftaranHajiController::class, 'destroy'])->name('pendaftaran-haji.destroy');
+
+// Unified Pendaftaran Haji Routes (Cleaned up)
 
 Route::get('/setoran-haji/{id}', [SetoranHajiController::class, 'index'])->name('setoran-haji.index');
 Route::get('/setoran-haji/{id}/create', [SetoranHajiController::class, 'create'])->name('setoran-haji.create');
@@ -268,15 +287,41 @@ Route::delete('/setoran-haji/transaksi/{id}', [SetoranHajiController::class, 'de
 
 // Bonus Agent Routes
 use App\Http\Controllers\BonusAgentController;
+Route::get('/bonus-agent/export', [BonusAgentController::class, 'export'])->name('bonus-agent.export');
+Route::get('/bonus-agent/print', [BonusAgentController::class, 'printData'])->name('bonus-agent.print');
 Route::get('/bonus-agent', [BonusAgentController::class, 'index'])->name('bonus-agent.index');
 Route::post('/bonus-agent', [BonusAgentController::class, 'store'])->name('bonus-agent.store');
+Route::get('/bonus-agent/{id}/export', [BonusAgentController::class, 'exportDetail'])->name('bonus-agent.export-detail');
+Route::get('/bonus-agent/{id}/print', [BonusAgentController::class, 'printDetail'])->name('bonus-agent.print-detail');
+Route::get('/bonus-agent/{id}', [BonusAgentController::class, 'show'])->name('bonus-agent.show');
+Route::get('/bonus-agent/{id}/jamaah-umroh', [BonusAgentController::class, 'showJamaahUmroh'])->name('bonus-agent.jamaah-umroh');
+Route::get('/bonus-agent/{id}/jamaah-haji', [BonusAgentController::class, 'showJamaahHaji'])->name('bonus-agent.jamaah-haji');
+Route::get('/bonus-agent/payment/{id}/edit', [BonusAgentController::class, 'edit'])->name('bonus-agent.edit');
+Route::put('/bonus-agent/payment/{id}', [BonusAgentController::class, 'update'])->name('bonus-agent.update');
+Route::get('/payment-agent/{id}', [BonusAgentController::class, 'showPaymentHistory'])->name('payment-agent.show');
 
 // Pembayaran Umroh Routes
 use App\Http\Controllers\PembayaranUmrohController;
 Route::get('/pembayaran-umroh', [PembayaranUmrohController::class, 'index'])->name('pembayaran-umroh.index');
+Route::get('/pembayaran-umroh/detail/{id}', [PembayaranUmrohController::class, 'show'])->name('pembayaran-umroh.show'); // Renamed URL, keep name for now or update? Better update name to .detail to be clear, but user might have used .show. Let's keep .show name OR update references. Plan said rename route. Let's rename URL + Name and update controller return view if needed? No, controller returns view.
+// Wait, I should keep .show name if I don't want to break existing links? But I need to change the URL.
+// Actually, user wants `pembayaran-umroh/{id}` to be HISTORY.
+// So:
+Route::get('/pembayaran-umroh/{id}', [PembayaranUmrohController::class, 'history'])->name('pembayaran-umroh.history'); // The ID here is CustomerUmroh ID
+Route::get('/pembayaran-umroh/detail/{id}', [PembayaranUmrohController::class, 'show'])->name('pembayaran-umroh.detail'); // The ID here is PembayaranUmroh ID
+Route::get('/pembayaran-umroh/{id}/edit', [PembayaranUmrohController::class, 'edit'])->name('pembayaran-umroh.edit');
+Route::put('/pembayaran-umroh/{id}', [PembayaranUmrohController::class, 'update'])->name('pembayaran-umroh.update');
+Route::get('/pembayaran-umroh/create/{id}', [PembayaranUmrohController::class, 'createPayment'])->name('pembayaran-umroh.create-payment');
+Route::post('/pembayaran-umroh/store/{id}', [PembayaranUmrohController::class, 'storePayment'])->name('pembayaran-umroh.store-payment');
 
 use App\Http\Controllers\PembayaranHajiController;
 Route::get('/pembayaran-haji', [PembayaranHajiController::class, 'index'])->name('pembayaran-haji.index');
+Route::get('/pembayaran-haji/{id}', [PembayaranHajiController::class, 'history'])->name('pembayaran-haji.history');
+Route::get('/pembayaran-haji/detail/{id}', [PembayaranHajiController::class, 'show'])->name('pembayaran-haji.detail');
+Route::get('/pembayaran-haji/{id}/edit', [PembayaranHajiController::class, 'edit'])->name('pembayaran-haji.edit');
+Route::put('/pembayaran-haji/{id}', [PembayaranHajiController::class, 'update'])->name('pembayaran-haji.update');
+Route::get('/pembayaran-haji/create/{id}', [PembayaranHajiController::class, 'createPayment'])->name('pembayaran-haji.create-payment');
+Route::post('/pembayaran-haji/store/{id}', [PembayaranHajiController::class, 'storePayment'])->name('pembayaran-haji.store-payment');
 
 use App\Http\Controllers\PengeluaranUmrohController;
 Route::resource('pengeluaran-umroh', PengeluaranUmrohController::class);
@@ -310,9 +355,15 @@ Route::get('laporan-haji/{id}', [LaporanHajiController::class, 'show'])->name('l
 
 use App\Http\Controllers\PembayaranTiketController;
 Route::get('pembayaran-tiket', [PembayaranTiketController::class, 'index'])->name('pembayaran-tiket.index');
+Route::get('pembayaran-tiket/{id}', [PembayaranTiketController::class, 'show'])->name('pembayaran-tiket.show');
+Route::get('pembayaran-tiket/{id}/create-payment', [PembayaranTiketController::class, 'createPayment'])->name('pembayaran-tiket.create-payment');
+Route::post('pembayaran-tiket/{id}/store-payment', [PembayaranTiketController::class, 'storePayment'])->name('pembayaran-tiket.store-payment');
 
 use App\Http\Controllers\PembayaranLayananController;
-Route::get('pembayaran-layanan', [PembayaranLayananController::class, 'index'])->name('pembayaran-layanan.index');
+Route::get('/pembayaran-layanan', [PembayaranLayananController::class, 'index'])->name('pembayaran-layanan.index');
+Route::get('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'show'])->name('pembayaran-layanan.show');
+Route::get('/pembayaran-layanan/{id}/create-payment', [PembayaranLayananController::class, 'createPayment'])->name('pembayaran-layanan.create-payment');
+Route::post('/pembayaran-layanan/{id}/store-payment', [PembayaranLayananController::class, 'storePayment'])->name('pembayaran-layanan.store-payment');
 
 
 
@@ -320,6 +371,7 @@ Route::get('pembayaran-layanan', [PembayaranLayananController::class, 'index'])-
 // dashboard pages
 use App\Http\Controllers\LaporanKeuanganController;
 Route::get('laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
+Route::get('laporan-keuangan/export', [LaporanKeuanganController::class, 'export'])->name('laporan-keuangan.export');
 
 use App\Http\Controllers\RugiLabaPenjualanController;
 Route::get('rugi-laba-penjualan', [RugiLabaPenjualanController::class, 'index'])->name('rugi-laba-penjualan.index');

@@ -18,4 +18,55 @@ class PembayaranTiketController extends Controller
             'pembayarans' => $pembayarans
         ]);
     }
+    public function show($id)
+    {
+        // Assuming ID is TransaksiTiket ID
+        $transaksi = \App\Models\TransaksiTiket::with(['pelanggan', 'details', 'pembayaranTikets'])->findOrFail($id);
+        
+        return view('pages.pembayaran-tiket.show', [
+            'title' => 'Riwayat Pembayaran - ' . ($transaksi->pelanggan->nama_pelanggan ?? 'Umum'),
+            'transaksi' => $transaksi,
+            'pembayarans' => $transaksi->pembayaranTikets()->latest()->get()
+        ]);
+    }
+
+    public function createPayment($id)
+    {
+        $transaksi = \App\Models\TransaksiTiket::with(['pelanggan'])->findOrFail($id);
+        
+        return view('pages.pembayaran-tiket.create_payment', [
+            'title' => 'Tambah Pembayaran',
+            'transaksi' => $transaksi
+        ]);
+    }
+
+    public function storePayment(Request $request, $id)
+    {
+        $transaksi = \App\Models\TransaksiTiket::findOrFail($id);
+
+        $validated = $request->validate([
+            'jumlah_pembayaran' => 'required|numeric|min:1',
+            'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
+            'tanggal_pembayaran' => 'required|date',
+            'catatan' => 'nullable|string',
+            'kode_referensi' => 'nullable|string',
+        ]);
+
+        // Generate Code for Payment: PT-ID-XXX (Payment Ticket)
+        $countPayment = PembayaranTiket::count() + 1;
+        $kodePembayaran = 'PT-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+
+        PembayaranTiket::create([
+            'transaksi_tiket_id' => $transaksi->id,
+            'kode_transaksi' => $kodePembayaran,
+            'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
+            'jumlah_pembayaran' => $validated['jumlah_pembayaran'],
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'status_pembayaran' => 'paid', // Direct 'paid' for manual entry
+            'catatan' => $validated['catatan'],
+            'kode_referensi' => $validated['kode_referensi']
+        ]);
+
+        return redirect()->route('pembayaran-tiket.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
+    }
 }
