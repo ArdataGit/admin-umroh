@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PembayaranTiket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PembayaranTiketController extends Controller
 {
@@ -115,5 +117,28 @@ class PembayaranTiketController extends Controller
         $pembayaran->delete();
 
         return redirect()->route('pembayaran-tiket.show', $transaksiId)->with('success', 'Pembayaran berhasil dihapus');
+    }
+
+    public function exportPdf($id)
+    {
+        $pembayaran = PembayaranTiket::with([
+            'transaksiTiket.pelanggan',
+            'transaksiTiket.details.ticket',
+            'transaksiTiket.pembayaranTikets'
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksiTiket;
+        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-tiket.pdf', [
+            'title' => 'Invoice Transaksi Tiket - ' . $transaksi->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
     }
 }

@@ -404,6 +404,7 @@ Route::get('pembayaran-tiket/detail/{id}', [PembayaranTiketController::class, 'd
 Route::get('pembayaran-tiket/edit/{id}', [PembayaranTiketController::class, 'edit'])->name('pembayaran-tiket.edit');
 Route::put('pembayaran-tiket/update/{id}', [PembayaranTiketController::class, 'update'])->name('pembayaran-tiket.update');
 Route::delete('pembayaran-tiket/delete/{id}', [PembayaranTiketController::class, 'destroy'])->name('pembayaran-tiket.destroy');
+Route::get('pembayaran-tiket/pdf/{id}', [PembayaranTiketController::class, 'exportPdf'])->name('pembayaran-tiket.export-pdf');
 
 
 Route::get('/pembayaran-layanan', [PembayaranLayananController::class, 'index'])->name('pembayaran-layanan.index');
