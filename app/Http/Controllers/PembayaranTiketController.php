@@ -69,4 +69,51 @@ class PembayaranTiketController extends Controller
 
         return redirect()->route('pembayaran-tiket.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
     }
+
+    public function detail($id)
+    {
+        $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan'])->findOrFail($id);
+
+        return view('pages.pembayaran-tiket.detail', [
+            'title' => 'Detail Pembayaran Tiket',
+            'pembayaran' => $pembayaran
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan'])->findOrFail($id);
+
+        return view('pages.pembayaran-tiket.edit', [
+            'title' => 'Edit Pembayaran Tiket',
+            'pembayaran' => $pembayaran,
+            'transaksi' => $pembayaran->transaksiTiket
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pembayaran = PembayaranTiket::findOrFail($id);
+
+        $validated = $request->validate([
+            'jumlah_pembayaran' => 'required|numeric|min:1',
+            'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
+            'tanggal_pembayaran' => 'required|date',
+            'catatan' => 'nullable|string',
+            'kode_referensi' => 'nullable|string',
+        ]);
+
+        $pembayaran->update($validated);
+
+        return redirect()->route('pembayaran-tiket.show', $pembayaran->transaksi_tiket_id)->with('success', 'Pembayaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pembayaran = PembayaranTiket::findOrFail($id);
+        $transaksiId = $pembayaran->transaksi_tiket_id;
+        $pembayaran->delete();
+
+        return redirect()->route('pembayaran-tiket.show', $transaksiId)->with('success', 'Pembayaran berhasil dihapus');
+    }
 }

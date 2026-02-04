@@ -75,6 +75,16 @@
         formatDate(dateString) {
              const options = { day: "2-digit", month: "2-digit", year: "numeric"};
              return new Date(dateString).toLocaleDateString("id-ID", options).replace(",", "");
+        },
+        modalOpen: false,
+        modalImage: "",
+        openModal(image) {
+            this.modalImage = "/storage/" + image;
+            this.modalOpen = true;
+        },
+        closeModal() {
+            this.modalOpen = false;
+            this.modalImage = "";
         }
     }'>
 
@@ -176,10 +186,10 @@
                                 </td>
                                 <td class="px-4 py-4 text-center">
                                     <template x-if="item.bukti_pengeluaran">
-                                        <a :href="'/storage/' + item.bukti_pengeluaran" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10">
+                                        <button @click="openModal(item.bukti_pengeluaran)" class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-white/5 dark:text-white/80 dark:hover:bg-white/10">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             Lihat Bukti
-                                        </a>
+                                        </button>
                                     </template>
                                      <template x-if="!item.bukti_pengeluaran">
                                         <span class="text-gray-400 text-xs">-</span>
@@ -204,6 +214,18 @@
                     </span>
                      <button @click="currentPage++" :disabled="currentPage === totalPages" :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''" class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-theme-sm font-medium text-gray-700 hover:bg-gray-50">Next</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div x-show="modalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" style="display: none;">
+            <div @click.outside="closeModal()" class="relative max-h-[40vh] max-w-[60vw] overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-gray-900">
+                <button @click="closeModal()" class="absolute right-2 top-2 z-10 rounded-full bg-white/10 p-1 text-white hover:bg-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <img :src="modalImage" alt="Bukti Pengeluaran" class="h-full w-full object-contain max-h-[35vh]">
             </div>
         </div>
 

@@ -269,10 +269,13 @@ Route::put('/keberangkatan-umroh/{id}', [KeberangkatanUmrohController::class, 'u
 Route::delete('/keberangkatan-umroh/{id}', [KeberangkatanUmrohController::class, 'destroy'])->name('keberangkatan-umroh.destroy');
 
 // Customer Umroh (Manifest) Routes
-
 Route::get('/customer-umroh/{id}', [CustomerUmrohController::class, 'index'])->name('customer-umroh.index');
 Route::get('/customer-umroh/{id}/create', [CustomerUmrohController::class, 'create'])->name('customer-umroh.create');
 Route::post('/customer-umroh/{id}', [CustomerUmrohController::class, 'store'])->name('customer-umroh.store');
+Route::get('/customer-umroh/detail/{id}', [CustomerUmrohController::class, 'show'])->name('customer-umroh.show');
+Route::get('/customer-umroh/edit/{id}', [CustomerUmrohController::class, 'edit'])->name('customer-umroh.edit');
+Route::put('/customer-umroh/update/{id}', [CustomerUmrohController::class, 'update'])->name('customer-umroh.update');
+Route::delete('/customer-umroh/delete/{id}', [CustomerUmrohController::class, 'destroy'])->name('customer-umroh.destroy');
 
 // Keberangkatan Haji Routes
 
@@ -395,6 +398,12 @@ Route::get('pembayaran-tiket', [PembayaranTiketController::class, 'index'])->nam
 Route::get('pembayaran-tiket/{id}', [PembayaranTiketController::class, 'show'])->name('pembayaran-tiket.show');
 Route::get('pembayaran-tiket/{id}/create-payment', [PembayaranTiketController::class, 'createPayment'])->name('pembayaran-tiket.create-payment');
 Route::post('pembayaran-tiket/{id}/store-payment', [PembayaranTiketController::class, 'storePayment'])->name('pembayaran-tiket.store-payment');
+
+// Individual Payment Actions
+Route::get('pembayaran-tiket/detail/{id}', [PembayaranTiketController::class, 'detail'])->name('pembayaran-tiket.detail');
+Route::get('pembayaran-tiket/edit/{id}', [PembayaranTiketController::class, 'edit'])->name('pembayaran-tiket.edit');
+Route::put('pembayaran-tiket/update/{id}', [PembayaranTiketController::class, 'update'])->name('pembayaran-tiket.update');
+Route::delete('pembayaran-tiket/delete/{id}', [PembayaranTiketController::class, 'destroy'])->name('pembayaran-tiket.destroy');
 
 
 Route::get('/pembayaran-layanan', [PembayaranLayananController::class, 'index'])->name('pembayaran-layanan.index');
