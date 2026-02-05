@@ -9,10 +9,24 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12">
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-            <form action="{{ route('data-agent.update', $agent->id) }}" method="POST">
+            <form action="{{ route('data-agent.update', $agent->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    
+                    <!-- Foto Agent -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Agent (Opsional)</label>
+                        @if($agent->foto_agent)
+                            <div class="mb-3">
+                                <img src="{{ asset('storage/' . $agent->foto_agent) }}" alt="Current Photo" class="h-24 w-24 rounded-lg object-cover shadow-sm" />
+                                <p class="mt-1 text-xs text-gray-500">Foto saat ini</p>
+                            </div>
+                        @endif
+                        <input type="file" name="foto_agent" accept="image/*" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" />
+                        <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, GIF. Maks: 2MB. Biarkan kosong jika tidak ingin mengubah foto.</p>
+                        @error('foto_agent') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                    </div>
                     
                     <!-- Kode Agent (Readonly) -->
                     <div>
@@ -44,7 +58,7 @@
                     <!-- Email Agent -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Email Agent</label>
-                        <input type="email" name="email_agent" value="{{ old('email_agent', $agent->email_agent) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Email" required />
+                        <input type="email" name="email_agent" value="{{ old('email_agent', $agent->email_agent) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Email" />
                         @error('email_agent') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 

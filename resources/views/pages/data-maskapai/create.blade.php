@@ -8,10 +8,22 @@
 
         <div class="col-span-12">
             <x-common.component-card title="Form Tambah Maskapai">
-                <form action="{{ route('data-maskapai.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('data-maskapai.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <!-- Foto Maskapai -->
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Foto Maskapai (Opsional)
+                            </label>
+                            <input type="file" name="foto_maskapai" accept="image/*"
+                                class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: JPG, PNG, GIF. Maks: 2MB</p>
+                            @error('foto_maskapai')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <!-- Kode Maskapai (Readonly) -->
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -20,6 +32,9 @@
                             <input type="text" name="kode_maskapai" value="{{ $kodeMaskapai }}" readonly
                                 class="dark:bg-dark-900 shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 cursor-not-allowed" />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Kode maskapai di-generate otomatis</p>
+                            @error('kode_maskapai')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Nama Maskapai -->
@@ -59,6 +74,9 @@
                                     </svg>
                                 </span>
                             </div>
+                            @error('rute_penerbangan')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Lama Perjalanan -->
@@ -66,8 +84,11 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Lama Perjalanan (Jam) <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" name="lama_perjalanan" placeholder="9" required min="0"
+                            <input type="number" name="lama_perjalanan" value="{{ old('lama_perjalanan') }}" placeholder="9" required min="0"
                                 class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                            @error('lama_perjalanan')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Harga Tiket -->
@@ -79,9 +100,12 @@
                                 <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">
                                     Rp
                                 </span>
-                                <input type="number" name="harga_tiket" placeholder="15000000" required min="0"
+                                <input type="number" name="harga_tiket" value="{{ old('harga_tiket') }}" placeholder="15000000" required min="0"
                                     class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                             </div>
+                            @error('harga_tiket')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -91,7 +115,10 @@
                             Catatan Penerbangan
                         </label>
                         <textarea name="catatan_penerbangan" placeholder="Masukkan catatan atau keterangan tambahan tentang penerbangan..." rows="4"
-                            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"></textarea>
+                            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">{{ old('catatan_penerbangan') }}</textarea>
+                        @error('catatan_penerbangan')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Form Actions -->

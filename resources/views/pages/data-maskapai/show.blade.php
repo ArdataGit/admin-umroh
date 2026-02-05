@@ -9,6 +9,11 @@
         <div class="col-span-12">
             <x-common.component-card title="Detail Maskapai">
                 <div class="space-y-6">
+                    @if($maskapai->foto_maskapai)
+                        <div class="flex justify-center">
+                            <img src="{{ asset('storage/' . $maskapai->foto_maskapai) }}" alt="{{ $maskapai->nama_maskapai }}" class="h-40 w-40 rounded-xl object-contain shadow-sm border border-gray-100 dark:border-gray-800 bg-white" />
+                        </div>
+                    @endif
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <!-- Kode Maskapai -->
                         <div>

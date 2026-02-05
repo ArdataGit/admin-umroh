@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\MaskapaiService;
+use Illuminate\Support\Facades\Storage;
 
 class MaskapaiController extends Controller
 {
@@ -22,10 +23,10 @@ class MaskapaiController extends Controller
 
     public function create()
     {
-        // Auto-generate kode_maskapai: MK-001, MK-002, etc.
+        // Auto-generate kode_maskapai: MK-001, MK-002, etc based on next ID
         $lastMaskapai = \App\Models\Maskapai::orderBy('id', 'desc')->first();
-        $lastNumber = $lastMaskapai ? intval(substr($lastMaskapai->kode_maskapai, 3)) : 0;
-        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        $nextId = $lastMaskapai ? $lastMaskapai->id + 1 : 1;
+        $newNumber = str_pad($nextId, 3, '0', STR_PAD_LEFT);
         $kodeMaskapai = 'MK-' . $newNumber;
 
         return view('pages.data-maskapai.create', [
@@ -43,7 +44,15 @@ class MaskapaiController extends Controller
             'lama_perjalanan' => 'required|integer|min:0',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
+            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto_maskapai')) {
+            $file = $request->file('foto_maskapai');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('maskapais', $filename, 'public');
+            $validated['foto_maskapai'] = $path;
+        }
 
         $this->maskapaiService->create($validated);
 
@@ -72,7 +81,20 @@ class MaskapaiController extends Controller
             'lama_perjalanan' => 'required|integer|min:0',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
+            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto_maskapai')) {
+            $maskapai = $this->maskapaiService->getById($id);
+            if ($maskapai && $maskapai->foto_maskapai) {
+                Storage::disk('public')->delete($maskapai->foto_maskapai);
+            }
+
+            $file = $request->file('foto_maskapai');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('maskapais', $filename, 'public');
+            $validated['foto_maskapai'] = $path;
+        }
 
         $maskapai = $this->maskapaiService->update($id, $validated);
 

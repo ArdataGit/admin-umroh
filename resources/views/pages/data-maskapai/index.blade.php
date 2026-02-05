@@ -199,8 +199,8 @@
             <table class="w-full min-w-[1200px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">No</p>
+                        <th class="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800">
+                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Logo</p>
                         </th>
                         <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800" @click="sortBy('kode_maskapai')">
                             <div class="flex items-center gap-1">
@@ -252,6 +252,20 @@
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                             <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="h-10 w-10 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                                    <template x-if="maskapai.foto_maskapai">
+                                        <img :src="'/storage/' + maskapai.foto_maskapai" class="h-full w-full object-contain bg-white" />
+                                    </template>
+                                    <template x-if="!maskapai.foto_maskapai">
+                                        <div class="flex h-full w-full items-center justify-center text-gray-400">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                            </svg>
+                                        </div>
+                                    </template>
+                                </div>
                             </td>
                             <td class="px-4 py-4">
                                 <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="maskapai.kode_maskapai"></p>

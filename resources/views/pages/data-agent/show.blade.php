@@ -11,7 +11,21 @@
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
             
             <div class="mb-6 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Informasi Agent</h3>
+                <div class="flex items-center gap-4">
+                    @if($agent->foto_agent)
+                        <img src="{{ asset('storage/' . $agent->foto_agent) }}" alt="{{ $agent->nama_agent }}" class="h-16 w-16 rounded-full object-cover shadow-sm border-2 border-gray-100 dark:border-gray-800" />
+                    @else
+                        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800">
+                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                    @endif
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Informasi Agent</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $agent->nama_agent }}</p>
+                    </div>
+                </div>
                 <div class="flex gap-2">
                     <a href="{{ route('data-agent.edit', $agent->id) }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-blue-600">
                         Edit

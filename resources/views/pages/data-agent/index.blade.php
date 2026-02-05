@@ -208,8 +208,8 @@
             <table class="w-full min-w-[2000px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">No</p>
+                        <th class="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800">
+                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Foto</p>
                         </th>
                         <th class="px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800" @click="sortBy('kode_agent')">
                             <div class="flex items-center gap-1">
@@ -268,6 +268,20 @@
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                             <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="h-10 w-10 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                                    <template x-if="agent.foto_agent">
+                                        <img :src="'/storage/' + agent.foto_agent" class="h-full w-full object-cover" />
+                                    </template>
+                                    <template x-if="!agent.foto_agent">
+                                        <div class="flex h-full w-full items-center justify-center text-gray-400">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                            </svg>
+                                        </div>
+                                    </template>
+                                </div>
                             </td>
                             <td class="px-4 py-4">
                                 <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="agent.kode_agent"></p>

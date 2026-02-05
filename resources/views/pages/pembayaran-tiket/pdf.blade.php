@@ -17,14 +17,14 @@
             padding: 0;
         }
         .content {
-            padding: 0 1cm 1cm 1cm;
+            padding: 0 1cm 0.5cm 1cm;
         }
         .header-title {
             text-align: center;
             font-size: 14pt;
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .meta-info {
             margin-bottom: 15px;
@@ -45,9 +45,9 @@
         
         .address-section {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-top: 1px solid #eee;
-            padding-top: 10px;
+            padding-top: 5px;
         }
         .address-table {
             width: 100%;
@@ -74,7 +74,7 @@
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
         .main-table th {
             background-color: #fcfcfc;
@@ -93,7 +93,7 @@
         .summary-section {
             float: right;
             width: 40%;
-            margin-bottom: 20px;
+            margin-bottom: 5px;
         }
         .summary-table {
             width: 100%;
@@ -140,7 +140,7 @@
         }
         
         .footer {
-            margin-top: 20px;
+            margin-top: 0px;
             width: 100%;
             clear: both;
         }
@@ -150,7 +150,7 @@
             width: 250px;
         }
         .signature-date {
-            margin-bottom: 30px;
+            margin-bottom: 5px;
         }
         .signature-line {
             border-top: 1px solid #333;
@@ -160,7 +160,7 @@
         .signature-name {
             font-weight: bold;
             text-transform: uppercase;
-            margin-top: 5px;
+            margin-top: 20px;
         }
         
         .clearfix::after {
@@ -178,7 +178,7 @@
     </div>
 
     <div class="content">
-        <div class="header-title" style="margin-top: 20px;">INVOICE TRANSAKSI TIKET</div>
+        <div class="header-title" style="margin-top: 0px;">INVOICE TRANSAKSI TIKET</div>
 
     <div class="meta-info">
         <table>
@@ -240,8 +240,12 @@
             @foreach($transaksi->details as $detail)
             <tr>
                 <td>
-                    <strong>{{ \Carbon\Carbon::parse($detail->ticket->tanggal_keberangkatan)->format('dM Y') }}</strong><br>
+                    <strong>{{ $detail->ticket->nama_tiket }}</strong><br>
                     {{ $detail->ticket->kode_tiket }}<br>
+                    @if($detail->ticket->kode_tiket_1) {{ $detail->ticket->kode_tiket_1 }}<br> @endif
+                    @if($detail->ticket->kode_tiket_2) {{ $detail->ticket->kode_tiket_2 }}<br> @endif
+                    @if($detail->ticket->kode_tiket_3) {{ $detail->ticket->kode_tiket_3 }}<br> @endif
+                    @if($detail->ticket->kode_tiket_4) {{ $detail->ticket->kode_tiket_4 }}<br> @endif
                     {!! nl2br(e($detail->ticket->catatan_tiket)) !!}
                 </td>
                 <td style="text-align: center;">{{ $detail->ticket->jenis_tiket }}</td>
@@ -298,32 +302,41 @@
     </div>
 
     <div class="footer clearfix">
-        <div style="float: left; width: 60%; font-size: 7.5pt;">
-            <div class="section-title" style="margin-bottom: 5px; color: #1a1a1a;">Kondisi dan Ketentuan</div>
-            <ol style="margin: 0; padding-left: 15px; list-style-type: decimal;">
-                <li>Harga dapat berubah sewaktu-waktu mengikuti regulasi maskapai penerbangan</li>
-                <li>Deposit sebesar minimal IDR 2.000.000/pax</li>
-                <li>Time limit pembayaran deposit paling lambat 1 x 24jam setelah LOBC diterima</li>
-                <li>pembayaran Down payment yang telah dilakukan tidak dapat dikembalikan atau dialihkan</li>
-                <li>Materialisasi sesuai kebijakan maskapai masing-masing maksimal dilakukan 31 (tiga puluh satu) hari sebelum keberangkatan</li>
-                <li>Pelunasan harus dilakukan paling lambat 30 (tiga puluh) hari sebelum tanggal keberangkatan</li>
-                <li>Apabila agen tidak melakukan pelunasan pada waktu yang sudah ditentukan, maka seat akan dibatalkan dan deposit akan hangus</li>
-                <li>Pelunasan tiket tidak bisa ditarik kembali atau dibatalkan meskipun belum proses issued</li>
-                <li>Issued tiket dilakukan selambat-lambatnya 8 (delapan) hari kerja sebelum tanggal keberangkatan</li>
-                <li>PT WAHYU TITIAN INSANI dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
-                <li>Ketentuan perbaikan nama (core name), change nama, reschedule, rebook dan refund mengikuti regulasi dari masing-masing Maskapai</li>
-                <li>Ketentuan Bagasi, Tas Cabin, Air Zam-Zam mengikuti regulasi dari Maskapai</li>
-                <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n PT. WAHYU TITIAN INSANI</li>
-            </ol>
-        </div>
-        <div class="signature-area" style="position: relative;">
-            <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
-            <div style="position: relative; height: 100px;">
-                <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 120px; opacity: 0.8; top: -10px;">
-            </div>
-            <div class="signature-name" style="position: relative; z-index: 1;">PT WAHYU TITIAN INSANI</div>
-        </div>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; border: none;">
+            <tr>
+                <td style="width: 60%; vertical-align: top; padding: 0;">
+                    <div style="font-size: 6.5pt;">
+                        <div class="section-title" style="margin-bottom: 5px; color: #1a1a1a;">Kondisi dan Ketentuan</div>
+                        <ol style="margin: 0; padding-left: 15px; list-style-type: decimal;">
+                            <li>Harga dapat berubah sewaktu-waktu mengikuti regulasi maskapai penerbangan</li>
+                            <li>Deposit sebesar minimal IDR 2.000.000/pax</li>
+                            <li>Time limit pembayaran deposit paling lambat 1 x 24jam setelah LOBC diterima</li>
+                            <li>pembayaran Down payment yang telah dilakukan tidak dapat dikembalikan atau dialihkan</li>
+                            <li>Materialisasi sesuai kebijakan maskapai masing-masing maksimal dilakukan 31 (tiga puluh satu) hari sebelum keberangkatan</li>
+                            <li>Pelunasan harus dilakukan paling lambat 30 (tiga puluh) hari sebelum tanggal keberangkatan</li>
+                            <li>Apabila agen tidak melakukan pelunasan pada waktu yang sudah ditentukan, maka seat akan dibatalkan dan deposit akan hangus</li>
+                            <li>Pelunasan tiket tidak bisa ditarik kembali atau dibatalkan meskipun belum proses issued</li>
+                            <li>Issued tiket dilakukan selambat-lambatnya 8 (delapan) hari kerja sebelum tanggal keberangkatan</li>
+                            <li>PT WAHYU TITIAN INSANI dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
+                            <li>Ketentuan perbaikan nama (core name), change nama, reschedule, rebook dan refund mengikuti regulasi dari masing-masing Maskapai</li>
+                            <li>Ketentuan Bagasi, Tas Cabin, Air Zam-Zam mengikuti regulasi dari Maskapai</li>
+                            <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n PT. WAHYU TITIAN INSANI</li>
+                        </ol>
+                    </div>
+                </td>
+                <td style="width: 40%; vertical-align: top; padding: 0;">
+                    <div class="signature-area" style="position: relative; float: right; font-size: 8pt;">
+                        <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
+                        <div>PT. WAHYU TITIAN INSANI</div>
+                        <div style="position: relative; height: 80px;">
+                            <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: 0px;">
+                        </div>
+                        <div class="signature-name" style="position: relative; z-index: 1;">SARIDI, MM</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
     </div>
 
 </body>

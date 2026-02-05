@@ -61,7 +61,7 @@
       openDeleteModal(id, name) { this.deleteTarget = { id, name }; this.showDeleteModal = true; },
       confirmDelete() {
         if (!this.deleteTarget) return;
-        fetch(`/data-ticket/${this.deleteTarget.id}`, {
+        fetch(`/data-tiket/${this.deleteTarget.id}`, {
           method: "DELETE",
           headers: { "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content, "Accept": "application/json" }
         }).then(r => r.json()).then(d => {
@@ -88,37 +88,37 @@
             <table class="w-full min-w-[1000px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
-                        <th class="px-4 py-3 text-left">No</th>
-                        <th class="px-4 py-3 text-left cursor-pointer" @click="sortBy('kode_tiket')">Kode</th>
-                        <th class="px-4 py-3 text-left cursor-pointer" @click="sortBy('nama_tiket')">Nama Ticket</th>
-                        <th class="px-4 py-3 text-left">PNR</th>
-                        <th class="px-4 py-3 text-left">Maskapai</th>
-                         <th class="px-4 py-3 text-left">Tgl Berangkat</th>
-                        <th class="px-4 py-3 text-left">Status</th>
-                        <th class="px-4 py-3 text-center">Action</th>
+                        <th class="px-2 py-3 text-left">No</th>
+                        <th class="px-2 py-3 text-left cursor-pointer" @click="sortBy('kode_tiket')">Kode</th>
+                        <th class="px-2 py-3 text-left cursor-pointer" @click="sortBy('nama_tiket')">Nama Ticket</th>
+                        <th class="px-2 py-3 text-left">PNR</th>
+                        <th class="px-2 py-3 text-left">Maskapai</th>
+                         <th class="px-2 py-3 text-left">Tgl Berangkat</th>
+                        <th class="px-2 py-3 text-left">Status</th>
+                        <th class="px-2 py-3 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <template x-for="(ticket, index) in paginatedTickets" :key="ticket.id">
                         <tr class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800">
-                            <td class="px-4 py-4" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
-                            <td class="px-4 py-4 font-medium" x-text="ticket.kode_tiket"></td>
-                            <td class="px-4 py-4" x-text="ticket.nama_tiket"></td>
-                             <td class="px-4 py-4" x-text="ticket.kode_pnr"></td>
-                            <td class="px-4 py-4" x-text="ticket.maskapai?.nama_maskapai"></td>
-                             <td class="px-4 py-4" x-text="ticket.tanggal_keberangkatan"></td>
-                            <td class="px-4 py-4">
+                            <td class="px-2 py-4" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
+                            <td class="px-2 py-4 font-medium" x-text="ticket.kode_tiket"></td>
+                            <td class="px-2 py-4" x-text="ticket.nama_tiket"></td>
+                             <td class="px-2 py-4" x-text="ticket.kode_pnr"></td>
+                            <td class="px-2 py-4" x-text="ticket.maskapai?.nama_maskapai"></td>
+                             <td class="px-2 py-4" x-text="ticket.tanggal_keberangkatan"></td>
+                            <td class="px-2 py-4">
                                 <span :class="ticket.status_tiket === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" class="px-2 py-1 rounded text-xs font-semibold uppercase" x-text="ticket.status_tiket"></span>
                             </td>
-                            <td class="px-4 py-4 text-center">
+                            <td class="px-2 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                     <a :href="`/data-ticket/${ticket.id}`" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500" title="View">
+                                     <a :href="'/data-tiket/' + ticket.id" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500" title="View">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                                         </svg>
                                     </a>
-                                    <a :href="`/data-ticket/${ticket.id}/edit`" class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Edit">
+                                    <a :href="'/data-tiket/' + ticket.id + '/edit'" class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Edit">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>

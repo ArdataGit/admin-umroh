@@ -12,7 +12,8 @@ class Maskapai extends Model
         'rute_penerbangan',
         'lama_perjalanan',
         'harga_tiket',
-        'catatan_penerbangan'
+        'catatan_penerbangan',
+        'foto_maskapai'
     ];
 
     public function paketUmrohs()

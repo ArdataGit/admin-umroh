@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\AgentService;
+use Illuminate\Support\Facades\Storage;
 
 class AgentController extends Controller
 {
@@ -41,7 +42,7 @@ class AgentController extends Controller
             'nik_agent' => 'required|string|unique:agents,nik_agent|max:16',
             'nama_agent' => 'required|string|max:255',
             'kontak_agent' => 'required|string|max:20',
-            'email_agent' => 'required|email|unique:agents,email_agent',
+            'email_agent' => 'nullable|email|unique:agents,email_agent',
             'kabupaten_kota' => 'required|string',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tempat_lahir' => 'required|string',
@@ -51,7 +52,15 @@ class AgentController extends Controller
             'komisi_paket_haji' => 'required|numeric|min:0',
             'alamat_agent' => 'required|string',
             'catatan_agent' => 'nullable|string',
+            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto_agent')) {
+            $file = $request->file('foto_agent');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('agents', $filename, 'public');
+            $validated['foto_agent'] = $path;
+        }
 
         $this->agentService->create($validated);
 
@@ -78,7 +87,7 @@ class AgentController extends Controller
             'nik_agent' => 'required|string|max:16|unique:agents,nik_agent,' . $id,
             'nama_agent' => 'required|string|max:255',
             'kontak_agent' => 'required|string|max:20',
-            'email_agent' => 'required|email|unique:agents,email_agent,' . $id,
+            'email_agent' => 'nullable|email|unique:agents,email_agent,' . $id,
             'kabupaten_kota' => 'required|string',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'tempat_lahir' => 'required|string',
@@ -88,7 +97,20 @@ class AgentController extends Controller
             'komisi_paket_haji' => 'required|numeric|min:0',
             'alamat_agent' => 'required|string',
             'catatan_agent' => 'nullable|string',
+            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto_agent')) {
+            $agent = $this->agentService->getById($id);
+            if ($agent && $agent->foto_agent) {
+                Storage::disk('public')->delete($agent->foto_agent);
+            }
+            
+            $file = $request->file('foto_agent');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('agents', $filename, 'public');
+            $validated['foto_agent'] = $path;
+        }
 
         $agent = $this->agentService->update($id, $validated);
 

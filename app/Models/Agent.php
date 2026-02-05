@@ -20,7 +20,8 @@ class Agent extends Model
         'komisi_paket_umroh',
         'komisi_paket_haji',
         'alamat_agent',
-        'catatan_agent'
+        'catatan_agent',
+        'foto_agent'
     ];
     public function bonusPayouts()
     {
