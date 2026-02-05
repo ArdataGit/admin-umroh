@@ -213,8 +213,11 @@
                                 </div>
                                 
                                 <div class="mt-4">
-                                     <label class="mb-1 block text-sm font-medium text-gray-700">Pembayaran DP / Total Bayar</label>
-                                    <input type="number" x-model="form.total_bayar" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 dark:bg-gray-900" required />
+                                     <label class="mb-1 block text-sm font-medium text-gray-700">Pembayaran DP / Total Bayar <span class="text-red-500">*</span></label>
+                                    <input type="number" x-model="form.total_bayar" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 dark:bg-gray-900" 
+                                        :class="{'border-red-500': form.total_bayar < 1}" 
+                                        required min="1" />
+                                    <p x-show="form.total_bayar < 1" class="mt-1 text-xs text-red-500">Pembayaran wajib diisi minimal Rp 1</p>
                                 </div>
                                 
                                 <div>
@@ -395,7 +398,13 @@
                 this.files[key] = e.target.files[0];
             },
 
-            submitForm() {
+             submitForm() {
+                // Pre-submission validation
+                if (!this.form.total_bayar || this.form.total_bayar < 1) {
+                    alert('Gagal: Pembayaran DP / Total Bayar harus diisi dan minimal Rp 1.');
+                    return;
+                }
+
                 const formData = new FormData();
                 
                 // Append text data
@@ -414,7 +423,8 @@
                 fetch('{{ route('pendaftaran-umroh.update', $pendaftaran->id) }}', {
                     method: 'POST', // POST with _method=PUT
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
                     },
                     body: formData
                 })
@@ -423,7 +433,16 @@
                     if (data.success) {
                         window.location.href = data.redirect;
                     } else {
-                        alert(data.message || 'Terjadi kesalahan validasi atau sistem');
+                        // Handle validation errors if available
+                        if (data.errors) {
+                            let errorMsg = 'Terjadi kesalahan validasi:\n';
+                            for (const key in data.errors) {
+                                errorMsg += `- ${data.errors[key].join(', ')}\n`;
+                            }
+                            alert(errorMsg);
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan sistem');
+                        }
                     }
                 })
                 .catch(error => {

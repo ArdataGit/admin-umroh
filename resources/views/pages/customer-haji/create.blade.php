@@ -91,8 +91,12 @@
                                 <input type="text" :value="formatRupiah(totalTagihan)" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm font-bold text-gray-800" />
                             </div>
                             <div>
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pembayaran Awal (DP)</label>
-                                <input type="number" x-model="form.total_bayar" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pembayaran Awal (DP) <span class="text-red-500">*</span></label>
+                                <input type="number" x-model="form.total_bayar" 
+                                    class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" 
+                                    :class="{'border-red-500': form.total_bayar < 1}"
+                                    required min="1" />
+                                <p x-show="form.total_bayar < 1" class="mt-1 text-xs text-red-500">Pembayaran awal wajib diisi minimal Rp 1</p>
                             </div>
                              <div>
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Metode Pembayaran</label>
@@ -176,11 +180,18 @@
             formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
             },
-            submitForm() {
+             submitForm() {
+                // Pre-submission validation
+                if (!this.form.total_bayar || this.form.total_bayar < 1) {
+                    alert('Gagal: Pembayaran awal (DP) harus diisi dan minimal Rp 1.');
+                    return;
+                }
+
                 fetch('{{ route('customer-haji.store', $keberangkatan->id) }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify(this.form)
@@ -190,7 +201,16 @@
                     if (data.success) {
                         window.location.href = data.redirect;
                     } else {
-                        alert(data.message || 'Terjadi kesalahan');
+                        // Handle validation errors if available
+                        if (data.errors) {
+                            let errorMsg = 'Terjadi kesalahan validasi:\n';
+                            for (const key in data.errors) {
+                                errorMsg += `- ${data.errors[key].join(', ')}\n`;
+                            }
+                            alert(errorMsg);
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan sistem');
+                        }
                     }
                 })
                 .catch(error => {

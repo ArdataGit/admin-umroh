@@ -92,13 +92,17 @@
                     </div>
                 </div>
                 
-                 <!-- DP -->
-                 <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Total Pembayaran (DP)</label>
+                  <!-- DP -->
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Total Pembayaran (DP) <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute left-4 top-2.5 text-gray-500">Rp</span>
-                        <input type="number" x-model.number="form.total_bayar" class="w-full pl-10 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                        <input type="number" x-model.number="form.total_bayar" 
+                            class="w-full pl-10 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" 
+                            :class="{'border-red-500': form.total_bayar < 1}"
+                            required min="1" />
                     </div>
+                    <p x-show="form.total_bayar < 1" class="mt-1 text-xs text-red-500">Pembayaran DP wajib diisi minimal Rp 1</p>
                 </div>
 
 
@@ -219,11 +223,18 @@
             formatRupiah(value) {
                 return new Intl.NumberFormat('id-ID').format(value);
             },
-            submitForm() {
+             submitForm() {
+                // Pre-submission validation
+                if (!this.form.total_bayar || this.form.total_bayar < 1) {
+                    alert('Gagal: Pembayaran DP harus diisi dan minimal Rp 1.');
+                    return;
+                }
+
                 fetch('{{ route('customer-umroh.store', $keberangkatan->id) }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify(this.form)
@@ -233,7 +244,16 @@
                     if (data.success) {
                         window.location.href = data.redirect;
                     } else {
-                        alert(data.message || 'Terjadi kesalahan');
+                        // Handle validation errors if available
+                        if (data.errors) {
+                            let errorMsg = 'Terjadi kesalahan validasi:\n';
+                            for (const key in data.errors) {
+                                errorMsg += `- ${data.errors[key].join(', ')}\n`;
+                            }
+                            alert(errorMsg);
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan sistem');
+                        }
                     }
                 })
                 .catch(error => {

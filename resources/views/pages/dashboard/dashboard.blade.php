@@ -4,7 +4,7 @@
   <div class="grid grid-cols-12 gap-4 md:gap-6">
     <!-- Header Section -->
     <div class="col-span-12">
-      <h2 class="text-2xl font-bold text-gray-800 dark:text-white/90">Data Dashboard</h2>
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white/90">Data Dashboard Admin</h2>
       <hr class="mt-4 border-gray-200 dark:border-gray-800">
     </div>
 

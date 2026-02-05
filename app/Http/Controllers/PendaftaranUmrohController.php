@@ -83,7 +83,7 @@ class PendaftaranUmrohController extends Controller
             'nama_keluarga' => 'nullable|string',
             'harga_paket' => 'required|numeric',
             'diskon' => 'required|numeric',
-            'total_bayar' => 'required|numeric',
+            'total_bayar' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
             'catatan_pendaftaran' => 'nullable|string'
             // Checkboxes handled manually
@@ -260,7 +260,7 @@ class PendaftaranUmrohController extends Controller
             'nama_keluarga' => 'nullable|string',
             'harga_paket' => 'required|numeric',
             'diskon' => 'required|numeric',
-            'total_bayar' => 'required|numeric',
+            'total_bayar' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
             'catatan_pendaftaran' => 'nullable|string'
         ]);

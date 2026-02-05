@@ -57,7 +57,7 @@ class CustomerHajiController extends Controller
             'nama_keluarga' => 'nullable|string',
             'harga_paket' => 'required|numeric',
             'diskon' => 'required|numeric', // Nominal validation
-            'total_bayar' => 'required|numeric', // DP
+            'total_bayar' => 'required|numeric|min:1', // DP
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
             'catatan' => 'nullable|string'
         ]);
