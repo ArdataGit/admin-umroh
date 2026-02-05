@@ -205,11 +205,9 @@
                 <td>
                     <div class="section-title">DATA TRAVEL :</div>
                     <div class="company-name">PT WAHYU TITIAN INSANI</div>
-                    <div>Jl. Zafri Zam Zam No.40, Belitung,<br>
-                    Banjarmasin Barat, Banjarmasin,<br>
-                    Kalimantan Selatan<br>
-                    Telp: 0857-5174-9999<br>
-                    Email: tranglobalwisata@gmail.com</div>
+                    <div>Alamat : Jl. Kolonel Sugiono No.14, Pekapuran Laut, Kec. Banjarmasin Tengah, Kota Banjarmasin, Kalimantan Selatan 70235<br>
+                    No telp : 0812-5172-7729<br>
+                    Email: alinsanitrv@gmail</div>
                 </td>
                 <td>
                     <div class="section-title">DATA MITRA :</div>
@@ -312,15 +310,18 @@
                 <li>Apabila agen tidak melakukan pelunasan pada waktu yang sudah ditentukan, maka seat akan dibatalkan dan deposit akan hangus</li>
                 <li>Pelunasan tiket tidak bisa ditarik kembali atau dibatalkan meskipun belum proses issued</li>
                 <li>Issued tiket dilakukan selambat-lambatnya 8 (delapan) hari kerja sebelum tanggal keberangkatan</li>
-                <li>Transmart Global Wisata dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
+                <li>PT WAHYU TITIAN INSANI dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
                 <li>Ketentuan perbaikan nama (core name), change nama, reschedule, rebook dan refund mengikuti regulasi dari masing-masing Maskapai</li>
-                <li>Ketentuan Bagasi, Tas Cabin, Air Zam2 mengikuti regulasi dari Maskapai</li>
+                <li>Ketentuan Bagasi, Tas Cabin, Air Zam-Zam mengikuti regulasi dari Maskapai</li>
                 <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n PT. WAHYU TITIAN INSANI</li>
             </ol>
         </div>
-        <div class="signature-area">
+        <div class="signature-area" style="position: relative;">
             <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
-            <div class="signature-name">PT WAHYU TITIAN INSANI</div>
+            <div style="position: relative; height: 100px;">
+                <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 120px; opacity: 0.8; top: -10px;">
+            </div>
+            <div class="signature-name" style="position: relative; z-index: 1;">PT WAHYU TITIAN INSANI</div>
         </div>
         </div>
     </div>

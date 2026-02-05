@@ -65,9 +65,16 @@
             </tr>
         </tfoot>
     </table>
-    <div style="margin-top: 20px; float: right; width: 250px; text-align: center;">
-        <div style="margin-bottom: 30px;">Banjarmasin, {{ date('d F Y') }}</div>
-        <div style="font-weight: bold; text-transform: uppercase;">PT WAHYU TITIAN INSANI</div>
+    <div style="margin-top: 20px; float: right; width: 250px; text-align: center; position: relative;">
+        <div style="margin-bottom: 10px;">Banjarmasin, {{ date('d F Y') }}</div>
+        <div style="position: relative; height: 80px;">
+            <img src="{{ asset('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: -10px;">
+        </div>
+        <div style="font-weight: bold; text-transform: uppercase; position: relative; z-index: 1;">PT WAHYU TITIAN INSANI</div>
+        <div style="font-size: 8px;">
+            Alamat : Jl. Kolonel Sugiono No.14, Pekapuran Laut, Kec. Banjarmasin Tengah, Kota Banjarmasin, Kalimantan Selatan 70235<br>
+            No telp : 0812-5172-7729 | Email: alinsanitrv@gmail
+        </div>
     </div>
     <div style="clear: both; margin-top: 30px; text-align: right; font-size: 10px;">
         <p>Dicetak oleh Administrator</p>
