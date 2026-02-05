@@ -6,13 +6,18 @@
     <title>{{ $title }}</title>
     <style>
         @page {
-            margin: 1cm;
+            margin: 0;
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             font-size: 9pt;
             color: #1a1a1a;
             line-height: 1.4;
+            margin: 0;
+            padding: 0;
+        }
+        .content {
+            padding: 0 1cm 1cm 1cm;
         }
         .header-title {
             text-align: center;
@@ -168,11 +173,12 @@
 </head>
 <body>
 
-    <div style="margin-bottom: 20px;">
-        <img src="{{ public_path('images/surat/header.png') }}" style="width: 100%;">
+    <div style="width: 100%; margin: 0; padding: 0;">
+        <img src="{{ public_path('images/surat/header.png') }}" style="width: 100%; display: block;">
     </div>
 
-    <div class="header-title">INVOICE TRANSAKSI TIKET</div>
+    <div class="content">
+        <div class="header-title" style="margin-top: 20px;">INVOICE TRANSAKSI TIKET</div>
 
     <div class="meta-info">
         <table>
@@ -315,6 +321,7 @@
         <div class="signature-area">
             <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
             <div class="signature-name">PT WAHYU TITIAN INSANI</div>
+        </div>
         </div>
     </div>
 

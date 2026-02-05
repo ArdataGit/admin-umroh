@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 20px; }
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 0; }
+        .content { padding: 20px; }
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { margin: 0; font-size: 16px; text-transform: uppercase; }
         .header p { margin: 5px 0 0; font-size: 10px; }
@@ -15,13 +16,14 @@
         td.center { text-align: center; }
         td.right { text-align: right; }
         .footer { margin-top: 30px; text-align: right; font-size: 10px; }
-        @media print { @page { size: landscape; margin: 10mm; } }
+        @media print { @page { size: landscape; margin: 0; } }
     </style>
 </head>
 <body onload="window.print()">
-    <div style="margin-bottom: 20px;">
-        <img src="{{ asset('images/surat/header.png') }}" style="width: 100%;">
+    <div style="width: 100%; margin: 0; padding: 0;">
+        <img src="{{ asset('images/surat/header.png') }}" style="width: 100%; display: block;">
     </div>
+    <div class="content">
     <div class="header">
         <h1>LAPORAN PEMBAYARAN TIKET</h1>
         <p>Dicetak pada: {{ date('d-m-Y H:i:s') }}</p>
@@ -69,6 +71,7 @@
     </div>
     <div style="clear: both; margin-top: 30px; text-align: right; font-size: 10px;">
         <p>Dicetak oleh Administrator</p>
+    </div>
     </div>
 </body>
 </html>
