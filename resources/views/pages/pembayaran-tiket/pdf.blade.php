@@ -207,7 +207,7 @@
                     <div class="company-name">PT WAHYU TITIAN INSANI</div>
                     <div>Alamat : Jl. Kolonel Sugiono No.14, Pekapuran Laut, Kec. Banjarmasin Tengah, Kota Banjarmasin, Kalimantan Selatan 70235<br>
                     No telp : 0812-5172-7729<br>
-                    Email: alinsanitrv@gmail</div>
+                    Email: alinsanitrv@gmail.com</div>
                 </td>
                 <td>
                     <div class="section-title">DATA MITRA :</div>
