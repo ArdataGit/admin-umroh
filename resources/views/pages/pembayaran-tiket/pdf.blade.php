@@ -135,7 +135,7 @@
         }
         
         .footer {
-            margin-top: 50px;
+            margin-top: 20px;
             width: 100%;
             clear: both;
         }
@@ -145,7 +145,7 @@
             width: 250px;
         }
         .signature-date {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .signature-line {
             border-top: 1px solid #333;
@@ -167,6 +167,10 @@
     </style>
 </head>
 <body>
+
+    <div style="margin-bottom: 20px;">
+        <img src="{{ public_path('images/surat/header.png') }}" style="width: 100%;">
+    </div>
 
     <div class="header-title">INVOICE TRANSAKSI TIKET</div>
 

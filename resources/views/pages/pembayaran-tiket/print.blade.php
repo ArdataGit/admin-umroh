@@ -19,6 +19,9 @@
     </style>
 </head>
 <body onload="window.print()">
+    <div style="margin-bottom: 20px;">
+        <img src="{{ asset('images/surat/header.png') }}" style="width: 100%;">
+    </div>
     <div class="header">
         <h1>LAPORAN PEMBAYARAN TIKET</h1>
         <p>Dicetak pada: {{ date('d-m-Y H:i:s') }}</p>
@@ -60,6 +63,12 @@
             </tr>
         </tfoot>
     </table>
-    <div class="footer"><p>Dicetak oleh Administrator</p></div>
+    <div style="margin-top: 20px; float: right; width: 250px; text-align: center;">
+        <div style="margin-bottom: 30px;">Banjarmasin, {{ date('d F Y') }}</div>
+        <div style="font-weight: bold; text-transform: uppercase;">PT WAHYU TITIAN INSANI</div>
+    </div>
+    <div style="clear: both; margin-top: 30px; text-align: right; font-size: 10px;">
+        <p>Dicetak oleh Administrator</p>
+    </div>
 </body>
 </html>
