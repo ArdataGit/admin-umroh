@@ -26,7 +26,8 @@ class Ticket extends Model
         'kode_tiket_2',
         'kode_tiket_3',
         'kode_tiket_4',
-        'catatan_tiket'
+        'catatan_tiket',
+        'foto_tiket'
     ];
 
     public function maskapai()

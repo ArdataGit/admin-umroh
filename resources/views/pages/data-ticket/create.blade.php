@@ -8,11 +8,17 @@
 
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12">
-        <form action="{{ route('data-ticket.store') }}" method="POST">
+        <form action="{{ route('data-ticket.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 mb-6">
             <h3 class="mb-6 text-xl font-semibold text-gray-800 dark:text-white">Informasi Ticket</h3>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Foto Ticket (Opsional)</label>
+                    <input type="file" name="foto_tiket" accept="image/*" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" />
+                    <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, GIF. Maks: 2MB</p>
+                    @error('foto_tiket') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kode Ticket</label>
                     <input type="text" name="kode_tiket" value="{{ $kodeTiket }}" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500" />

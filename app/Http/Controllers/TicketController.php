@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\TicketService;
 use App\Models\Ticket;
 use App\Models\Maskapai;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -62,7 +63,13 @@ class TicketController extends Controller
             'kode_tiket_3' => 'nullable|string',
             'kode_tiket_4' => 'nullable|string',
             'catatan_tiket' => 'nullable|string',
+            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto_tiket')) {
+            $path = $request->file('foto_tiket')->store('tickets', 'public');
+            $validated['foto_tiket'] = $path;
+        }
 
         $this->ticketService->create($validated);
 
@@ -107,7 +114,19 @@ class TicketController extends Controller
             'kode_tiket_3' => 'nullable|string',
             'kode_tiket_4' => 'nullable|string',
             'catatan_tiket' => 'nullable|string',
+            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $ticket = Ticket::findOrFail($id);
+
+        if ($request->hasFile('foto_tiket')) {
+            // Delete old photo
+            if ($ticket->foto_tiket && Storage::disk('public')->exists($ticket->foto_tiket)) {
+                Storage::disk('public')->delete($ticket->foto_tiket);
+            }
+            $path = $request->file('foto_tiket')->store('tickets', 'public');
+            $validated['foto_tiket'] = $path;
+        }
 
         $this->ticketService->update($id, $validated);
 

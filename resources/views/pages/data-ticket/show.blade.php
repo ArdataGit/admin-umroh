@@ -19,6 +19,12 @@
         </div>
     </div>
 
+    @if($ticket->foto_tiket)
+        <div class="mb-8 flex justify-center">
+            <img src="{{ asset('storage/' . $ticket->foto_tiket) }}" alt="{{ $ticket->nama_tiket }}" class="h-64 rounded-xl object-contain shadow-sm border border-gray-100 dark:border-gray-800" />
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div>
             <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white">Informasi Ticket</h3>

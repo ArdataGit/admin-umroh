@@ -89,8 +89,10 @@
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-800">
                         <th class="px-2 py-3 text-left">No</th>
+                        <th class="px-2 py-3 text-left">Foto</th>
                         <th class="px-2 py-3 text-left cursor-pointer" @click="sortBy('kode_tiket')">Kode</th>
                         <th class="px-2 py-3 text-left cursor-pointer" @click="sortBy('nama_tiket')">Nama Ticket</th>
+                        <th class="px-2 py-3 text-left">Pax</th>
                         <th class="px-2 py-3 text-left">PNR</th>
                         <th class="px-2 py-3 text-left">Maskapai</th>
                          <th class="px-2 py-3 text-left">Tgl Berangkat</th>
@@ -102,8 +104,23 @@
                     <template x-for="(ticket, index) in paginatedTickets" :key="ticket.id">
                         <tr class="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800">
                             <td class="px-2 py-4" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></td>
+                            <td class="px-2 py-4">
+                                <div class="h-10 w-10 overflow-hidden rounded bg-gray-100">
+                                    <template x-if="ticket.foto_tiket">
+                                        <img :src="'/storage/' + ticket.foto_tiket" class="h-full w-full object-cover" />
+                                    </template>
+                                    <template x-if="!ticket.foto_tiket">
+                                        <div class="flex h-full w-full items-center justify-center text-gray-400">
+                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                                            </svg>
+                                        </div>
+                                    </template>
+                                </div>
+                            </td>
                             <td class="px-2 py-4 font-medium" x-text="ticket.kode_tiket"></td>
                             <td class="px-2 py-4" x-text="ticket.nama_tiket"></td>
+                            <td class="px-2 py-4" x-text="ticket.jumlah_tiket"></td>
                              <td class="px-2 py-4" x-text="ticket.kode_pnr"></td>
                             <td class="px-2 py-4" x-text="ticket.maskapai?.nama_maskapai"></td>
                              <td class="px-2 py-4" x-text="ticket.tanggal_keberangkatan"></td>

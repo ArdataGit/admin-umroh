@@ -70,16 +70,16 @@
     <div class="container">
         <!-- Header Kop Surat (Optional, sesuaikan dengan kebutuhan) -->
         <div class="header">
-            <h1>PT. PERWAKAB BATAM</h1>
-            <p>Jalan Contoh No. 123, Batam, Kepulauan Riau</p>
-            <p>Telp: (0778) 123456 | Email: info@perwakab.com</p>
+            <h1>PT. WAHYU TITIAN INSANI</h1>
+            <p>Jl. Kolonel Sugiono No.14, Pekapuran Laut, Kec. Banjarmasin Tengah, Kota Banjarmasin, Kalimantan Selatan 70235</p>
+            <p>No telp : 0812-5172-7729 | Email: alinsanitrv@gmail.com</p>
         </div>
 
         <div class="content">
             <div class="title">SURAT KETERANGAN IBADAH UMROH</div>
             <div class="subtitle">Nomor: {{ $surat->nomor_dokumen }}</div>
 
-            <p style="text-align: justify;">Yang bertanda tangan di bawah ini Direktur Utama <strong>PT. PERWAKAB BATAM</strong> menerangkan dengan sesungguhnya bahwa:</p>
+            <p style="text-align: justify;">Yang bertanda tangan di bawah ini Direktur Utama <strong>PT. WAHYU TITIAN INSANI</strong> menerangkan dengan sesungguhnya bahwa:</p>
             
             <table class="data-table">
                 <tr>
@@ -122,7 +122,7 @@
             </table>
 
             <p style="text-align: justify;">
-                Adalah benar calon jamaah Umroh yang terdaftar di travel kami <strong>PT. PERWAKAB BATAM</strong> yang akan melaksanakan ibadah umroh dan berangkat pada tanggal <strong>{{ \Carbon\Carbon::parse($surat->keberangkatanUmroh->tanggal_keberangkatan)->format('d F Y') }}</strong>.
+                Adalah benar calon jamaah Umroh yang terdaftar di travel kami <strong>PT. WAHYU TITIAN INSANI</strong> yang akan melaksanakan ibadah umroh dan berangkat pada tanggal <strong>{{ \Carbon\Carbon::parse($surat->keberangkatanUmroh->tanggal_keberangkatan)->format('d F Y') }}</strong>.
             </p>
 
             <p style="text-align: justify;">
@@ -136,9 +136,9 @@
             <p>Demikian surat keterangan ini kami buat untuk dapat dipergunakan sebagaimana mestinya. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
 
             <div class="signature">
-                <p>Batam, {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
+                <p>Banjarmasin, {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
                 <p>Hormat Kami,</p>
-                <div class="signature-name">H. CONTOH NAMA</div>
+                <div class="signature-name">SARIDI, MM</div>
                 <p>Direktur Utama</p>
             </div>
         </div>
