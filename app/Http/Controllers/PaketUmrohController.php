@@ -7,6 +7,7 @@ use App\Services\PaketUmrohService;
 use App\Models\PaketUmroh;
 use App\Models\Maskapai;
 use App\Models\Hotel;
+use App\Models\Kota;
 
 class PaketUmrohController extends Controller
 {
@@ -42,6 +43,7 @@ class PaketUmrohController extends Controller
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all(); // Transit can be anywhere
+        $kotas = Kota::orderBy('nama_kota', 'asc')->get();
 
         return view('pages.paket-umroh.create', [
             'title' => 'Tambah Paket Umroh',
@@ -49,7 +51,8 @@ class PaketUmrohController extends Controller
             'maskapais' => $maskapais,
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
-            'hotelsTransit' => $hotelsTransit
+            'hotelsTransit' => $hotelsTransit,
+            'kotas' => $kotas
         ]);
     }
 
@@ -114,6 +117,7 @@ class PaketUmrohController extends Controller
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all();
+        $kotas = Kota::orderBy('nama_kota', 'asc')->get();
 
         return view('pages.paket-umroh.edit', [
             'title' => 'Edit Paket Umroh',
@@ -121,7 +125,8 @@ class PaketUmrohController extends Controller
             'maskapais' => $maskapais,
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
-            'hotelsTransit' => $hotelsTransit
+            'hotelsTransit' => $hotelsTransit,
+            'kotas' => $kotas
         ]);
     }
 

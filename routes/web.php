@@ -399,6 +399,8 @@ Route::get('pembayaran-tiket/{id}', [PembayaranTiketController::class, 'show'])-
 Route::get('pembayaran-tiket/{id}/create-payment', [PembayaranTiketController::class, 'createPayment'])->name('pembayaran-tiket.create-payment');
 Route::post('pembayaran-tiket/{id}/store-payment', [PembayaranTiketController::class, 'storePayment'])->name('pembayaran-tiket.store-payment');
 
+Route::resource('data-kota', \App\Http\Controllers\KotaController::class);
+
 // Individual Payment Actions
 Route::get('pembayaran-tiket/detail/{id}', [PembayaranTiketController::class, 'detail'])->name('pembayaran-tiket.detail');
 Route::get('pembayaran-tiket/edit/{id}', [PembayaranTiketController::class, 'edit'])->name('pembayaran-tiket.edit');

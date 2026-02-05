@@ -59,16 +59,9 @@
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Lokasi Keberangkatan</label>
                     <select name="lokasi_keberangkatan" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
-                        <option value="Jakarta">Jakarta</option>
-                        <option value="Surabaya">Surabaya</option>
-                        <option value="Makasar">Makasar</option>
-                        <option value="Balikpapan">Balikpapan</option>
-                        <option value="Medan">Medan</option>
-                        <option value="Pekanbaru">Pekanbaru</option>
-                        <option value="Denpasar">Denpasar</option>
-                        <option value="Lombok">Lombok</option>
-                        <option value="Jambi">Jambi</option>
-                        <option value="Batam">Batam</option>
+                        @foreach($kotas as $kota)
+                            <option value="{{ $kota->nama_kota }}" {{ old('lokasi_keberangkatan') == $kota->nama_kota ? 'selected' : '' }}>{{ $kota->nama_kota }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>

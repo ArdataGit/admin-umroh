@@ -7,6 +7,7 @@ use App\Services\PaketHajiService;
 use App\Models\PaketHaji;
 use App\Models\Maskapai;
 use App\Models\Hotel;
+use App\Models\Kota;
 
 class PaketHajiController extends Controller
 {
@@ -34,6 +35,7 @@ class PaketHajiController extends Controller
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all(); 
+        $kotas = Kota::orderBy('nama_kota', 'asc')->get();
 
         return view('pages.paket-haji.create', [
             'title' => 'Tambah Paket Haji',
@@ -41,7 +43,8 @@ class PaketHajiController extends Controller
             'maskapais' => $maskapais,
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
-            'hotelsTransit' => $hotelsTransit
+            'hotelsTransit' => $hotelsTransit,
+            'kotas' => $kotas
         ]);
     }
 
@@ -101,6 +104,7 @@ class PaketHajiController extends Controller
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all();
+        $kotas = Kota::orderBy('nama_kota', 'asc')->get();
 
         return view('pages.paket-haji.edit', [
             'title' => 'Edit Paket Haji',
@@ -108,7 +112,8 @@ class PaketHajiController extends Controller
             'maskapais' => $maskapais,
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
-            'hotelsTransit' => $hotelsTransit
+            'hotelsTransit' => $hotelsTransit,
+            'kotas' => $kotas
         ]);
     }
 
