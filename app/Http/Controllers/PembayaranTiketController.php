@@ -141,4 +141,75 @@ class PembayaranTiketController extends Controller
         
         return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
     }
+
+    public function printPdf($id)
+    {
+        $pembayaran = PembayaranTiket::with([
+            'transaksiTiket.pelanggan',
+            'transaksiTiket.details.ticket',
+            'transaksiTiket.pembayaranTikets'
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksiTiket;
+        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-tiket.pdf', [
+            'title' => 'Invoice Transaksi Tiket - ' . $transaksi->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->stream('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
+    }
+
+    public function export()
+    {
+        $pembayarans = PembayaranTiket::with(['transaksiTiket.pelanggan'])->latest()->get();
+        $filename = "data_pembayaran_tiket_" . date('Y-m-d_H-i-s') . ".csv";
+
+        $headers = [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $columns = ['No', 'Tanggal', 'Kode Transaksi', 'Trx. Tiket', 'Nama Mitra', 'Jumlah', 'Metode', 'Status', 'Referensi'];
+
+        $callback = function() use ($pembayarans, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($pembayarans as $index => $item) {
+                fputcsv($file, [
+                    $index + 1,
+                    $item->tanggal_pembayaran,
+                    $item->kode_transaksi,
+                    $item->transaksi_tiket->kode_transaksi ?? '-',
+                    $item->transaksi_tiket->pelanggan->nama_pelanggan ?? '-',
+                    $item->jumlah_pembayaran,
+                    $item->metode_pembayaran,
+                    $item->status_pembayaran,
+                    $item->kode_referensi
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function printData()
+    {
+        $pembayarans = PembayaranTiket::with(['transaksiTiket.pelanggan'])->latest()->get();
+        return view('pages.pembayaran-tiket.print', [
+            'pembayarans' => $pembayarans,
+            'title' => 'Laporan Pembayaran Tiket'
+        ]);
+    }
 }

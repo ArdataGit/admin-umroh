@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 11px; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 16px; text-transform: uppercase; }
+        .header p { margin: 5px 0 0; font-size: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+        td.center { text-align: center; }
+        td.right { text-align: right; }
+        .footer { margin-top: 30px; text-align: right; font-size: 10px; }
+        @media print { @page { size: landscape; margin: 10mm; } }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <h1>LAPORAN PEMBAYARAN TIKET</h1>
+        <p>Dicetak pada: {{ date('d-m-Y H:i:s') }}</p>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%">No</th>
+                <th style="width: 10%">Tanggal</th>
+                <th style="width: 15%">Kode Pembayaran</th>
+                <th style="width: 15%">Trx. Tiket</th>
+                <th style="width: 20%">Nama Mitra</th>
+                <th style="width: 15%">Jumlah</th>
+                <th style="width: 10%">Metode</th>
+                <th style="width: 10%">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($pembayarans as $index => $item)
+                <tr>
+                    <td class="center">{{ $index + 1 }}</td>
+                    <td>{{ \Carbon\Carbon::parse($item->tanggal_pembayaran)->format('d/m/Y') }}</td>
+                    <td>{{ $item->kode_transaksi }}</td>
+                    <td>{{ $item->transaksi_tiket->kode_transaksi ?? '-' }}</td>
+                    <td>{{ $item->transaksi_tiket->pelanggan->nama_pelanggan ?? '-' }}</td>
+                    <td class="right">Rp {{ number_format($item->jumlah_pembayaran, 0, ',', '.') }}</td>
+                    <td class="center capitalize">{{ $item->metode_pembayaran }}</td>
+                    <td class="center uppercase">{{ $item->status_pembayaran }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="8" class="center">Tidak ada data pembayaran tiket</td></tr>
+            @endforelse
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; background-color: #f2f2f2;">
+                <td colspan="5" class="right">TOTAL</td>
+                <td class="right">Rp {{ number_format($pembayarans->sum('jumlah_pembayaran'), 0, ',', '.') }}</td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="footer"><p>Dicetak oleh Administrator</p></div>
+</body>
+</html>
