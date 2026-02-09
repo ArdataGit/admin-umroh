@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MaskapaiService;
 use Illuminate\Support\Facades\Storage;
+use App\Models\SystemSetting;
+use App\Services\ExchangeRateService;
 
 class MaskapaiController extends Controller
 {
@@ -23,15 +25,24 @@ class MaskapaiController extends Controller
 
     public function create()
     {
+        ExchangeRateService::updateRates();
+
         // Auto-generate kode_maskapai: MK-001, MK-002, etc based on next ID
         $lastMaskapai = \App\Models\Maskapai::orderBy('id', 'desc')->first();
         $nextId = $lastMaskapai ? $lastMaskapai->id + 1 : 1;
         $newNumber = str_pad($nextId, 3, '0', STR_PAD_LEFT);
         $kodeMaskapai = 'MK-' . $newNumber;
 
+        $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
+        $kursSar = SystemSetting::where('key', 'kurs_sar')->first()->value ?? 0;
+        $kursMyr = SystemSetting::where('key', 'kurs_myr')->first()->value ?? (SystemSetting::where('key', 'kurs_rm')->first()->value ?? 0);
+
         return view('pages.data-maskapai.create', [
             'title' => 'Tambah Data Maskapai',
-            'kodeMaskapai' => $kodeMaskapai
+            'kodeMaskapai' => $kodeMaskapai,
+            'kursUsd' => $kursUsd / 100,
+            'kursSar' => $kursSar / 100,
+            'kursMyr' => $kursMyr / 100
         ]);
     }
 
@@ -42,16 +53,35 @@ class MaskapaiController extends Controller
             'nama_maskapai' => 'required|string|max:255',
             'rute_penerbangan' => 'required|in:Direct,Transit',
             'lama_perjalanan' => 'required|integer|min:0',
+            'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
             'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
         if ($request->hasFile('foto_maskapai')) {
             $file = $request->file('foto_maskapai');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('maskapais', $filename, 'public');
             $validated['foto_maskapai'] = $path;
+        }
+
+        // Handle Currency Conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateKey = match($kurs) {
+                'USD' => 'kurs_usd',
+                'SAR' => 'kurs_sar',
+                'MYR' => 'kurs_myr',
+                default => null,
+            };
+
+            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+            $rate = $rateValue / 100;
+
+            $validated['kurs_asing'] = $validated['harga_tiket'];
+            $validated['harga_tiket'] = $validated['harga_tiket'] * $rate;
+        } else {
+            $validated['kurs_asing'] = 0;
         }
 
         $this->maskapaiService->create($validated);
@@ -67,9 +97,18 @@ class MaskapaiController extends Controller
             return redirect()->route('data-maskapai')->with('error', 'Data maskapai tidak ditemukan');
         }
 
+        ExchangeRateService::updateRates();
+
+        $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
+        $kursSar = SystemSetting::where('key', 'kurs_sar')->first()->value ?? 0;
+        $kursMyr = SystemSetting::where('key', 'kurs_myr')->first()->value ?? (SystemSetting::where('key', 'kurs_rm')->first()->value ?? 0);
+
         return view('pages.data-maskapai.edit', [
             'title' => 'Edit Data Maskapai',
-            'maskapai' => $maskapai
+            'maskapai' => $maskapai,
+            'kursUsd' => $kursUsd / 100,
+            'kursSar' => $kursSar / 100,
+            'kursMyr' => $kursMyr / 100
         ]);
     }
 
@@ -79,11 +118,11 @@ class MaskapaiController extends Controller
             'nama_maskapai' => 'required|string|max:255',
             'rute_penerbangan' => 'required|in:Direct,Transit',
             'lama_perjalanan' => 'required|integer|min:0',
+            'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
             'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
         if ($request->hasFile('foto_maskapai')) {
             $maskapai = $this->maskapaiService->getById($id);
             if ($maskapai && $maskapai->foto_maskapai) {
@@ -94,6 +133,25 @@ class MaskapaiController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('maskapais', $filename, 'public');
             $validated['foto_maskapai'] = $path;
+        }
+
+        // Handle Currency Conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateKey = match($kurs) {
+                'USD' => 'kurs_usd',
+                'SAR' => 'kurs_sar',
+                'MYR' => 'kurs_myr',
+                default => null,
+            };
+
+            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+            $rate = $rateValue / 100;
+
+            $validated['kurs_asing'] = $validated['harga_tiket'];
+            $validated['harga_tiket'] = $validated['harga_tiket'] * $rate;
+        } else {
+            $validated['kurs_asing'] = 0;
         }
 
         $maskapai = $this->maskapaiService->update($id, $validated);

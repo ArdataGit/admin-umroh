@@ -61,7 +61,15 @@
                                 Harga Tiket
                             </label>
                             <div class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90">
-                                Rp {{ number_format($maskapai->harga_tiket, 0, ',', '.') }}
+                                @php
+                                    $symbol = $maskapai->kurs === 'IDR' || !$maskapai->kurs ? 'Rp' : ($maskapai->kurs === 'MYR' ? 'RM' : $maskapai->kurs);
+                                @endphp
+                                @if($maskapai->kurs !== 'IDR' && $maskapai->kurs_asing > 0)
+                                    {{ $symbol }} {{ number_format($maskapai->kurs_asing, 0, ',', '.') }} 
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 font-normal">(Rp {{ number_format($maskapai->harga_tiket, 0, ',', '.') }})</span>
+                                @else
+                                    {{ $symbol }} {{ number_format($maskapai->harga_tiket, 0, ',', '.') }}
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -45,7 +45,9 @@
                             <template x-for="ticket in filteredTickets" :key="ticket.id">
                                 <li @click="addTicket(ticket)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 flex justify-between">
                                     <span x-text="ticket.nama_tiket + ' (' + ticket.kode_tiket + ') - Stok: ' + ticket.jumlah_tiket"></span>
-                                    <span x-text="'Harga: Rp ' + formatNumber(ticket.harga_jual)"></span>
+                                    <span x-text="ticket.kurs && ticket.kurs !== 'IDR' ? 
+                                        ((ticket.kurs === 'MYR' ? 'RM' : ticket.kurs) + ' ' + formatNumberDecimal(ticket.harga_jual_asing) + ' (Rp ' + formatNumber(ticket.harga_jual) + ')') : 
+                                        'Harga: Rp ' + formatNumber(ticket.harga_jual)"></span>
                                 </li>
                             </template>
                         </ul>
@@ -71,7 +73,15 @@
                                         <p class="text-xs text-gray-500" x-text="'Stok: ' + item.stok"></p>
                                     </td>
                                     <td class="px-4 py-3">
-                                        Rp <span x-text="formatNumber(item.harga_satuan)"></span>
+                                        <template x-if="item.kurs && item.kurs !== 'IDR'">
+                                            <div class="flex flex-col">
+                                                <span class="font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs) + ' ' + formatNumberDecimal(item.harga_jual_asing)"></span>
+                                                <span class="text-xs text-gray-500" x-text="'(Rp ' + formatNumber(item.harga_satuan) + ')'"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="!item.kurs || item.kurs === 'IDR'">
+                                            <span>Rp <span x-text="formatNumber(item.harga_satuan)"></span></span>
+                                        </template>
                                     </td>
                                     <td class="px-4 py-3">
                                         <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" :max="item.stok" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
@@ -203,11 +213,12 @@
                         alert('Stok tiket tidak mencukupi untuk menambah lagi.');
                     }
                 } else {
-                    this.form.details.push({
                         ticket_id: ticket.id,
                         nama_tiket: ticket.nama_tiket,
                         kode_tiket: ticket.kode_tiket,
                         stok: ticket.jumlah_tiket,
+                        kurs: ticket.kurs,
+                        harga_jual_asing: parseFloat(ticket.harga_jual_asing) || 0,
                         harga_satuan: ticket.harga_jual,
                         quantity: 1,
                         total_harga: ticket.harga_jual
@@ -241,6 +252,9 @@
             },
             formatNumber(num) {
                 return new Intl.NumberFormat('id-ID').format(Math.round(num));
+            },
+            formatNumberDecimal(num) {
+                return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             },
             submitForm() {
                 fetch('{{ route('transaksi-tiket.update', $transaksi->id) }}', {

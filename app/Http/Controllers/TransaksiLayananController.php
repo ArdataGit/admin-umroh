@@ -13,7 +13,7 @@ class TransaksiLayananController extends Controller
 {
     public function index()
     {
-        $transaksi = TransaksiLayanan::with(['pelanggan', 'details', 'pembayaranLayanans'])->latest()->get();
+        $transaksi = TransaksiLayanan::with(['pelanggan', 'details.layanan', 'pembayaranLayanans'])->latest()->get();
         return view('pages.transaksi-layanan.index', [
             'title' => 'Transaksi Layanan',
             'transaksi' => $transaksi
@@ -142,6 +142,8 @@ class TransaksiLayananController extends Controller
             return [
                 'layanan_id' => $detail->layanan_id,
                 'nama_layanan' => $detail->layanan->nama_layanan,
+                'kurs' => $detail->layanan->kurs,
+                'harga_jual_asing' => $detail->layanan->harga_jual_asing,
                 'harga_satuan' => $detail->harga_satuan,
                 'quantity' => $detail->quantity,
                 'total_harga' => $detail->total_harga

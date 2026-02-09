@@ -12,6 +12,7 @@ class TicketController extends Controller
 {
     protected $ticketService;
 
+
     public function __construct(TicketService $ticketService)
     {
         $this->ticketService = $ticketService;
@@ -32,11 +33,19 @@ class TicketController extends Controller
         $kodeTiket = 'TK-' . $newNumber;
 
         $maskapais = Maskapai::all();
+        
+        $rateService = new \App\Services\ExchangeRateService();
+        $kursUsd = $rateService->getRate('USD');
+        $kursSar = $rateService->getRate('SAR');
+        $kursMyr = $rateService->getRate('MYR');
 
         return view('pages.data-ticket.create', [
             'title' => 'Tambah Ticket',
             'kodeTiket' => $kodeTiket,
-            'maskapais' => $maskapais
+            'maskapais' => $maskapais,
+            'kursUsd' => $kursUsd,
+            'kursSar' => $kursSar,
+            'kursMyr' => $kursMyr,
         ]);
     }
 
@@ -57,6 +66,7 @@ class TicketController extends Controller
             'jumlah_hari' => 'required|integer',
             'harga_modal' => 'required|numeric',
             'harga_jual' => 'required|numeric',
+            'kurs' => 'required|string|in:IDR,USD,SAR,MYR', // Added validation
             'status_tiket' => 'required|in:active,non-active',
             'kode_tiket_1' => 'nullable|string',
             'kode_tiket_2' => 'nullable|string',
@@ -65,6 +75,23 @@ class TicketController extends Controller
             'catatan_tiket' => 'nullable|string',
             'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+        
+        // Handle currency conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateService = new \App\Services\ExchangeRateService();
+            $rate = $rateService->getRate($kurs);
+            
+            $validated['harga_modal_asing'] = $validated['harga_modal'];
+            $validated['harga_jual_asing'] = $validated['harga_jual'];
+            
+            // Konversi ke Rupiah
+            $validated['harga_modal'] = $validated['harga_modal'] * $rate;
+            $validated['harga_jual'] = $validated['harga_jual'] * $rate;
+        } else {
+            $validated['harga_modal_asing'] = 0;
+            $validated['harga_jual_asing'] = 0;
+        }
 
         if ($request->hasFile('foto_tiket')) {
             $path = $request->file('foto_tiket')->store('tickets', 'public');
@@ -84,11 +111,19 @@ class TicketController extends Controller
         }
 
         $maskapais = Maskapai::all();
+        
+        $rateService = new \App\Services\ExchangeRateService();
+        $kursUsd = $rateService->getRate('USD');
+        $kursSar = $rateService->getRate('SAR');
+        $kursMyr = $rateService->getRate('MYR');
 
         return view('pages.data-ticket.edit', [
             'title' => 'Edit Ticket',
             'ticket' => $ticket,
-            'maskapais' => $maskapais
+            'maskapais' => $maskapais,
+            'kursUsd' => $kursUsd,
+            'kursSar' => $kursSar,
+            'kursMyr' => $kursMyr,
         ]);
     }
 
@@ -108,6 +143,7 @@ class TicketController extends Controller
             'jumlah_hari' => 'required|integer',
             'harga_modal' => 'required|numeric',
             'harga_jual' => 'required|numeric',
+            'kurs' => 'required|string|in:IDR,USD,SAR,MYR', // Added validation
             'status_tiket' => 'required|in:active,non-active',
             'kode_tiket_1' => 'nullable|string',
             'kode_tiket_2' => 'nullable|string',
@@ -118,6 +154,23 @@ class TicketController extends Controller
         ]);
 
         $ticket = Ticket::findOrFail($id);
+        
+        // Handle currency conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateService = new \App\Services\ExchangeRateService();
+            $rate = $rateService->getRate($kurs);
+            
+            $validated['harga_modal_asing'] = $validated['harga_modal'];
+            $validated['harga_jual_asing'] = $validated['harga_jual'];
+            
+            // Konversi ke Rupiah
+            $validated['harga_modal'] = $validated['harga_modal'] * $rate;
+            $validated['harga_jual'] = $validated['harga_jual'] * $rate;
+        } else {
+            $validated['harga_modal_asing'] = 0;
+            $validated['harga_jual_asing'] = 0;
+        }
 
         if ($request->hasFile('foto_tiket')) {
             // Delete old photo

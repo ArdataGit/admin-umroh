@@ -13,7 +13,7 @@ class TransaksiTiketController extends Controller
 {
     public function index()
     {
-        $transaksi = TransaksiTiket::with(['pelanggan', 'details', 'pembayaranTikets'])->latest()->get();
+        $transaksi = TransaksiTiket::with(['pelanggan', 'details.ticket', 'pembayaranTikets'])->latest()->get();
         return view('pages.transaksi-tiket.index', [
             'title' => 'Transaksi Tiket',
             'transaksi' => $transaksi
@@ -153,6 +153,8 @@ class TransaksiTiketController extends Controller
                 'nama_tiket' => $detail->ticket->nama_tiket,
                 'kode_tiket' => $detail->ticket->kode_tiket,
                 'stok' => $detail->ticket->jumlah_tiket,
+                'kurs' => $detail->ticket->kurs,
+                'harga_jual_asing' => $detail->ticket->harga_jual_asing,
                 'harga_satuan' => $detail->harga_satuan,
                 'quantity' => $detail->quantity,
                 'total_harga' => $detail->total_harga

@@ -116,8 +116,13 @@
       getRatingStars(rating) {
         return "⭐".repeat(rating);
       },
-      formatPrice(price) {
-        return "Rp " + Number(price).toLocaleString("id-ID");
+      formatPrice(price, kurs, kurs_asing) {
+        if (kurs === "IDR" || !kurs) {
+            return "Rp " + Number(price).toLocaleString("id-ID");
+        }
+        const symbol = kurs === "MYR" ? "RM" : kurs;
+        const foreignPrice = Number(kurs_asing) > 0 ? kurs_asing : price;
+        return symbol + " " + Number(foreignPrice).toLocaleString("id-ID") + " (Rp " + Number(price).toLocaleString("id-ID") + ")";
       },
       openDeleteModal(id, name) {
         this.deleteTarget = { id, name };
@@ -293,7 +298,7 @@
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="getRatingStars(hotel.rating_hotel)"></p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="formatPrice(hotel.harga_hotel)"></p>
+                                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90" x-text="formatPrice(hotel.harga_hotel, hotel.kurs, hotel.kurs_asing)"></p>
                             </td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center justify-center gap-2">

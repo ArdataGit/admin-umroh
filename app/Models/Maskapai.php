@@ -11,6 +11,8 @@ class Maskapai extends Model
         'nama_maskapai',
         'rute_penerbangan',
         'lama_perjalanan',
+        'kurs',
+        'kurs_asing',
         'harga_tiket',
         'catatan_penerbangan',
         'foto_maskapai'

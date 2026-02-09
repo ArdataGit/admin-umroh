@@ -139,6 +139,14 @@
           console.error("Error:", error);
           alert("Terjadi kesalahan saat menghapus data");
         });
+      },
+      formatPrice(price, currency, foreignPrice) {
+        if (!currency || currency === "IDR") {
+            return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(price);
+        } else {
+            const symbol = currency === "MYR" ? "RM" : currency;
+            return `${symbol} ${parseFloat(foreignPrice).toLocaleString("en-US")} (Rp ${new Intl.NumberFormat("id-ID").format(price)})`;
+        }
       }
     }'>
 
@@ -256,7 +264,7 @@
                                 <p class="text-gray-800 text-theme-sm dark:text-gray-400" x-text="layanan.nama_layanan"></p>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(layanan.harga_jual)"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(layanan.harga_jual, layanan.kurs, layanan.harga_jual_asing)"></p>
                             </td>
                             <td class="px-4 py-4">
                                 <span :class="layanan.status_layanan === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'" class="inline-flex rounded-full px-2 py-1 text-xs font-medium">

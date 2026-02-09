@@ -87,7 +87,20 @@
                                 <td class="px-6 py-4 font-medium" x-text="item.kode_transaksi"></td>
                                 <td class="px-6 py-4" x-text="item.pelanggan?.nama_pelanggan"></td>
                                 <td class="px-6 py-4 text-center" x-text="item.details?.reduce((acc, curr) => acc + curr.quantity, 0) || 0"></td>
-                                <td class="px-6 py-4 font-bold" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.total_transaksi)"></td>
+                                <td class="px-6 py-4 font-bold">
+                                    <div class="flex flex-col">
+                                        <span x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.total_transaksi)"></span>
+                                        <template x-if="item.details?.some(d => d.layanan?.kurs && d.layanan.kurs !== 'IDR')">
+                                            <div class="text-xs text-blue-600 dark:text-blue-400">
+                                                <template x-for="currency in [...new Set(item.details.filter(d => d.layanan?.kurs && d.layanan.kurs !== 'IDR').map(d => d.layanan.kurs))]">
+                                                    <div x-text="(currency === 'MYR' ? 'RM' : currency) + ' ' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+                                                        item.details.filter(d => d.layanan?.kurs === currency).reduce((acc, curr) => acc + (curr.quantity * (parseFloat(curr.layanan?.harga_jual_asing) || 0)), 0)
+                                                    )"></div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 text-green-600 font-medium" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.pembayaran_layanans?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0)"></td>
                                 <td class="px-6 py-4 text-red-600 font-medium" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(item.total_transaksi - (item.pembayaran_layanans?.reduce((acc, curr) => acc + Number(curr.jumlah_pembayaran), 0) || 0))"></td>
                                 <td class="px-6 py-4">

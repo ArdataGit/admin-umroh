@@ -87,8 +87,28 @@
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
              <h4 class="mb-3 text-lg font-semibold text-blue-600">Harga</h4>
              <div class="space-y-2 text-sm">
-                <div class="flex justify-between"><span>Harga Modal:</span> <span class="font-semibold">Rp {{ number_format($ticket->harga_modal, 0, ',', '.') }}</span></div>
-                <div class="flex justify-between"><span>Harga Jual:</span> <span class="font-semibold">Rp {{ number_format($ticket->harga_jual, 0, ',', '.') }}</span></div>
+                <div class="flex justify-between">
+                    <span>Harga Modal:</span> 
+                    <span class="font-semibold">
+                        @if($ticket->kurs !== 'IDR')
+                            {{ $ticket->kurs === 'MYR' ? 'RM' : $ticket->kurs }} {{ number_format($ticket->harga_modal_asing, 2) }} 
+                            <span class="text-xs text-gray-500">(Rp {{ number_format($ticket->harga_modal, 0, ',', '.') }})</span>
+                        @else
+                            Rp {{ number_format($ticket->harga_modal, 0, ',', '.') }}
+                        @endif
+                    </span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Harga Jual:</span> 
+                    <span class="font-semibold">
+                        @if($ticket->kurs !== 'IDR')
+                            {{ $ticket->kurs === 'MYR' ? 'RM' : $ticket->kurs }} {{ number_format($ticket->harga_jual_asing, 2) }} 
+                            <span class="text-xs text-gray-500">(Rp {{ number_format($ticket->harga_jual, 0, ',', '.') }})</span>
+                        @else
+                            Rp {{ number_format($ticket->harga_jual, 0, ',', '.') }}
+                        @endif
+                    </span>
+                </div>
              </div>
         </div>
 

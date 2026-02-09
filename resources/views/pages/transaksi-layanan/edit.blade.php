@@ -45,7 +45,9 @@
                             <template x-for="layanan in filteredLayanans" :key="layanan.id">
                                 <li @click="addLayanan(layanan)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 flex justify-between">
                                     <span x-text="layanan.nama_layanan + ' (' + layanan.kode_layanan + ')'"></span>
-                                    <span x-text="'Harga: Rp ' + formatNumber(layanan.harga_jual)"></span>
+                                    <span x-text="layanan.kurs && layanan.kurs !== 'IDR' ? 
+                                        ((layanan.kurs === 'MYR' ? 'RM' : layanan.kurs) + ' ' + formatNumberDecimal(layanan.harga_jual_asing) + ' (Rp ' + formatNumber(layanan.harga_jual) + ')') : 
+                                        'Harga: Rp ' + formatNumber(layanan.harga_jual)"></span>
                                 </li>
                             </template>
                         </ul>
@@ -68,7 +70,15 @@
                                 <tr class="border-b dark:border-gray-700">
                                     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="item.nama_layanan"></td>
                                     <td class="px-4 py-3">
-                                        Rp <span x-text="formatNumber(item.harga_satuan)"></span>
+                                        <template x-if="item.kurs && item.kurs !== 'IDR'">
+                                            <div class="flex flex-col">
+                                                <span class="font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs) + ' ' + formatNumberDecimal(item.harga_jual_asing)"></span>
+                                                <span class="text-xs text-gray-500" x-text="'(Rp ' + formatNumber(item.harga_satuan) + ')'"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="!item.kurs || item.kurs === 'IDR'">
+                                            <span>Rp <span x-text="formatNumber(item.harga_satuan)"></span></span>
+                                        </template>
                                     </td>
                                     <td class="px-4 py-3">
                                         <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
@@ -198,6 +208,8 @@
                     this.form.details.push({
                         layanan_id: layanan.id,
                         nama_layanan: layanan.nama_layanan,
+                        kurs: layanan.kurs,
+                        harga_jual_asing: parseFloat(layanan.harga_jual_asing) || 0,
                         harga_satuan: layanan.harga_jual,
                         quantity: 1,
                         total_harga: layanan.harga_jual
@@ -227,6 +239,9 @@
             },
             formatNumber(num) {
                 return new Intl.NumberFormat('id-ID').format(Math.round(num));
+            },
+            formatNumberDecimal(num) {
+                return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             },
             submitForm() {
                 fetch('{{ route('transaksi-layanan.update', $transaksi->id) }}', {

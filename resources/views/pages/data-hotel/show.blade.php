@@ -92,7 +92,14 @@
                                 Harga Hotel (per malam)
                             </label>
                             <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-                                Rp {{ number_format($hotel->harga_hotel, 0, ',', '.') }}
+                                @if($hotel->kurs === 'IDR')
+                                    Rp {{ number_format($hotel->harga_hotel, 0, ',', '.') }}
+                                @else
+                                    {{ $hotel->kurs === 'MYR' ? 'RM' : $hotel->kurs }} {{ number_format($hotel->kurs_asing, 2, ',', '.') }}
+                                    <span class="text-sm font-normal text-gray-500 ml-2">
+                                        (Rp {{ number_format($hotel->harga_hotel, 0, ',', '.') }})
+                                    </span>
+                                @endif
                             </p>
                         </div>
                     </div>

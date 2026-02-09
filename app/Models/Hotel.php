@@ -13,6 +13,8 @@ class Hotel extends Model
         'kontak_hotel',
         'email_hotel',
         'rating_hotel',
+        'kurs',
+        'kurs_asing',
         'harga_hotel',
         'catatan_hotel'
     ];

@@ -8,7 +8,26 @@
 
         <div class="col-span-12">
             <x-common.component-card title="Form Tambah Hotel">
-                <form action="{{ route('data-hotel.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('data-hotel.store') }}" method="POST" class="space-y-6" x-data="{
+                    kurs: 'IDR',
+                    harga: '',
+                    get currencySymbol() {
+                        return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
+                    },
+                    get exchangeRate() {
+                        if (this.kurs === 'USD') return {{ $kursUsd ?? 0 }};
+                        if (this.kurs === 'SAR') return {{ $kursSar ?? 0 }};
+                        if (this.kurs === 'MYR') return {{ $kursMyr ?? 0 }};
+                        return 1;
+                    },
+                    get convertedPrice() {
+                        if (this.kurs === 'IDR' || !this.harga) return null;
+                        return this.harga * this.exchangeRate;
+                    },
+                    formatRupiah(number) {
+                        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                    }
+                }">
                     @csrf
                     
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -121,17 +140,63 @@
                             </div>
                         </div>
 
+                        <!-- Kurs -->
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Mata Uang <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative z-20 bg-transparent">
+                                <select name="kurs" x-model="kurs" required
+                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                                    <option value="IDR">IDR (Rupiah)</option>
+                                    <option value="USD">USD (Dollar AS)</option>
+                                    <option value="SAR">SAR (Riyal)</option>
+                                    <option value="MYR">RM (Ringgit)</option>
+                                </select>
+                                <span class="pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                                    <svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+
                         <!-- Harga Hotel -->
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Harga Hotel (per malam) <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">
+                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
                                     Rp
                                 </span>
-                                <input type="number" name="harga_hotel" placeholder="2500000" required min="0"
+                                <input type="number" name="harga_hotel" x-model="harga" placeholder="2500000" required min="0" step="0.01"
                                     class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                            </div>
+
+                            <!-- Kurs Info Compact -->
+                            <div class="mt-3 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
+                                x-show="kurs !== 'IDR' && kurs !== ''"
+                                x-transition>
+                                <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
+                                    <span class="opacity-70">USD:</span>
+                                    <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
+                                    <span class="opacity-70">SAR:</span>
+                                    <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
+                                    <span class="opacity-70">RM:</span>
+                                    <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
+                                </div>
+                                
+                                <div class="h-3 w-px bg-blue-200 dark:bg-blue-800" x-show="convertPrice"></div>
+                                
+                                <div x-show="convertedPrice" class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                    <span class="opacity-70">Estimasi:</span>
+                                    <span x-text="formatRupiah(convertedPrice)"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

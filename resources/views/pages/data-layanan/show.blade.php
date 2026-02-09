@@ -60,11 +60,25 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Harga Modal</label>
-                            <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">Rp {{ number_format($layanan->harga_modal, 0, ',', '.') }}</p>
+                            <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
+                                @if(!$layanan->kurs || $layanan->kurs === 'IDR')
+                                    Rp {{ number_format($layanan->harga_modal, 0, ',', '.') }}
+                                @else
+                                    {{ $layanan->kurs === 'MYR' ? 'RM' : $layanan->kurs }} {{ number_format($layanan->harga_modal_asing, 0, ',', '.') }}
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">(Rp {{ number_format($layanan->harga_modal, 0, ',', '.') }})</span>
+                                @endif
+                            </p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Harga Jual</label>
-                            <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">Rp {{ number_format($layanan->harga_jual, 0, ',', '.') }}</p>
+                            <p class="mt-1 text-sm font-medium text-gray-800 dark:text-white/90">
+                                @if(!$layanan->kurs || $layanan->kurs === 'IDR')
+                                    Rp {{ number_format($layanan->harga_jual, 0, ',', '.') }}
+                                @else
+                                    {{ $layanan->kurs === 'MYR' ? 'RM' : $layanan->kurs }} {{ number_format($layanan->harga_jual_asing, 0, ',', '.') }}
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">(Rp {{ number_format($layanan->harga_jual, 0, ',', '.') }})</span>
+                                @endif
+                            </p>
                         </div>
                          <div>
                             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Catatan Layanan</label>
