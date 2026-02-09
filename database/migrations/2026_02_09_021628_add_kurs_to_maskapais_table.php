@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('maskapais', function (Blueprint $table) {
-            //
+            $table->string('kurs')->default('IDR')->after('nama_maskapai');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('maskapais', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasColumn('maskapais', 'kurs')) {
+            Schema::table('maskapais', function (Blueprint $table) {
+                $table->dropColumn('kurs');
+            });
+        }
     }
 };
