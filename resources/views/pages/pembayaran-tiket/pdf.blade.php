@@ -225,15 +225,15 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th>Nama</th>
+                <th style="width: 25%;">Nama</th>
                 <th>Type</th>
                 <th>Kode PNR</th>
-                <th>Rute</th>
-                <th>Harga</th>
+                <th style="width: 15%;">Rute</th>
+                <th style="width: 15%;">Harga</th>
                 <th>Jumlah (Pax)</th>
                 <th>Diskon</th>
-                <th>Tax</th>
-                <th>Total</th>
+
+                <th style="width: 15%;">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -254,7 +254,7 @@
                 <td style="text-align: right;">Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
                 <td style="text-align: center;">{{ $detail->quantity }} Pax</td>
                 <td style="text-align: center;">Rp 0</td> {{-- Detailed discount usually 0 if on header --}}
-                <td style="text-align: center;">Rp 0</td> {{-- Detailed tax usually 0 if on header --}}
+
                 <td style="text-align: right;">Rp {{ number_format($detail->total_harga, 0, ',', '.') }}</td>
             </tr>
             @endforeach
