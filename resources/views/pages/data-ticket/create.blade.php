@@ -54,6 +54,8 @@
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Jenis Tiket</label>
                     <select name="jenis_tiket" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
+                        <option value="Ekonomi">Ekonomi</option>
+                        <option value="Bisnis">Bisnis</option>
                         <option value="ECO">ECO</option>
                         <option value="BUS">BUS</option>
                         <option value="INF">INF</option>
