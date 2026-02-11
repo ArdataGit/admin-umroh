@@ -225,9 +225,9 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th style="width: 25%;">Nama</th>
+                <th style="width: 35%;">Nama</th>
                 <th>Type</th>
-                <th>Kode PNR</th>
+                <th style="width: 8%;">Kode PNR</th>
                 <th style="width: 15%;">Rute</th>
                 <th style="width: 15%;">Harga</th>
                 <th>Jumlah (Pax)</th>
