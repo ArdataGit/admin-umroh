@@ -61,11 +61,11 @@ class JamaahController extends Controller
             'tgl_paspor_expired' => 'nullable|date',
 
             // Files
-            'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
         $this->jamaahService->create($validated);
@@ -112,11 +112,11 @@ class JamaahController extends Controller
             'tgl_paspor_expired' => 'nullable|date',
 
             // Files
-            'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg',
+            'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
         $jamaah = $this->jamaahService->update($id, $validated);

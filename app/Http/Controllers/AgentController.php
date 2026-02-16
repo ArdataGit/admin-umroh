@@ -52,7 +52,7 @@ class AgentController extends Controller
             'komisi_paket_haji' => 'required|numeric|min:0',
             'alamat_agent' => 'required|string',
             'catatan_agent' => 'nullable|string',
-            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($request->hasFile('foto_agent')) {
@@ -97,7 +97,7 @@ class AgentController extends Controller
             'komisi_paket_haji' => 'required|numeric|min:0',
             'alamat_agent' => 'required|string',
             'catatan_agent' => 'nullable|string',
-            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_agent' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($request->hasFile('foto_agent')) {

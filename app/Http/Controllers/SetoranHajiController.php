@@ -68,7 +68,7 @@ class SetoranHajiController extends Controller
             'tanggal_transaksi' => 'required|date',
             'kode_referensi' => 'nullable|string',
             'keterangan' => 'nullable|string',
-            'bukti_transaksi' => 'nullable|image|max:2048'
+            'bukti_transaksi' => 'nullable|image'
         ]);
 
         $data = [
@@ -120,7 +120,7 @@ class SetoranHajiController extends Controller
             'tanggal_transaksi' => 'required|date',
             'kode_referensi' => 'nullable|string',
             'keterangan' => 'nullable|string',
-            'bukti_transaksi' => 'nullable|image|max:2048'
+            'bukti_transaksi' => 'nullable|image'
         ]);
 
         // Calculate Balance Difference

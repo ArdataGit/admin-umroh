@@ -57,7 +57,7 @@ class LayananController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'status_layanan' => 'required|in:Active,Non Active',
             'catatan_layanan' => 'nullable|string',
-            'foto_layanan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_layanan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($request->hasFile('foto_layanan')) {
@@ -128,7 +128,7 @@ class LayananController extends Controller
             'harga_jual' => 'required|numeric|min:0',
             'status_layanan' => 'required|in:Active,Non Active',
             'catatan_layanan' => 'nullable|string',
-            'foto_layanan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_layanan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         if ($request->hasFile('foto_layanan')) {

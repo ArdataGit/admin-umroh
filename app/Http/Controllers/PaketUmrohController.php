@@ -98,7 +98,7 @@ class PaketUmrohController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
         $this->paketUmrohService->create($validated);
@@ -166,7 +166,7 @@ class PaketUmrohController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
         $this->paketUmrohService->update($id, $validated);

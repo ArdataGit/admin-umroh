@@ -14,5 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(fn () => route('login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            if ($request->expectsJson()) {
+                // Ensure no HTML output from PHP warnings/errors leaks into the response
+                ini_set('display_errors', '0');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal: Ukuran total file unggahan terlalu besar (' . ini_get('post_max_size') . '). Silakan kompres foto Anda atau hubungi admin.'
+                ], 413);
+            }
+        });
     })->create();

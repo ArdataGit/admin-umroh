@@ -46,7 +46,7 @@ class ProdukController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'catatan_produk' => 'nullable|string',
-            'foto_produk' => 'nullable|image|max:2048',
+            'foto_produk' => 'nullable|image',
         ]);
 
         \Illuminate\Support\Facades\Log::info('Store Produk Request', [
@@ -94,7 +94,7 @@ class ProdukController extends Controller
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'catatan_produk' => 'nullable|string',
-            'foto_produk' => 'nullable|image|max:2048',
+            'foto_produk' => 'nullable|image',
         ]);
 
         $produk = $this->produkService->getById($id);

@@ -35,7 +35,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             $request->validate([
-                'avatar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'avatar' => 'image|mimes:jpeg,png,jpg,gif',
             ]);
 
             $avatarName = time().'.'.$request->avatar->extension();

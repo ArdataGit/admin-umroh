@@ -73,7 +73,7 @@ class TicketController extends Controller
             'kode_tiket_3' => 'nullable|string',
             'kode_tiket_4' => 'nullable|string',
             'catatan_tiket' => 'nullable|string',
-            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         
         // Handle currency conversion
@@ -150,7 +150,7 @@ class TicketController extends Controller
             'kode_tiket_3' => 'nullable|string',
             'kode_tiket_4' => 'nullable|string',
             'catatan_tiket' => 'nullable|string',
-            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_tiket' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $ticket = Ticket::findOrFail($id);

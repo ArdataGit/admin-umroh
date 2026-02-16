@@ -428,26 +428,42 @@
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(async response => {
+                    if (!response.ok) {
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const data = await response.json();
+                            throw { type: 'validation', data: data };
+                        } else {
+                            throw { type: 'server', status: response.status, statusText: response.statusText };
+                        }
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         window.location.href = data.redirect;
                     } else {
-                        // Handle validation errors if available
-                        if (data.errors) {
-                            let errorMsg = 'Terjadi kesalahan validasi:\n';
-                            for (const key in data.errors) {
-                                errorMsg += `- ${data.errors[key].join(', ')}\n`;
-                            }
-                            alert(errorMsg);
-                        } else {
-                            alert(data.message || 'Terjadi kesalahan sistem');
-                        }
+                        alert(data.message || 'Terjadi kesalahan sistem');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan pada sistem');
+                    if (error.type === 'validation') {
+                        let errorMsg = 'Terjadi kesalahan validasi:\n';
+                        for (const key in error.data.errors) {
+                            errorMsg += `- ${error.data.errors[key].join(', ')}\n`;
+                        }
+                        alert(errorMsg);
+                    } else if (error.type === 'server') {
+                        if (error.status === 413) {
+                            alert('Gagal: Ukuran total file terlalu besar. Silakan kurangi ukuran foto atau hubungi admin.');
+                        } else {
+                            alert(`Terjadi kesalahan pada server (${error.status}: ${error.statusText})`);
+                        }
+                    } else {
+                        alert('Terjadi kesalahan pada sistem. Periksa koneksi internet Anda.');
+                    }
                 });
             }
         }

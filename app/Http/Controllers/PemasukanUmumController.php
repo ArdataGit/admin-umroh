@@ -39,7 +39,7 @@ class PemasukanUmumController extends Controller
             'nama_pemasukan' => 'required|string',
             'jumlah_pemasukan' => 'required|numeric',
             'catatan_pemasukan' => 'nullable|string',
-            'bukti_pemasukan' => 'nullable|image|max:2048'
+            'bukti_pemasukan' => 'nullable|image'
         ]);
 
         $path = null;

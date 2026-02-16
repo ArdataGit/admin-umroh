@@ -85,7 +85,7 @@ class PaketHajiController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
         $this->paketHajiService->create($validated);
@@ -153,7 +153,7 @@ class PaketHajiController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
         $this->paketHajiService->update($id, $validated);

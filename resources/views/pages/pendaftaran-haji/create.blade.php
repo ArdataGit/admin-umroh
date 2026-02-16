@@ -386,26 +386,60 @@
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(async response => {
+                    const text = await response.text();
+                    let data;
+                    try {
+                        // Strip potential leading/trailing whitespace or HTML comments that might leak
+                        const cleanText = text.trim();
+                        data = JSON.parse(cleanText);
+                    } catch (e) {
+                        console.error('JSON Parse Error. Raw response:', text);
+                        if (!response.ok) {
+                            if (response.status === 413) {
+                                throw { type: 'server', status: 413, statusText: 'Payload Too Large' };
+                            }
+                            throw { type: 'server', status: response.status, statusText: response.statusText };
+                        }
+                        throw { type: 'parse', raw: text };
+                    }
+
+                    if (!response.ok) {
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            throw { type: 'validation', data: data };
+                        } else {
+                            throw { type: 'server', status: response.status, statusText: response.statusText };
+                        }
+                    }
+                    return data;
+                })
                 .then(data => {
                     if (data.success) {
                         window.location.href = data.redirect;
                     } else {
-                        // Handle validation errors if available
-                        if (data.errors) {
-                            let errorMsg = 'Terjadi kesalahan validasi:\n';
-                            for (const key in data.errors) {
-                                errorMsg += `- ${data.errors[key].join(', ')}\n`;
-                            }
-                            alert(errorMsg);
-                        } else {
-                            alert(data.message || 'Terjadi kesalahan sistem');
-                        }
+                        alert(data.message || 'Terjadi kesalahan sistem');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan pada sistem');
+                    if (error.type === 'validation') {
+                        let errorMsg = 'Terjadi kesalahan validasi:\n';
+                        for (const key in error.data.errors) {
+                            errorMsg += `- ${error.data.errors[key].join(', ')}\n`;
+                        }
+                        alert(errorMsg);
+                    } else if (error.type === 'server') {
+                        if (error.status === 413) {
+                            alert('Gagal: Ukuran total file terlalu besar. Silakan kurangi ukuran foto atau hubungi admin.');
+                        } else {
+                            alert(`Terjadi kesalahan pada server (${error.status}: ${error.statusText})`);
+                        }
+                    } else if (error.type === 'parse') {
+                         alert('Terjadi kesalahan saat membaca respon server. Silakan hubungi admin atau coba lagi.');
+                    } else {
+                        alert('Terjadi kesalahan pada sistem. Periksa koneksi internet Anda.');
+                    }
                 });
             }
         }

@@ -69,11 +69,11 @@ class PendaftaranHajiController extends Controller
             'tgl_paspor_expired' => 'nullable|date',
 
             // Files
-            'foto_jamaah' => 'nullable|image|max:2048',
-            'foto_ktp' => 'nullable|image|max:2048',
-            'foto_kk' => 'nullable|image|max:2048',
-            'foto_paspor_1' => 'nullable|image|max:2048',
-            'foto_paspor_2' => 'nullable|image|max:2048',
+            'foto_jamaah' => 'nullable|image',
+            'foto_ktp' => 'nullable|image',
+            'foto_kk' => 'nullable|image',
+            'foto_paspor_1' => 'nullable|image',
+            'foto_paspor_2' => 'nullable|image',
 
             // Section 2: Manifest Data
             'keberangkatan_haji_id' => 'required|exists:keberangkatan_hajis,id',
@@ -246,11 +246,11 @@ class PendaftaranHajiController extends Controller
             'tgl_paspor_expired' => 'nullable|date',
 
             // Files
-            'foto_jamaah' => 'nullable|image|max:2048',
-            'foto_ktp' => 'nullable|image|max:2048',
-            'foto_kk' => 'nullable|image|max:2048',
-            'foto_paspor_1' => 'nullable|image|max:2048',
-            'foto_paspor_2' => 'nullable|image|max:2048',
+            'foto_jamaah' => 'nullable|image',
+            'foto_ktp' => 'nullable|image',
+            'foto_kk' => 'nullable|image',
+            'foto_paspor_1' => 'nullable|image',
+            'foto_paspor_2' => 'nullable|image',
 
             // Section 2: Manifest Data
             'keberangkatan_haji_id' => 'required|exists:keberangkatan_hajis,id',

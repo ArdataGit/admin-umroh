@@ -49,7 +49,7 @@ class KaryawanController extends Controller
             'alamat_karyawan' => 'required|string',
             'catatan_karyawan' => 'nullable|string',
             'gaji' => 'required|numeric|min:0',
-            'foto_karyawan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_karyawan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $this->karyawanService->create($validated);
@@ -85,7 +85,7 @@ class KaryawanController extends Controller
             'alamat_karyawan' => 'required|string',
             'catatan_karyawan' => 'nullable|string',
             'gaji' => 'required|numeric|min:0',
-            'foto_karyawan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_karyawan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $karyawan = $this->karyawanService->update($id, $validated);

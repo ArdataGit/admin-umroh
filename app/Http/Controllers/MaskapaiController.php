@@ -56,7 +56,7 @@ class MaskapaiController extends Controller
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
-            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         if ($request->hasFile('foto_maskapai')) {
             $file = $request->file('foto_maskapai');
@@ -121,7 +121,7 @@ class MaskapaiController extends Controller
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
-            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         if ($request->hasFile('foto_maskapai')) {
             $maskapai = $this->maskapaiService->getById($id);

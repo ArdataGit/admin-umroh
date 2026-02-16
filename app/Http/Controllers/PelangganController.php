@@ -46,7 +46,7 @@ class PelangganController extends Controller
             'status_pelanggan' => 'required|in:Active,Non Active',
             'alamat_pelanggan' => 'required|string',
             'catatan_pelanggan' => 'nullable|string',
-            'foto_pelanggan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_pelanggan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $this->pelangganService->create($validated);
@@ -79,7 +79,7 @@ class PelangganController extends Controller
             'status_pelanggan' => 'required|in:Active,Non Active',
             'alamat_pelanggan' => 'required|string',
             'catatan_pelanggan' => 'nullable|string',
-            'foto_pelanggan' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto_pelanggan' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $pelanggan = $this->pelangganService->update($id, $validated);

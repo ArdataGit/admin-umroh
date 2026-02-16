@@ -39,7 +39,7 @@ class PengeluaranUmumController extends Controller
             'nama_pengeluaran' => 'required|string',
             'jumlah_pengeluaran' => 'required|numeric',
             'catatan_pengeluaran' => 'nullable|string',
-            'bukti_pengeluaran' => 'nullable|image|max:2048'
+            'bukti_pengeluaran' => 'nullable|image'
         ]);
 
         $path = null;
@@ -87,7 +87,7 @@ class PengeluaranUmumController extends Controller
             'nama_pengeluaran' => 'required|string',
             'jumlah_pengeluaran' => 'required|numeric',
             'catatan_pengeluaran' => 'nullable|string',
-            'bukti_pengeluaran' => 'nullable|image|max:2048'
+            'bukti_pengeluaran' => 'nullable|image'
         ]);
 
         $path = $pengeluaran->bukti_pengeluaran;
