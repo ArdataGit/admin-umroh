@@ -64,4 +64,66 @@ class PengeluaranUmrohController extends Controller
 
         return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil ditambahkan');
     }
+
+    public function edit($id)
+    {
+        $pengeluaran = PengeluaranUmroh::findOrFail($id);
+        $keberangkatans = KeberangkatanUmroh::with('paketUmroh')->where('status_keberangkatan', 'active')->get();
+        
+        return view('pages.pengeluaran-umroh.edit', [
+            'title' => 'Edit Pengeluaran Umroh',
+            'pengeluaran' => $pengeluaran,
+            'keberangkatans' => $keberangkatans
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pengeluaran = PengeluaranUmroh::findOrFail($id);
+
+        $validated = $request->validate([
+            'keberangkatan_umroh_id' => 'required|exists:keberangkatan_umrohs,id',
+            'kode_pengeluaran' => 'required|unique:pengeluaran_umrohs,kode_pengeluaran,' . $id,
+            'tanggal_pengeluaran' => 'required|date',
+            'jenis_pengeluaran' => 'required|string',
+            'nama_pengeluaran' => 'required|string',
+            'jumlah_pengeluaran' => 'required|numeric',
+            'catatan_pengeluaran' => 'nullable|string',
+            'bukti_pengeluaran' => 'nullable|image'
+        ]);
+
+        if ($request->hasFile('bukti_pengeluaran')) {
+            if ($pengeluaran->bukti_pengeluaran) {
+                Storage::disk('public')->delete($pengeluaran->bukti_pengeluaran);
+            }
+            $path = $request->file('bukti_pengeluaran')->store('bukti_pengeluaran', 'public');
+            $pengeluaran->bukti_pengeluaran = $path;
+        }
+
+        $pengeluaran->update([
+            'keberangkatan_umroh_id' => $validated['keberangkatan_umroh_id'],
+            'kode_pengeluaran' => $validated['kode_pengeluaran'],
+            'tanggal_pengeluaran' => $validated['tanggal_pengeluaran'],
+            'jenis_pengeluaran' => $validated['jenis_pengeluaran'],
+            'nama_pengeluaran' => $validated['nama_pengeluaran'],
+            'jumlah_pengeluaran' => $validated['jumlah_pengeluaran'],
+            'catatan_pengeluaran' => $validated['catatan_pengeluaran'],
+            // bukti_pengeluaran updated separately if exists
+        ]);
+
+        return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $pengeluaran = PengeluaranUmroh::findOrFail($id);
+        
+        if ($pengeluaran->bukti_pengeluaran) {
+            Storage::disk('public')->delete($pengeluaran->bukti_pengeluaran);
+        }
+
+        $pengeluaran->delete();
+
+        return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil dihapus');
+    }
 }

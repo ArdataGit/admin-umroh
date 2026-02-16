@@ -41,7 +41,7 @@
                         </div>
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Lahir</label>
-                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $jamaah->tanggal_lahir) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                            <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $jamaah->tanggal_lahir) }}" max="{{ date('Y-m-d') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
                         </div>
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kontak Jamaah</label>

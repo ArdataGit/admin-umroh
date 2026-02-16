@@ -55,7 +55,7 @@ class BonusAgentController extends Controller
             'metode_pembayaran' => 'required|string',
             'kode_referensi_mutasi' => 'nullable|string',
             'catatan' => 'nullable|string',
-            'bukti_pembayaran' => 'nullable|file|mimes:jpg,jpeg,png,pdf'
+            'bukti_pembayaran' => 'nullable|file|mimes:jpg,jpeg,png'
         ]);
 
         try {
@@ -111,7 +111,7 @@ class BonusAgentController extends Controller
             'kode_referensi_mutasi' => 'nullable|string',
             'status_pembayaran' => 'required|string',
             'catatan' => 'nullable|string',
-            'bukti_pembayaran' => 'nullable|file|mimes:jpg,jpeg,png,pdf'
+            'bukti_pembayaran' => 'nullable|file|mimes:jpg,jpeg,png'
         ]);
 
         try {

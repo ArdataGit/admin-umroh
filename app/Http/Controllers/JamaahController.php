@@ -43,7 +43,7 @@ class JamaahController extends Controller
             'nama_jamaah' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tempat_lahir' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date',
+            'tanggal_lahir' => 'required|date|before:today|after:1900-01-01',
             'kontak_jamaah' => 'required|string|max:20',
             'email_jamaah' => 'nullable|email|max:255',
             'kecamatan' => 'required|string|max:255',
@@ -58,7 +58,7 @@ class JamaahController extends Controller
             'nomor_paspor' => 'nullable|string|max:50',
             'kantor_imigrasi' => 'nullable|string|max:255',
             'tgl_paspor_aktif' => 'nullable|date',
-            'tgl_paspor_expired' => 'nullable|date',
+            'tgl_paspor_expired' => 'nullable|date|after:tgl_paspor_aktif',
 
             // Files
             'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',
@@ -94,7 +94,7 @@ class JamaahController extends Controller
             'nama_jamaah' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tempat_lahir' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date',
+            'tanggal_lahir' => 'required|date|before:today|after:1900-01-01',
             'kontak_jamaah' => 'required|string|max:20',
             'email_jamaah' => 'nullable|email|max:255',
             'kecamatan' => 'required|string|max:255',
@@ -109,7 +109,7 @@ class JamaahController extends Controller
             'nomor_paspor' => 'nullable|string|max:50',
             'kantor_imigrasi' => 'nullable|string|max:255',
             'tgl_paspor_aktif' => 'nullable|date',
-            'tgl_paspor_expired' => 'nullable|date',
+            'tgl_paspor_expired' => 'nullable|date|after:tgl_paspor_aktif',
 
             // Files
             'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',

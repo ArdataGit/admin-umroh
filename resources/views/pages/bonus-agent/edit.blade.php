@@ -94,8 +94,8 @@
                     <!-- Upload Bukti Pembayaran Baru -->
                      <div class="md:col-span-2">
                         <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Upload Bukti Pembayaran Baru (Opsional)</label>
-                        <input type="file" name="bukti_pembayaran" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:file:bg-blue-900/20 dark:file:text-blue-400">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: JPG, JPEG, PNG, PDF. Maks: 2MB</p>
+                        <input type="file" name="bukti_pembayaran" accept="image/*" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:file:bg-blue-900/20 dark:file:text-blue-400">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: JPG, JPEG, PNG. Maks: 2MB</p>
                     </div>
                 </div>
 

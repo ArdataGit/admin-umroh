@@ -92,6 +92,9 @@
                     <thead>
                         <tr class="border-b border-gray-100 dark:border-gray-800">
                              <th class="px-4 py-3 text-left">
+                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">No</p>
+                            </th>
+                             <th class="px-4 py-3 text-left">
                                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Nama Paket</p>
                             </th>
                             <th class="px-4 py-3 text-left">
@@ -114,6 +117,9 @@
                     <tbody>
                           <template x-for="(item, index) in paginatedItems" :key="item.id">
                             <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="px-4 py-4">
+                                     <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></p>
+                                </td>
                                 <td class="px-4 py-4">
                                      <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                                         <span x-text="item.paket_haji ? item.paket_haji.nama_paket : 'Tanpa Paket'"></span>
