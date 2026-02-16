@@ -23,7 +23,7 @@
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Keberangkatan</label>
-                    <input type="date" name="tanggal_keberangkatan" value="{{ old('tanggal_keberangkatan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="text" id="tanggal_keberangkatan" name="tanggal_keberangkatan" value="{{ old('tanggal_keberangkatan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" placeholder="dd/mm/yy" required />
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Jumlah Hari</label>
@@ -208,3 +208,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#tanggal_keberangkatan", {
+            altInput: true,
+            altFormat: "d/m/y",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+    });
+</script>
+@endpush
