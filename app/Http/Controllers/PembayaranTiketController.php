@@ -138,8 +138,14 @@ class PembayaranTiketController extends Controller
             'total_bayar' => $totalBayar,
             'sisa_pembayaran' => $sisaPembayaran
         ]);
+
+        $firstDetail = $transaksi->details->first();
+        $dateSuffix = '';
+        if ($firstDetail && $firstDetail->ticket) {
+            $dateSuffix = '_' . $firstDetail->ticket->tanggal_keberangkatan . '_' . $firstDetail->ticket->tanggal_kepulangan;
+        }
         
-        return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
+        return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . $dateSuffix . '.pdf');
     }
 
     public function printPdf($id)
@@ -161,8 +167,14 @@ class PembayaranTiketController extends Controller
             'total_bayar' => $totalBayar,
             'sisa_pembayaran' => $sisaPembayaran
         ]);
+
+        $firstDetail = $transaksi->details->first();
+        $dateSuffix = '';
+        if ($firstDetail && $firstDetail->ticket) {
+            $dateSuffix = '_' . $firstDetail->ticket->tanggal_keberangkatan . '_' . $firstDetail->ticket->tanggal_kepulangan;
+        }
         
-        return $pdf->stream('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
+        return $pdf->stream('Invoice_' . Str::slug($transaksi->kode_transaksi) . $dateSuffix . '.pdf');
     }
 
     public function export()

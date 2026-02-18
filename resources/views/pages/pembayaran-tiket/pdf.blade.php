@@ -238,7 +238,12 @@
             @foreach($transaksi->details as $detail)
             <tr>
                 <td>
-                    <strong>{{ $detail->ticket->nama_tiket }}</strong><br>
+                    <strong>{{ $detail->ticket->nama_tiket }}</strong>
+                    @if($detail->ticket->tanggal_keberangkatan && $detail->ticket->tanggal_kepulangan)
+                        <br>
+                        <small>({{ \Carbon\Carbon::parse($detail->ticket->tanggal_keberangkatan)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($detail->ticket->tanggal_kepulangan)->format('d/m/Y') }})</small>
+                    @endif
+                    <br>
                     {{ $detail->ticket->kode_tiket }}<br>
                     @if($detail->ticket->kode_tiket_1) {{ $detail->ticket->kode_tiket_1 }}<br> @endif
                     @if($detail->ticket->kode_tiket_2) {{ $detail->ticket->kode_tiket_2 }}<br> @endif
