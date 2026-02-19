@@ -116,7 +116,7 @@
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">Stok tiket akan berkurang hanya jika status 'Completed'.</p>
+                        <p class="mt-1 text-xs text-gray-500">Stok tiket akan berkurang saat status 'Process' atau 'Completed'.</p>
                     </div>
                      <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Alamat Transaksi</label>

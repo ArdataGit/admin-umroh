@@ -83,8 +83,8 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
-                // Stock Management ONLY if Completed
-                if ($validated['status_transaksi'] === 'completed') {
+                // Stock Management if Process or Completed
+                if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
                     $ticket = Ticket::findOrFail($detail['ticket_id']);
                     if ($ticket->jumlah_tiket < $detail['quantity']) {
                         throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
@@ -194,8 +194,8 @@ class TransaksiTiketController extends Controller
 
             $transaksi = TransaksiTiket::with('details')->findOrFail($id);
 
-            // 1. Revert Stock if was COMPLETED
-            if ($transaksi->status_transaksi === 'completed') {
+            // 1. Revert Stock if was PROCESS or COMPLETED
+            if (in_array($transaksi->status_transaksi, ['process', 'completed'])) {
                 foreach ($transaksi->details as $oldDetail) {
                     $ticket = Ticket::findOrFail($oldDetail->ticket_id);
                     $ticket->increment('jumlah_tiket', $oldDetail->quantity);
@@ -228,7 +228,7 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
-                if ($validated['status_transaksi'] === 'completed') {
+                if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
                     $ticket = Ticket::findOrFail($detail['ticket_id']);
                     if ($ticket->jumlah_tiket < $detail['quantity']) {
                         throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
@@ -257,8 +257,8 @@ class TransaksiTiketController extends Controller
             DB::beginTransaction();
             $transaksi = TransaksiTiket::with('details')->findOrFail($id);
 
-            // Revert Stock if was completed
-            if ($transaksi->status_transaksi === 'completed') {
+            // Revert Stock if was process or completed
+            if (in_array($transaksi->status_transaksi, ['process', 'completed'])) {
                 foreach ($transaksi->details as $detail) {
                     $ticket = Ticket::findOrFail($detail->ticket_id);
                     $ticket->increment('jumlah_tiket', $detail->quantity);
