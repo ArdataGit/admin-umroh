@@ -204,10 +204,10 @@
             <tr>
                 <td>
                     <div class="section-title">DATA TRAVEL :</div>
-                    <div class="company-name">PT WAHYU TITIAN INSANI</div>
-                    <div>Alamat : Jl. Kolonel Sugiono No.14, Pekapuran Laut, Kec. Banjarmasin Tengah, Kota Banjarmasin, Kalimantan Selatan 70235<br>
-                    No telp : 0812-5172-7729<br>
-                    Email: alinsanitrv@gmail.com</div>
+                    <div class="company-name">TRANSMART GLOBAL WISATA</div>
+                    <div>Alamat : Jl. Zafri Zam Zam No 40, Belitung, Kec. Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan<br>
+                    No telp : 0857-5172-9999<br>
+                    Email: transglobalwisata@gmail.com</div>
                 </td>
                 <td>
                     <div class="section-title">DATA MITRA :</div>
@@ -318,17 +318,17 @@
                             <li>Apabila agen tidak melakukan pelunasan pada waktu yang sudah ditentukan, maka seat akan dibatalkan dan deposit akan hangus</li>
                             <li>Pelunasan tiket tidak bisa ditarik kembali atau dibatalkan meskipun belum proses issued</li>
                             <li>Issued tiket dilakukan selambat-lambatnya 8 (delapan) hari kerja sebelum tanggal keberangkatan</li>
-                            <li>PT WAHYU TITIAN INSANI dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
+                            <li>SMART GLOBAL WISATA dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
                             <li>Ketentuan perbaikan nama (core name), change nama, reschedule, rebook dan refund mengikuti regulasi dari masing-masing Maskapai</li>
                             <li>Ketentuan Bagasi, Tas Cabin, Air Zam-Zam mengikuti regulasi dari Maskapai</li>
-                            <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n PT. WAHYU TITIAN INSANI</li>
+                            <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n TRANSMART GLOBAL WISATA</li>
                         </ol>
                     </div>
                 </td>
                 <td style="width: 40%; vertical-align: top; padding: 0;">
                     <div class="signature-area" style="position: relative; float: right; font-size: 8pt;">
                         <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
-                        <div>PT. WAHYU TITIAN INSANI</div>
+                        <div>TRANS GLOBAL WISATA</div>
                         <div style="position: relative; height: 80px;">
                             <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: 0px;">
                         </div>

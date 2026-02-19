@@ -99,6 +99,17 @@ class SuratRekomendasiController extends Controller
         return $pdf->download('Surat_Rekomendasi_' . \Illuminate\Support\Str::slug($surat->nomor_dokumen) . '.pdf');
     }
 
+    public function printPdf($id)
+    {
+        $surat = SuratRekomendasi::with(['jamaah', 'keberangkatanUmroh'])->findOrFail($id);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.surat-rekomendasi.pdf', [
+            'title' => 'Surat Rekomendasi - ' . $surat->nomor_dokumen,
+            'surat' => $surat
+        ]);
+        
+        return $pdf->stream('Surat_Rekomendasi_' . \Illuminate\Support\Str::slug($surat->nomor_dokumen) . '.pdf');
+    }
+
     public function destroy($id)
     {
         $surat = SuratRekomendasi::findOrFail($id);

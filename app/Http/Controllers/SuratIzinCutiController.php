@@ -93,6 +93,15 @@ class SuratIzinCutiController extends Controller
         return redirect()->route('surat-izin-cuti.index')->with('success', 'Surat izin cuti berhasil dihapus');
     }
 
+    public function show($id)
+    {
+        $surat = SuratIzinCuti::with(['jamaah', 'keberangkatanUmroh'])->findOrFail($id);
+        return view('pages.surat-izin-cuti.show', [
+            'title' => 'Detail Surat Izin Cuti',
+            'surat' => $surat
+        ]);
+    }
+
     public function exportPdf($id)
     {
         $surat = SuratIzinCuti::with(['jamaah', 'keberangkatanUmroh'])->findOrFail($id);
@@ -102,5 +111,16 @@ class SuratIzinCutiController extends Controller
         ]);
         
         return $pdf->download('Surat_Izin_Cuti_' . Str::slug($surat->nomor_dokumen) . '.pdf');
+    }
+
+    public function printPdf($id)
+    {
+        $surat = SuratIzinCuti::with(['jamaah', 'keberangkatanUmroh'])->findOrFail($id);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.surat-izin-cuti.pdf', [
+            'title' => 'Surat Izin Cuti - ' . $surat->nomor_dokumen,
+            'surat' => $surat
+        ]);
+        
+        return $pdf->stream('Surat_Izin_Cuti_' . Str::slug($surat->nomor_dokumen) . '.pdf');
     }
 }

@@ -387,10 +387,12 @@ Route::resource('pemasukan-umum', PemasukanUmumController::class);
 Route::get('surat-rekomendasi/export', [SuratRekomendasiController::class, 'export'])->name('surat-rekomendasi.export');
 Route::get('surat-rekomendasi/print', [SuratRekomendasiController::class, 'printData'])->name('surat-rekomendasi.print');
 Route::get('surat-rekomendasi/{id}/export-pdf', [SuratRekomendasiController::class, 'exportPdf'])->name('surat-rekomendasi.export-pdf');
+Route::get('surat-rekomendasi/{id}/print-pdf', [SuratRekomendasiController::class, 'printPdf'])->name('surat-rekomendasi.print-pdf');
 Route::resource('surat-rekomendasi', SuratRekomendasiController::class);
 
 
 Route::get('surat-izin-cuti/{id}/export-pdf', [SuratIzinCutiController::class, 'exportPdf'])->name('surat-izin-cuti.export-pdf');
+Route::get('surat-izin-cuti/{id}/print-pdf', [SuratIzinCutiController::class, 'printPdf'])->name('surat-izin-cuti.print-pdf');
 Route::resource('surat-izin-cuti', SuratIzinCutiController::class);
 
 

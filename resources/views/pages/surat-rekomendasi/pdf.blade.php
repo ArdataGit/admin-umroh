@@ -5,96 +5,147 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
     <style>
+        @page {
+            margin: 0;
+        }
         body {
-            font-family: serif;
-            font-size: 11pt;
-            line-height: 1.4;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 3px double #000;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 14pt;
-            margin: 0;
-            text-transform: uppercase;
-        }
-        .header p {
-            margin: 0;
+            font-family: Arial, sans-serif;
             font-size: 10pt;
+            line-height: 1.3;
+            margin: 0;
+            padding: 0;
+            color: #000;
         }
-        .title {
-            text-align: center;
-            font-weight: bold;
-            text-decoration: underline;
-            font-size: 12pt;
-            margin-bottom: 5px;
+        .container {
+            padding: 0.5cm 2cm;
         }
-        .subtitle {
-            text-align: center;
-            margin-bottom: 20px;
+        .header-image {
+            width: 100%;
+            display: block;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
         td {
             vertical-align: top;
-            padding: 3px;
+            padding: 1px 0;
+        }
+        p {
+            margin: 5px 0;
         }
         .label {
-            width: 150px;
+            width: 140px;
         }
         .separator {
-            width: 10px;
+            width: 15px;
             text-align: center;
         }
-        .signature {
-            margin-top: 30px;
+        .text-justify {
+            text-align: justify;
+        }
+        .signature-section {
+            margin-top: 10px;
             float: right;
-            width: 200px;
+            width: 250px;
             text-align: center;
         }
-        .signature-name {
-            margin-top: 60px;
+        .signature-image {
+            width: 70px;
+            height: 70px;
+            margin: 5px auto;
+        }
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 8pt;
+            font-style: italic;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+            margin: 0 2cm;
+        }
+        .bold {
             font-weight: bold;
-            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
+    <img src="{{ public_path('images/surat/header.png') }}" class="header-image">
+
     <div class="container">
-        <!-- Header Kop Surat (Optional, sesuaikan dengan kebutuhan) -->
-        <div class="header">
-            <h1>PT. PERWAKAB BATAM</h1>
-            <p>Jalan Contoh No. 123, Batam, Kepulauan Riau</p>
-            <p>Telp: (0778) 123456 | Email: info@perwakab.com</p>
+        
+        <!-- Header Info -->
+        <table style="margin-bottom: 10px;">
+            <tr>
+                <td style="width: 60%">
+                    <table>
+                        <tr>
+                            <td style="width: 60px;">Nomor</td>
+                            <td style="width: 10px;">:</td>
+                            <td>{{ $surat->nomor_dokumen }}</td>
+                        </tr>
+                        <tr>
+                            <td>Perihal</td>
+                            <td>:</td>
+                            <td class="bold">Surat Rekomendasi Imigrasi</td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="text-align: right; width: 40%">
+                    Banjarmasin, {{ \Carbon\Carbon::parse($surat->created_at)->translatedFormat('d F Y') }}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Recipient -->
+        <div style="margin-bottom: 10px;">
+            <p style="margin: 0;">Kepada Yth,</p>
+            <p style="margin: 0;" class="bold">Kepala Kantor Imigrasi {{ $surat->kantor_imigrasi }}</p>
+            <p style="margin: 0;">Di</p>
+            <p style="margin: 0; padding-left: 20px;">Tempat</p>
         </div>
 
-        <div class="content">
-            <div class="title">SURAT REKOMENDASI</div>
-            <div class="subtitle">Nomor: {{ $surat->nomor_dokumen }}</div>
+        <!-- Body -->
+        <div class="text-justify">
+            <p>Assalamualaikum wr. wb.,</p>
 
-            <p>Yang bertanda tangan di bawah ini:</p>
-            <table class="data-table">
+            <p style="margin-bottom: 10px;">
+                Yang bertanda tangan di bawah ini:
+            </p>
+
+            <table style="margin-left: 20px; margin-bottom: 10px;">
                 <tr>
                     <td class="label">Nama</td>
                     <td class="separator">:</td>
-                    <td><strong>H. CONTOH NAMA</strong></td>
+                    <td><strong>H. SARIDI, MM</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Jabatan</td>
                     <td class="separator">:</td>
                     <td>Direktur Utama</td>
                 </tr>
+                 <tr>
+                    <td class="label">Perusahaan</td>
+                    <td class="separator">:</td>
+                    <td>PT. TRANSMART GLOBAL WISATA</td>
+                </tr>
+                 <tr>
+                    <td class="label">Alamat</td>
+                    <td class="separator">:</td>
+                    <td>Jl. Zafri Zam Zam No.40, Teluk Dalam, Banjarmasin Barat, Banjarmasin, Kalimantan Selatan</td>
+                </tr>
             </table>
 
-            <p>Dengan ini memberikan rekomendasi kepada:</p>
-            <table class="data-table">
+            <p style="margin-bottom: 10px;">
+                Dengan ini memberikan rekomendasi kepada calon jamaah umroh kami:
+            </p>
+
+            <table style="margin-left: 20px; margin-bottom: 10px;">
                 <tr>
                     <td class="label">Nama Lengkap</td>
                     <td class="separator">:</td>
@@ -103,7 +154,7 @@
                 <tr>
                     <td class="label">Tempat, Tanggal Lahir</td>
                     <td class="separator">:</td>
-                    <td>{{ $surat->jamaah->tempat_lahir }}, {{ \Carbon\Carbon::parse($surat->jamaah->tanggal_lahir)->format('d F Y') }}</td>
+                    <td>{{ $surat->jamaah->tempat_lahir }}, {{ \Carbon\Carbon::parse($surat->jamaah->tanggal_lahir)->translatedFormat('d F Y') }}</td>
                 </tr>
                 <tr>
                     <td class="label">Jenis Kelamin</td>
@@ -116,27 +167,22 @@
                     <td>{{ $surat->jamaah->alamat_jamaah }}</td>
                 </tr>
                  <tr>
-                    <td class="label">No. Telepon / HP</td>
-                    <td class="separator">:</td>
-                    <td>{{ $surat->jamaah->kontak_jamaah }}</td>
-                </tr>
-                <tr>
                     <td class="label">Nama Ayah Kandung</td>
                     <td class="separator">:</td>
                     <td>{{ $surat->nama_ayah }}</td>
                 </tr>
-                 <tr>
+                <tr>
                     <td class="label">Nama Kakek Kandung</td>
                     <td class="separator">:</td>
                     <td>{{ $surat->nama_kakek }}</td>
                 </tr>
             </table>
 
-            <p style="text-align: justify;">
-                Adalah benar calon jamaah Umroh yang terdaftar di <strong>PT. PERWAKAB BATAM</strong> yang akan berangkat pada tanggal <strong>{{ \Carbon\Carbon::parse($surat->keberangkatanUmroh->tanggal_keberangkatan)->format('d F Y') }}</strong>.
+            <p>
+                Adalah benar calon jamaah Umroh yang terdaftar di <strong>PT. TRANSMART GLOBAL WISATA</strong> yang akan berangkat pada tanggal <strong>{{ \Carbon\Carbon::parse($surat->keberangkatanUmroh->tanggal_keberangkatan)->translatedFormat('d F Y') }}</strong>.
             </p>
 
-            <p style="text-align: justify;">
+            <p>
                 Surat rekomendasi ini dibuat untuk keperluan pengurusan paspor di <strong>Kantor Imigrasi {{ $surat->kantor_imigrasi }}</strong>. Mohon kiranya dapat dibantu dan diberikan kemudahan dalam pengurusan tersebut.
             </p>
             
@@ -145,14 +191,27 @@
             @endif
 
             <p>Demikian surat rekomendasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.</p>
-
-            <div class="signature">
-                <p>Batam, {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
-                <p>Hormat Kami,</p>
-                <div class="signature-name">H. CONTOH NAMA</div>
-                <p>Direktur Utama</p>
-            </div>
         </div>
+
+        <!-- Signature -->
+        <div class="signature-section">
+            <p style="margin-bottom: 2px;">Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
+            <p class="bold" style="margin: 0;">PT. TRANSMART GLOBAL WISATA</p>
+            
+            @if(file_exists(public_path('images/surat/stempel.png')))
+                <img src="{{ public_path('images/surat/stempel.png') }}" class="signature-image">
+            @else
+                <div style="height: 60px;"></div>
+            @endif
+
+            <p class="bold" style="margin: 0;">H. SARIDI, MM</p>
+            <p style="margin: 0;">Direktur Utama</p>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Travel Management System ® {{ date('Y') }} || <strong>TRANSMART GLOBAL WISATA</strong> © Hajj & Umroh Service
     </div>
 
 </body>
