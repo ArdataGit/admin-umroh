@@ -47,7 +47,7 @@ class PendaftaranHajiController extends Controller
         $validated = $request->validate([
             // Section 1: Jamaah Data
             'kode_jamaah' => 'required|unique:jamaahs,kode_jamaah',
-            'nik_jamaah' => 'required|numeric|unique:jamaahs,nik_jamaah',
+            'nik_jamaah' => 'required|numeric|digits:16|unique:jamaahs,nik_jamaah',
             'nama_jamaah' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tempat_lahir' => 'required|string',
@@ -224,7 +224,7 @@ class PendaftaranHajiController extends Controller
         $validated = $request->validate([
             // Section 1: Jamaah Data
             'kode_jamaah' => 'required|unique:jamaahs,kode_jamaah,' . $jamaah->id,
-            'nik_jamaah' => 'required|numeric|unique:jamaahs,nik_jamaah,' . $jamaah->id,
+            'nik_jamaah' => 'required|numeric|digits:16|unique:jamaahs,nik_jamaah,' . $jamaah->id,
             'nama_jamaah' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:L,P',
             'tempat_lahir' => 'required|string',

@@ -35,7 +35,10 @@
                          <!-- NIK & Nama -->
                          <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">NIK Jamaah</label>
-                            <input type="text" x-model="form.nik_jamaah" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                            <input type="text" x-model="form.nik_jamaah" oninput="this.value = this.value.replace(/[^0-9]/g, '')" inputmode="numeric" maxlength="16" minlength="16" pattern="\d{16}" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                            <p class="mt-1 text-xs" :class="form.nik_jamaah.length === 16 ? 'text-green-500' : 'text-gray-500'">
+                                <span x-text="form.nik_jamaah.length"></span> / 16 digit
+                            </p>
                         </div>
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Jamaah (Sesuai KTP)</label>

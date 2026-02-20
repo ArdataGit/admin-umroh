@@ -42,7 +42,7 @@
                     <!-- Tanggal Pengeluaran -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Pengeluaran</label>
-                        <input type="date" name="tanggal_pengeluaran" value="{{ $pengeluaran->tanggal_pengeluaran }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                        <input type="date" name="tanggal_pengeluaran" value="{{ $pengeluaran->tanggal_pengeluaran }}" max="9999-12-31" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
                         @error('tanggal_pengeluaran') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
