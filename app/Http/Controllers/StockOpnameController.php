@@ -39,7 +39,7 @@ class StockOpnameController extends Controller
     {
         $validated = $request->validate([
             'kode_adjustment' => 'required|string|unique:stock_opnames,kode_adjustment',
-            'tanggal_adjustment' => 'required|date',
+            'tanggal_adjustment' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'produk_id' => 'required|exists:produks,id',
             'tipe_adjustment' => 'required|in:penambahan,pengurangan',
             'koreksi_stock' => 'required|numeric|min:1',
@@ -95,7 +95,7 @@ class StockOpnameController extends Controller
         $produk = Produk::findOrFail($stockOpname->produk_id);
 
         $validated = $request->validate([
-            'tanggal_adjustment' => 'required|date',
+            'tanggal_adjustment' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'tipe_adjustment' => 'required|in:penambahan,pengurangan',
             'koreksi_stock' => 'required|numeric|min:1',
             'catatan' => 'nullable|string'

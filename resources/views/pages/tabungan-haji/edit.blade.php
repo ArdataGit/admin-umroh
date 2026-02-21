@@ -30,7 +30,7 @@
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Pendaftaran</label>
-                    <input type="date" name="tanggal_pendaftaran" value="{{ old('tanggal_pendaftaran', $tabungan->tanggal_pendaftaran) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="date" name="tanggal_pendaftaran" value="{{ old('tanggal_pendaftaran', $tabungan->tanggal_pendaftaran) }}" min="1900-01-01" max="9999-12-31" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Status Tabungan</label>

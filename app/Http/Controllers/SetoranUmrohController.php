@@ -65,7 +65,7 @@ class SetoranUmrohController extends Controller
             'kode_transaksi' => 'required|string|unique:transaksi_tabungan_umrohs,kode_transaksi',
             'nominal' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:Cash,Transfer,Debit,QRIS,Other',
-            'tanggal_transaksi' => 'required|date',
+            'tanggal_transaksi' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'kode_referensi' => 'nullable|string',
             'keterangan' => 'nullable|string',
             'bukti_transaksi' => 'nullable|image'
@@ -139,7 +139,7 @@ class SetoranUmrohController extends Controller
             'nominal' => 'required|numeric|min:1',
             'metode_pembayaran' => 'required|in:Cash,Transfer,Debit,QRIS,Other',
             'status_setoran' => 'required|in:checked,completed',
-            'tanggal_transaksi' => 'required|date',
+            'tanggal_transaksi' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'kode_referensi' => 'nullable|string',
             'keterangan' => 'nullable|string',
             'bukti_transaksi' => 'nullable|image'

@@ -44,7 +44,7 @@ class TabunganUmrohController extends Controller
         $validated = $request->validate([
             'kode_tabungan' => 'required|string|unique:tabungan_umrohs,kode_tabungan',
             'jamaah_id' => 'required|exists:jamaahs,id',
-            'tanggal_pendaftaran' => 'required|date',
+            'tanggal_pendaftaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'bank_tabungan' => 'required|in:Bank Travel,Bank BSI,Bank Muamalat,Bank BRI,Bank BNI,Bank BCA,Bank Mandiri',
             'rekening_tabungan' => 'required|string|max:50',
             'status_tabungan' => 'required|in:active,non-active',
@@ -78,7 +78,7 @@ class TabunganUmrohController extends Controller
     {
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
-            'tanggal_pendaftaran' => 'required|date',
+            'tanggal_pendaftaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'bank_tabungan' => 'required|in:Bank Travel,Bank BSI,Bank Muamalat,Bank BRI,Bank BNI,Bank BCA,Bank Mandiri',
             'rekening_tabungan' => 'required|string|max:50',
             'status_tabungan' => 'required|in:active,non-active',
