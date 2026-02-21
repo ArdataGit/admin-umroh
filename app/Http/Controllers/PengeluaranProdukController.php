@@ -40,7 +40,7 @@ class PengeluaranProdukController extends Controller
         $validated = $request->validate([
             'kode_pengeluaran' => 'required|unique:pengeluaran_produks,kode_pengeluaran',
             'jamaah_id' => 'required|exists:jamaahs,id',
-            'tanggal_pengeluaran' => 'required|date',
+            'tanggal_pengeluaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'details' => 'required|array|min:1',
             'details.*.produk_id' => 'required|exists:produks,id',
             'details.*.quantity' => 'required|integer|min:1',
@@ -147,7 +147,7 @@ class PengeluaranProdukController extends Controller
         // Code pengeluaran cannot be edited, so exclude from validation
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
-            'tanggal_pengeluaran' => 'required|date',
+            'tanggal_pengeluaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
             'details' => 'required|array|min:1',
             'details.*.produk_id' => 'required|exists:produks,id',
             'details.*.quantity' => 'required|integer|min:1',
