@@ -27,9 +27,9 @@
                     </div>
 
                     <!-- Kontak Supplier -->
-                    <div>
+                    <div x-data="{ kontak: '{{ old('kontak_supplier') }}' }">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kontak Supplier</label>
-                        <input type="text" name="kontak_supplier" value="{{ old('kontak_supplier') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Kontak Supplier" />
+                        <input type="text" name="kontak_supplier" x-model="kontak" @input="kontak = $el.value.replace(/\D/g, '')" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Masukkan Kontak Supplier" />
                         @error('kontak_supplier') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
