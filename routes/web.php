@@ -46,6 +46,8 @@ use App\Http\Controllers\PembayaranLayananController;
 use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\RugiLabaPenjualanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PermissionController;
 
 
 
@@ -533,5 +535,8 @@ Route::get('/videos', function () {
 
 
 
+
+    Route::get('/user', [UserController::class, 'index'])->name('user.index');
+    Route::get('/permission', [PermissionController::class, 'index'])->name('permission.index');
 
 });

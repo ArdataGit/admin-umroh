@@ -318,7 +318,7 @@
                             <li>Apabila agen tidak melakukan pelunasan pada waktu yang sudah ditentukan, maka seat akan dibatalkan dan deposit akan hangus</li>
                             <li>Pelunasan tiket tidak bisa ditarik kembali atau dibatalkan meskipun belum proses issued</li>
                             <li>Issued tiket dilakukan selambat-lambatnya 8 (delapan) hari kerja sebelum tanggal keberangkatan</li>
-                            <li>SMART GLOBAL WISATA dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
+                            <li>TRANSMART GLOBAL WISATA dibebaskan dari segala tuntutan atas pembatalan reservasi atau pembukuan yang disebabkan gagal Visa</li>
                             <li>Ketentuan perbaikan nama (core name), change nama, reschedule, rebook dan refund mengikuti regulasi dari masing-masing Maskapai</li>
                             <li>Ketentuan Bagasi, Tas Cabin, Air Zam-Zam mengikuti regulasi dari Maskapai</li>
                             <li>Seluruh Pembayaran Desposit dan Pelunasan ke : Bank Mandiri (IDR) 0310089798899 a.n TRANSMART GLOBAL WISATA</li>
@@ -328,7 +328,7 @@
                 <td style="width: 40%; vertical-align: top; padding: 0;">
                     <div class="signature-area" style="position: relative; float: right; font-size: 8pt;">
                         <div class="signature-date">Banjarmasin, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d F Y') }}</div>
-                        <div>TRANS GLOBAL WISATA</div>
+                        <div>TRANSMART GLOBAL WISATA</div>
                         <div style="position: relative; height: 80px;">
                             <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: 0px;">
                         </div>

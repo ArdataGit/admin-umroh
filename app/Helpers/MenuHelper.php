@@ -229,13 +229,13 @@ class MenuHelper
                     
                 ]
             ],
-            [
-                'icon' => 'settings',
-                'name' => 'Setting',
-                'subItems' => [
-                    ['name' => 'System', 'path' => '/system'],
-                ]
-            ],
+            // [
+            //     'icon' => 'settings',
+            //     'name' => 'Setting',
+            //     'subItems' => [
+            //         ['name' => 'System', 'path' => '/system'],
+            //     ]
+            // ],
         ];
     }
     public static function getMainNavItems()
@@ -335,10 +335,10 @@ class MenuHelper
                 'title' => 'Menu Gudang',
                 'items' => self::getMenuGudang()
             ],
-            // [
-            //     'title' => 'Menu Pengaturan',
-            //     'items' => self::getMenuPengaturan()
-            // ],  
+            [
+                'title' => 'Menu Pengaturan',
+                'items' => self::getMenuPengaturan()
+            ],  
             // [
             //     'title' => 'Others',
             //     'items' => self::getOthersItems()
