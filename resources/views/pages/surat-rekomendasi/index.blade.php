@@ -25,7 +25,7 @@
         sortDirection: "asc",
         searchQuery: "",
         deleteModalOpen: false,
-        deleteAction: null,
+        deleteTarget: null,
         
         get filteredItems() {
             if (!this.searchQuery) return this.items;
@@ -72,6 +72,10 @@
         formatDate(dateString) {
              const options = { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute:"2-digit" };
              return new Date(dateString).toLocaleDateString("id-ID", options).replace(",", "");
+        },
+        openDeleteModal(id, nomor) {
+            this.deleteTarget = { id, nomor };
+            this.deleteModalOpen = true;
         }
     }'>
 
@@ -154,7 +158,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                          <template x-for="(item, index) in paginatedItems" :key="item.id">
+                        <template x-for="(item, index) in paginatedItems" :key="item.id">
                             <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                 <td class="px-4 py-4">
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="((currentPage - 1) * itemsPerPage) + index + 1"></p>
@@ -193,18 +197,18 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                         </a>
                                         <!-- Delete -->
-                                        <button @click="deleteModalOpen = true; deleteAction = '/surat-rekomendasi/' + item.id" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500" title="Hapus">
+                                        <button @click="openDeleteModal(item.id, item.nomor_dokumen)" class="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500" title="Hapus">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                         </template>
-                         <tr x-show="filteredItems.length === 0">
+                        </template>
+                        <tr x-show="filteredItems.length === 0">
                             <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                 Tidak ada surat rekomendasi yang ditemukan.
                             </td>
-                         </tr>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -222,7 +226,7 @@
 
 
     <!-- Delete Confirmation Modal -->
-    <div x-show="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm" style="display: none;">
+    <div x-show="deleteModalOpen" class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm" style="display: none;">
         <div x-show="deleteModalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800" @click.away="deleteModalOpen = false">
             <div class="flex flex-col items-center text-center">
                 <div class="mb-4 rounded-full bg-red-50 p-3 text-red-500 dark:bg-red-900/20">
@@ -231,13 +235,13 @@
                     </svg>
                 </div>
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Konfirmasi Hapus</h3>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Apakah Anda yakin ingin menghapus surat rekomendasi ini? Tindakan ini tidak dapat dibatalkan.</p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Apakah Anda yakin ingin menghapus surat rekomendasi <span x-text="deleteTarget?.nomor" class="font-bold text-gray-900 dark:text-white"></span>? Tindakan ini tidak dapat dibatalkan.</p>
                 
                 <div class="mt-6 flex w-full gap-3">
                     <button @click="deleteModalOpen = false" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700/50">
                         Batal
                     </button>
-                    <form :action="deleteAction" method="POST" class="w-full">
+                    <form :action="'/surat-rekomendasi/' + (deleteTarget?.id || '')" method="POST" class="w-full">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="w-full rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-500/20">
@@ -248,7 +252,8 @@
             </div>
         </div>
     </div>
-    
+
     </div>
 </div>
 @endsection
+
