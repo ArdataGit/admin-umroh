@@ -197,4 +197,53 @@ class PaketUmrohController extends Controller
             'paketUmroh' => $paketUmroh
         ]);
     }
+
+    public function export()
+    {
+        $pakets = $this->paketUmrohService->getAll();
+        $filename = "paket_umroh_" . date('Y-m-d_H-i-s') . ".csv";
+
+        $headers = [
+            "Content-Type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $columns = ['Kode Paket', 'Nama Paket', 'Tanggal Keberangkatan', 'Jumlah Hari', 'Maskapai', 'Status', 'Kuota', 'Rute', 'Lokasi', 'Harga Quad 1'];
+
+        $callback = function () use ($pakets, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($pakets as $paket) {
+                fputcsv($file, [
+                    $paket->kode_paket,
+                    $paket->nama_paket,
+                    $paket->tanggal_keberangkatan,
+                    $paket->jumlah_hari,
+                    $paket->maskapai ? $paket->maskapai->nama_maskapai : '-',
+                    $paket->status_paket,
+                    $paket->kuota_jamaah,
+                    $paket->rute_penerbangan,
+                    $paket->lokasi_keberangkatan,
+                    $paket->harga_quad_1
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function printData()
+    {
+        $paketUmrohs = $this->paketUmrohService->getAll();
+        return view('pages.paket-umroh.print', [
+            'paketUmrohs' => $paketUmrohs,
+            'title' => 'Laporan Paket Umroh'
+        ]);
+    }
 }

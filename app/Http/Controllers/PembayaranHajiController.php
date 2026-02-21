@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PembayaranHaji;
 use App\Models\CustomerHaji;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class PembayaranHajiController extends Controller
 {
@@ -134,5 +136,43 @@ class PembayaranHajiController extends Controller
         ]);
 
         return redirect()->route('pembayaran-haji.history', $customerHaji->id)->with('success', 'Pembayaran haji berhasil ditambahkan');
+    }
+
+    public function exportPdf($id)
+    {
+        $pembayaran = PembayaranHaji::with(['customerHaji.jamaah', 'customerHaji.keberangkatanHaji.paketHaji'])->findOrFail($id);
+        $customerHaji = $pembayaran->customerHaji;
+
+        $total_bayar = $customerHaji->pembayaranHaji()->where('status_pembayaran', '!=', 'failed')->sum('jumlah_pembayaran');
+        $sisa_pembayaran = $customerHaji->total_tagihan - $total_bayar;
+
+        $pdf = Pdf::loadView('pages.pembayaran-haji.pdf', [
+            'title' => 'Invoice Pembayaran Haji - ' . $pembayaran->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'customerHaji' => $customerHaji,
+            'total_bayar' => $total_bayar,
+            'sisa_pembayaran' => $sisa_pembayaran
+        ]);
+
+        return $pdf->download('Invoice_' . Str::slug($pembayaran->kode_transaksi) . '.pdf');
+    }
+
+    public function printPdf($id)
+    {
+        $pembayaran = PembayaranHaji::with(['customerHaji.jamaah', 'customerHaji.keberangkatanHaji.paketHaji'])->findOrFail($id);
+        $customerHaji = $pembayaran->customerHaji;
+
+        $total_bayar = $customerHaji->pembayaranHaji()->where('status_pembayaran', '!=', 'failed')->sum('jumlah_pembayaran');
+        $sisa_pembayaran = $customerHaji->total_tagihan - $total_bayar;
+
+        $pdf = Pdf::loadView('pages.pembayaran-haji.pdf', [
+            'title' => 'Invoice Pembayaran Haji - ' . $pembayaran->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'customerHaji' => $customerHaji,
+            'total_bayar' => $total_bayar,
+            'sisa_pembayaran' => $sisa_pembayaran
+        ]);
+
+        return $pdf->stream('Invoice_' . Str::slug($pembayaran->kode_transaksi) . '.pdf');
     }
 }

@@ -200,9 +200,9 @@
                                         <a :href="'{{ route('pembayaran-haji.detail', ':id') }}'.replace(':id', item.id)" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" title="Detail">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         </a>
-                                         <button class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300" title="Print Invoice">
+                                         <a :href="'{{ route('pembayaran-haji.print-pdf', ':id') }}'.replace(':id', item.id)" target="_blank" class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300" title="Print Invoice">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                        </button>
+                                         </a>
                                     </div>
                                 </td>
                             </tr>

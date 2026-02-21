@@ -363,6 +363,8 @@ Route::get('/pembayaran-umroh/{id}/edit', [PembayaranUmrohController::class, 'ed
 Route::put('/pembayaran-umroh/{id}', [PembayaranUmrohController::class, 'update'])->name('pembayaran-umroh.update');
 Route::get('/pembayaran-umroh/create/{id}', [PembayaranUmrohController::class, 'createPayment'])->name('pembayaran-umroh.create-payment');
 Route::post('/pembayaran-umroh/store/{id}', [PembayaranUmrohController::class, 'storePayment'])->name('pembayaran-umroh.store-payment');
+Route::get('/pembayaran-umroh/pdf/{id}', [PembayaranUmrohController::class, 'exportPdf'])->name('pembayaran-umroh.export-pdf');
+Route::get('/pembayaran-umroh/print/{id}', [PembayaranUmrohController::class, 'printPdf'])->name('pembayaran-umroh.print-pdf');
 
 
 Route::get('/pembayaran-haji', [PembayaranHajiController::class, 'index'])->name('pembayaran-haji.index');
@@ -372,6 +374,8 @@ Route::get('/pembayaran-haji/{id}/edit', [PembayaranHajiController::class, 'edit
 Route::put('/pembayaran-haji/{id}', [PembayaranHajiController::class, 'update'])->name('pembayaran-haji.update');
 Route::get('/pembayaran-haji/create/{id}', [PembayaranHajiController::class, 'createPayment'])->name('pembayaran-haji.create-payment');
 Route::post('/pembayaran-haji/store/{id}', [PembayaranHajiController::class, 'storePayment'])->name('pembayaran-haji.store-payment');
+Route::get('/pembayaran-haji/pdf/{id}', [PembayaranHajiController::class, 'exportPdf'])->name('pembayaran-haji.export-pdf');
+Route::get('/pembayaran-haji/print/{id}', [PembayaranHajiController::class, 'printPdf'])->name('pembayaran-haji.print-pdf');
 
 
 Route::resource('pengeluaran-umroh', PengeluaranUmrohController::class);
