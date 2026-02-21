@@ -74,13 +74,22 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <template x-if="item.kurs && item.kurs !== 'IDR'">
-                                            <div class="flex flex-col">
-                                                <span class="font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs) + ' ' + formatNumberDecimal(item.harga_jual_asing)"></span>
-                                                <span class="text-xs text-gray-500" x-text="'(Rp ' + formatNumber(item.harga_satuan) + ')'"></span>
+                                            <div class="flex flex-col gap-1">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-xs font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs)"></span>
+                                                    <input type="number" x-model.number="item.harga_jual_asing" readonly class="w-24 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs focus:outline-none dark:border-gray-600 dark:bg-gray-800 text-gray-500" />
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <span class="text-xs text-gray-500">Rp</span>
+                                                    <input type="text" :value="formatNumber(item.harga_satuan)" @input="$el.value = $el.value.replace(/\D/g, ''); item.harga_satuan = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(item.harga_satuan); calculateLineTotal(index)" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
+                                                </div>
                                             </div>
                                         </template>
                                         <template x-if="!item.kurs || item.kurs === 'IDR'">
-                                            <span>Rp <span x-text="formatNumber(item.harga_satuan)"></span></span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-sm text-gray-500">Rp</span>
+                                                <input type="text" :value="formatNumber(item.harga_satuan)" @input="$el.value = $el.value.replace(/\D/g, ''); item.harga_satuan = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(item.harga_satuan); calculateLineTotal(index)" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
+                                            </div>
                                         </template>
                                     </td>
                                     <td class="px-4 py-3">
@@ -126,6 +135,11 @@
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Catatan</label>
                         <textarea x-model="form.catatan" rows="2" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"></textarea>
                     </div>
+                     <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Upload Bukti Transaksi (Optional)</label>
+                        <input type="file" @change="form.bukti_transaksi = $event.target.files[0]" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" accept="image/*" />
+                        <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, GIF (Max 2MB)</p>
+                    </div>
                 </div>
                 
                 <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 space-y-3">
@@ -143,7 +157,7 @@
                     </div>
                      <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                         <span>Biaya Tambahan (Shipping)</span>
-                        <input type="number" x-model.number="form.shipping_cost" @input="calculateGrandTotal" min="0" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                        <input type="text" :value="formatNumber(form.shipping_cost)" @input="$el.value = $el.value.replace(/\D/g, ''); form.shipping_cost = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(form.shipping_cost); calculateGrandTotal()" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between text-lg font-bold text-gray-800 dark:text-white">
                         <span>Total Transaksi</span>
@@ -166,7 +180,7 @@
                         </div>
                         <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                              <span>Jumlah Bayar</span>
-                             <input type="number" x-model.number="form.jumlah_bayar" @input="calculateSisa" min="0" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                             <input type="text" :value="formatNumber(form.jumlah_bayar)" @input="$el.value = $el.value.replace(/\D/g, ''); form.jumlah_bayar = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(form.jumlah_bayar); calculateSisa()" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
                         </div>
                         <div class="flex justify-between items-center text-sm font-bold text-gray-800 dark:text-white">
                              <span>Sisa Tagihan</span>
@@ -205,6 +219,7 @@
                 status_transaksi: 'process',
                 alamat_transaksi: '',
                 catatan: '',
+                bukti_transaksi: null,
                 // Payment Fields
                 jumlah_bayar: 0,
                 metode_pembayaran: ''
@@ -283,19 +298,53 @@
                 this.sisaTagihan = this.form.total_transaksi - this.form.jumlah_bayar;
             },
             formatNumber(num) {
+                if (!num && num !== 0) return '';
                 return new Intl.NumberFormat('id-ID').format(Math.round(num));
             },
             formatNumberDecimal(num) {
+                if (!num && num !== 0) return '';
                 return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
             },
+            parseFormattedNumber(value) {
+                if (!value) return 0;
+                return parseFloat(value.replace(/\./g, '').replace(/,/g, '')) || 0;
+            },
             submitForm() {
+                const formData = new FormData();
+                
+                // Base fields
+                formData.append('kode_transaksi', this.form.kode_transaksi);
+                formData.append('pelanggan_id', this.form.pelanggan_id);
+                formData.append('tanggal_transaksi', this.form.tanggal_transaksi);
+                formData.append('subtotal', this.subtotal);
+                formData.append('tax_percentage', this.form.tax_percentage);
+                formData.append('discount_percentage', this.form.discount_percentage);
+                formData.append('shipping_cost', this.form.shipping_cost);
+                formData.append('total_transaksi', this.form.total_transaksi);
+                formData.append('status_transaksi', this.form.status_transaksi);
+                formData.append('alamat_transaksi', this.form.alamat_transaksi || '');
+                formData.append('catatan', this.form.catatan || '');
+                formData.append('jumlah_bayar', this.form.jumlah_bayar);
+                formData.append('metode_pembayaran', this.form.metode_pembayaran || '');
+                
+                if (this.form.bukti_transaksi) {
+                    formData.append('bukti_transaksi', this.form.bukti_transaksi);
+                }
+
+                // Append Details
+                this.form.details.forEach((item, index) => {
+                    formData.append(`details[${index}][ticket_id]`, item.ticket_id);
+                    formData.append(`details[${index}][quantity]`, item.quantity);
+                    formData.append(`details[${index}][harga_satuan]`, item.harga_satuan);
+                    formData.append(`details[${index}][total_harga]`, item.total_harga);
+                });
+
                 fetch('{{ route('transaksi-tiket.store') }}', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify(this.form)
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {

@@ -16,7 +16,8 @@ class TransaksiTiket extends Model
         'total_transaksi',
         'status_transaksi',
         'alamat_transaksi',
-        'catatan'
+        'catatan',
+        'bukti_transaksi'
     ];
 
     public function pelanggan()

@@ -6,8 +6,10 @@ use App\Models\Pelanggan;
 use App\Models\Ticket;
 use App\Models\TransaksiTiket;
 use App\Models\TransaksiTiketDetail;
+use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TransaksiTiketController extends Controller
 {
@@ -53,6 +55,7 @@ class TransaksiTiketController extends Controller
             'status_transaksi' => 'required|in:process,completed,cancelled',
             'alamat_transaksi' => 'nullable|string',
             'catatan' => 'nullable|string',
+            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             // Payment Checks
             'jumlah_bayar' => 'nullable|numeric|min:0',
             'metode_pembayaran' => 'nullable|string'
@@ -60,6 +63,11 @@ class TransaksiTiketController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $buktiPath = null;
+            if ($request->hasFile('bukti_transaksi')) {
+                $buktiPath = $request->file('bukti_transaksi')->store('bukti_transaksi', 'public');
+            }
 
             $transaksi = TransaksiTiket::create([
                 'kode_transaksi' => $validated['kode_transaksi'],
@@ -71,7 +79,8 @@ class TransaksiTiketController extends Controller
                 'total_transaksi' => $validated['total_transaksi'],
                 'status_transaksi' => $validated['status_transaksi'],
                 'alamat_transaksi' => $validated['alamat_transaksi'],
-                'catatan' => $validated['catatan']
+                'catatan' => $validated['catatan'],
+                'bukti_transaksi' => $buktiPath
             ]);
 
             foreach ($validated['details'] as $detail) {
@@ -83,9 +92,24 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
+                // Update Ticket Master Price
+                $ticket = Ticket::findOrFail($detail['ticket_id']);
+                $ticketPriceData = [
+                    'harga_jual' => $detail['harga_satuan']
+                ];
+
+                // If ticket is foreign currency, update the foreign price too
+                if ($ticket->kurs && $ticket->kurs !== 'IDR') {
+                    $rateService = new ExchangeRateService();
+                    $rate = $rateService->getRate($ticket->kurs);
+                    if ($rate > 0) {
+                        $ticketPriceData['harga_jual_asing'] = $detail['harga_satuan'] / $rate;
+                    }
+                }
+                $ticket->update($ticketPriceData);
+
                 // Stock Management if Process or Completed
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
-                    $ticket = Ticket::findOrFail($detail['ticket_id']);
                     if ($ticket->jumlah_tiket < $detail['quantity']) {
                         throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
                     }
@@ -105,9 +129,10 @@ class TransaksiTiketController extends Controller
             $statusBayar = ($jumlahBayar > 0) ? 'paid' : 'pending';
             $metodeBayar = $metodeBayar ?? '-'; // Default if pending
 
-            // Generate Code for Payment: PT-ID-XXX
-            $countPayment = \App\Models\PembayaranTiket::count() + 1;
-            $kodePembayaran = 'PT-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+            // Generate Code for Payment: PT-00001
+            $lastPayment = \App\Models\PembayaranTiket::orderBy('id', 'desc')->first();
+            $nextId = $lastPayment ? ($lastPayment->id + 1) : 1;
+            $kodePembayaran = 'PT-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
             \App\Models\PembayaranTiket::create([
                 'transaksi_tiket_id' => $transaksi->id,
@@ -186,7 +211,8 @@ class TransaksiTiketController extends Controller
             'total_transaksi' => 'required|numeric|min:0',
             'status_transaksi' => 'required|in:process,completed,cancelled',
             'alamat_transaksi' => 'nullable|string',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
+            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
@@ -203,7 +229,7 @@ class TransaksiTiketController extends Controller
             }
 
             // 2. Update Main Record
-            $transaksi->update([
+            $updateData = [
                 'pelanggan_id' => $validated['pelanggan_id'],
                 'tanggal_transaksi' => $validated['tanggal_transaksi'],
                 'tax_percentage' => $validated['tax_percentage'],
@@ -213,7 +239,17 @@ class TransaksiTiketController extends Controller
                 'status_transaksi' => $validated['status_transaksi'],
                 'alamat_transaksi' => $validated['alamat_transaksi'],
                 'catatan' => $validated['catatan']
-            ]);
+            ];
+
+            if ($request->hasFile('bukti_transaksi')) {
+                // Delete old file
+                if ($transaksi->bukti_transaksi && Storage::disk('public')->exists($transaksi->bukti_transaksi)) {
+                    Storage::disk('public')->delete($transaksi->bukti_transaksi);
+                }
+                $updateData['bukti_transaksi'] = $request->file('bukti_transaksi')->store('bukti_transaksi', 'public');
+            }
+
+            $transaksi->update($updateData);
 
             // 3. Delete Old Details
             $transaksi->details()->delete();
@@ -228,8 +264,23 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
+                // Update Ticket Master Price
+                $ticket = Ticket::findOrFail($detail['ticket_id']);
+                $ticketPriceData = [
+                    'harga_jual' => $detail['harga_satuan']
+                ];
+
+                // If ticket is foreign currency, update the foreign price too
+                if ($ticket->kurs && $ticket->kurs !== 'IDR') {
+                    $rateService = new ExchangeRateService();
+                    $rate = $rateService->getRate($ticket->kurs);
+                    if ($rate > 0) {
+                        $ticketPriceData['harga_jual_asing'] = $detail['harga_satuan'] / $rate;
+                    }
+                }
+                $ticket->update($ticketPriceData);
+
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
-                    $ticket = Ticket::findOrFail($detail['ticket_id']);
                     if ($ticket->jumlah_tiket < $detail['quantity']) {
                         throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
                     }

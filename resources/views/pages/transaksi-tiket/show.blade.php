@@ -38,6 +38,14 @@
                 @if($transaksi->catatan)
                 <p class="mt-2 text-sm text-gray-500"><span class="font-medium">Catatan:</span> {{ $transaksi->catatan }}</p>
                 @endif
+                @if($transaksi->bukti_transaksi)
+                <div class="mt-4">
+                    <h5 class="text-xs font-semibold uppercase text-gray-400 mb-2">Bukti Transaksi</h5>
+                    <a href="{{ asset('storage/' . $transaksi->bukti_transaksi) }}" target="_blank">
+                        <img src="{{ asset('storage/' . $transaksi->bukti_transaksi) }}" alt="Bukti Transaksi" class="h-48 rounded-lg border border-gray-200 shadow-sm dark:border-gray-700 hover:opacity-90 transition-opacity">
+                    </a>
+                </div>
+                @endif
             </div>
         </div>
     </div>

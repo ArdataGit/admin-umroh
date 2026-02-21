@@ -14,6 +14,8 @@ class PembayaranTiket extends Model
         'kode_transaksi',
         'tanggal_pembayaran',
         'jumlah_pembayaran',
+        'kurs',
+        'kurs_asing',
         'metode_pembayaran',
         'status_pembayaran',
         'kode_referensi',

@@ -187,8 +187,8 @@
                 <div style="height: 60px;"></div>
             @endif
 
-            <p class="bold" style="margin: 0;">Anjelia Rahmah</p>
-            <p style="margin: 0;">Administrator</p>
+            <p class="bold" style="margin: 0;">SARIDI, MM</p>
+            <!-- <p style="margin: 0;">Administrator</p> -->
         </div>
 
     </div>

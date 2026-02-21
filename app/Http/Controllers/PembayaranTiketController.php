@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PembayaranTiket;
+use App\Models\SystemSetting;
+use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -36,9 +38,18 @@ class PembayaranTiketController extends Controller
     {
         $transaksi = \App\Models\TransaksiTiket::with(['pelanggan'])->findOrFail($id);
         
+        ExchangeRateService::updateRates();
+
+        $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
+        $kursSar = SystemSetting::where('key', 'kurs_sar')->first()->value ?? 0;
+        $kursMyr = SystemSetting::where('key', 'kurs_myr')->first()->value ?? (SystemSetting::where('key', 'kurs_rm')->first()->value ?? 0);
+
         return view('pages.pembayaran-tiket.create_payment', [
             'title' => 'Tambah Pembayaran',
-            'transaksi' => $transaksi
+            'transaksi' => $transaksi,
+            'kursUsd' => $kursUsd / 100,
+            'kursSar' => $kursSar / 100,
+            'kursMyr' => $kursMyr / 100
         ]);
     }
 
@@ -48,21 +59,44 @@ class PembayaranTiketController extends Controller
 
         $validated = $request->validate([
             'jumlah_pembayaran' => 'required|numeric|min:1',
+            'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
             'tanggal_pembayaran' => 'required|date',
             'catatan' => 'nullable|string',
             'kode_referensi' => 'nullable|string',
         ]);
 
-        // Generate Code for Payment: PT-ID-XXX (Payment Ticket)
-        $countPayment = PembayaranTiket::count() + 1;
-        $kodePembayaran = 'PT-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+        // Handle Currency Conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateKey = match($kurs) {
+                'USD' => 'kurs_usd',
+                'SAR' => 'kurs_sar',
+                'MYR' => 'kurs_myr',
+                default => null,
+            };
+
+            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+            $rate = $rateValue / 100;
+
+            $validated['kurs_asing'] = $validated['jumlah_pembayaran'];
+            $validated['jumlah_pembayaran'] = $validated['jumlah_pembayaran'] * $rate;
+        } else {
+            $validated['kurs_asing'] = 0;
+        }
+
+        // Generate Code for Payment: PT-00001
+        $lastPayment = \App\Models\PembayaranTiket::orderBy('id', 'desc')->first();
+        $nextId = $lastPayment ? ($lastPayment->id + 1) : 1;
+        $kodePembayaran = 'PT-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
         PembayaranTiket::create([
             'transaksi_tiket_id' => $transaksi->id,
             'kode_transaksi' => $kodePembayaran,
             'tanggal_pembayaran' => $validated['tanggal_pembayaran'],
             'jumlah_pembayaran' => $validated['jumlah_pembayaran'],
+            'kurs' => $validated['kurs'],
+            'kurs_asing' => $validated['kurs_asing'],
             'metode_pembayaran' => $validated['metode_pembayaran'],
             'status_pembayaran' => 'paid', // Direct 'paid' for manual entry
             'catatan' => $validated['catatan'],
@@ -86,10 +120,19 @@ class PembayaranTiketController extends Controller
     {
         $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan'])->findOrFail($id);
 
+        ExchangeRateService::updateRates();
+
+        $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
+        $kursSar = SystemSetting::where('key', 'kurs_sar')->first()->value ?? 0;
+        $kursMyr = SystemSetting::where('key', 'kurs_myr')->first()->value ?? (SystemSetting::where('key', 'kurs_rm')->first()->value ?? 0);
+
         return view('pages.pembayaran-tiket.edit', [
             'title' => 'Edit Pembayaran Tiket',
             'pembayaran' => $pembayaran,
-            'transaksi' => $pembayaran->transaksiTiket
+            'transaksi' => $pembayaran->transaksiTiket,
+            'kursUsd' => $kursUsd / 100,
+            'kursSar' => $kursSar / 100,
+            'kursMyr' => $kursMyr / 100
         ]);
     }
 
@@ -99,11 +142,31 @@ class PembayaranTiketController extends Controller
 
         $validated = $request->validate([
             'jumlah_pembayaran' => 'required|numeric|min:1',
+            'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
             'tanggal_pembayaran' => 'required|date',
             'catatan' => 'nullable|string',
             'kode_referensi' => 'nullable|string',
         ]);
+
+        // Handle Currency Conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            $rateKey = match($kurs) {
+                'USD' => 'kurs_usd',
+                'SAR' => 'kurs_sar',
+                'MYR' => 'kurs_myr',
+                default => null,
+            };
+
+            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+            $rate = $rateValue / 100;
+
+            $validated['kurs_asing'] = $validated['jumlah_pembayaran'];
+            $validated['jumlah_pembayaran'] = $validated['jumlah_pembayaran'] * $rate;
+        } else {
+            $validated['kurs_asing'] = 0;
+        }
 
         $pembayaran->update($validated);
 
