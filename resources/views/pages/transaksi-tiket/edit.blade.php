@@ -77,7 +77,7 @@
                                             <div class="flex flex-col gap-1">
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-xs font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs)"></span>
-                                                    <input type="number" x-model.number="item.harga_jual_asing" readonly class="w-24 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs focus:outline-none dark:border-gray-600 dark:bg-gray-800 text-gray-500" />
+                                                    <input type="number" step="0.01" x-model.number="item.harga_jual_asing" @input="item.harga_satuan = Math.round(item.harga_jual_asing * item.rate); calculateLineTotal(index)" class="w-24 rounded border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
                                                 </div>
                                                 <div class="flex items-center gap-1">
                                                     <span class="text-xs text-gray-500">Rp</span>
@@ -209,6 +209,10 @@
             
             init() {
                 this.filteredTickets = this.tickets;
+                // Calculate rate for initial details
+                this.form.details.forEach(item => {
+                    item.rate = (parseFloat(item.harga_jual_asing) || 0) > 0 ? (parseFloat(item.harga_satuan) / parseFloat(item.harga_jual_asing)) : 0;
+                });
                 this.calculateGrandTotal();
             },
             filterTickets() {
@@ -242,6 +246,7 @@
                         kurs: ticket.kurs,
                         harga_jual_asing: parseFloat(ticket.harga_jual_asing) || 0,
                         harga_satuan: parseFloat(ticket.harga_jual) || 0,
+                        rate: (parseFloat(ticket.harga_jual_asing) || 0) > 0 ? (parseFloat(ticket.harga_jual) / parseFloat(ticket.harga_jual_asing)) : 0,
                         quantity: 1,
                         total_harga: parseFloat(ticket.harga_jual) || 0
                     });

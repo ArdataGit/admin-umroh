@@ -10,6 +10,22 @@
     <div class="col-span-12">
         <form action="{{ route('paket-umroh.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
+
+        @if ($errors->any())
+            <div class="mb-6 rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <div class="flex items-center mb-2">
+                    <svg class="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                    </svg>
+                    <span class="font-medium">Terdapat kesalahan pada input:</span>
+                </div>
+                <ul class="mt-1.5 list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 mb-6">
             <h3 class="mb-6 text-xl font-semibold text-gray-800 dark:text-white">Informasi Dasar</h3>
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -103,18 +119,22 @@
                 <div>
                      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP</label>
                     <input type="number" name="harga_hpp_1" value="{{ old('harga_hpp_1') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                    @error('harga_hpp_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Quad</label>
                     <input type="number" name="harga_quad_1" value="{{ old('harga_quad_1') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                    @error('harga_quad_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Triple</label>
                     <input type="number" name="harga_triple_1" value="{{ old('harga_triple_1') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                    @error('harga_triple_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double</label>
                     <input type="number" name="harga_double_1" value="{{ old('harga_double_1') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                    @error('harga_double_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
         </div>
