@@ -213,9 +213,9 @@
                         nama_produk: produk.nama_produk,
                         standar_stok: produk.standar_stok,
                         aktual_stok: produk.aktual_stok,
-                        harga_satuan: produk.harga_jual,   // Default to Harga Jual for Output
+                        harga_satuan: parseFloat(produk.harga_jual) || 0,   // Default to Harga Jual for Output
                         quantity: 1,
-                        total_harga: produk.harga_jual
+                        total_harga: parseFloat(produk.harga_jual) || 0
                     });
                 }
                 this.searchQuery = '';
@@ -228,13 +228,13 @@
             },
             calculateLineTotal(index) {
                 const item = this.form.details[index];
-                item.total_harga = item.quantity * item.harga_satuan;
+                item.total_harga = item.quantity * parseFloat(item.harga_satuan);
                 this.calculateGrandTotal();
             },
             calculateGrandTotal() {
-                this.subtotal = this.form.details.reduce((sum, item) => sum + item.total_harga, 0);
-                this.taxAmount = (this.subtotal * this.form.tax_percentage) / 100;
-                this.discountAmount = (this.subtotal * this.form.discount_percentage) / 100;
+                this.subtotal = this.form.details.reduce((sum, item) => sum + parseFloat(item.total_harga || 0), 0);
+                this.taxAmount = (this.subtotal * parseFloat(this.form.tax_percentage || 0)) / 100;
+                this.discountAmount = (this.subtotal * parseFloat(this.form.discount_percentage || 0)) / 100;
                 
                 const shipping = parseFloat(this.form.shipping_cost) || 0;
                 

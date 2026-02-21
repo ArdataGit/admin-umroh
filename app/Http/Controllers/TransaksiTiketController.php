@@ -92,21 +92,7 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
-                // Update Ticket Master Price
                 $ticket = Ticket::findOrFail($detail['ticket_id']);
-                $ticketPriceData = [
-                    'harga_jual' => $detail['harga_satuan']
-                ];
-
-                // If ticket is foreign currency, update the foreign price too
-                if ($ticket->kurs && $ticket->kurs !== 'IDR') {
-                    $rateService = new ExchangeRateService();
-                    $rate = $rateService->getRate($ticket->kurs);
-                    if ($rate > 0) {
-                        $ticketPriceData['harga_jual_asing'] = $detail['harga_satuan'] / $rate;
-                    }
-                }
-                $ticket->update($ticketPriceData);
 
                 // Stock Management if Process or Completed
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
@@ -264,21 +250,7 @@ class TransaksiTiketController extends Controller
                     'total_harga' => $detail['total_harga']
                 ]);
 
-                // Update Ticket Master Price
                 $ticket = Ticket::findOrFail($detail['ticket_id']);
-                $ticketPriceData = [
-                    'harga_jual' => $detail['harga_satuan']
-                ];
-
-                // If ticket is foreign currency, update the foreign price too
-                if ($ticket->kurs && $ticket->kurs !== 'IDR') {
-                    $rateService = new ExchangeRateService();
-                    $rate = $rateService->getRate($ticket->kurs);
-                    if ($rate > 0) {
-                        $ticketPriceData['harga_jual_asing'] = $detail['harga_satuan'] / $rate;
-                    }
-                }
-                $ticket->update($ticketPriceData);
 
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
                     if ($ticket->jumlah_tiket < $detail['quantity']) {

@@ -67,6 +67,7 @@ class TicketController extends Controller
             'harga_modal' => 'required|numeric',
             'harga_jual' => 'required|numeric',
             'kurs' => 'required|string|in:IDR,USD,SAR,MYR', // Added validation
+            'custom_kurs' => 'nullable|numeric',
             'status_tiket' => 'required|in:active,non-active',
             'kode_tiket_1' => 'nullable|string',
             'kode_tiket_2' => 'nullable|string',
@@ -79,8 +80,12 @@ class TicketController extends Controller
         // Handle currency conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateService = new \App\Services\ExchangeRateService();
-            $rate = $rateService->getRate($kurs);
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateService = new \App\Services\ExchangeRateService();
+                $rate = $rateService->getRate($kurs);
+            }
             
             $validated['harga_modal_asing'] = $validated['harga_modal'];
             $validated['harga_jual_asing'] = $validated['harga_jual'];
@@ -144,6 +149,7 @@ class TicketController extends Controller
             'harga_modal' => 'required|numeric',
             'harga_jual' => 'required|numeric',
             'kurs' => 'required|string|in:IDR,USD,SAR,MYR', // Added validation
+            'custom_kurs' => 'nullable|numeric',
             'status_tiket' => 'required|in:active,non-active',
             'kode_tiket_1' => 'nullable|string',
             'kode_tiket_2' => 'nullable|string',
@@ -158,8 +164,12 @@ class TicketController extends Controller
         // Handle currency conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateService = new \App\Services\ExchangeRateService();
-            $rate = $rateService->getRate($kurs);
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateService = new \App\Services\ExchangeRateService();
+                $rate = $rateService->getRate($kurs);
+            }
             
             $validated['harga_modal_asing'] = $validated['harga_modal'];
             $validated['harga_jual_asing'] = $validated['harga_jual'];

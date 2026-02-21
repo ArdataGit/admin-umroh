@@ -12,14 +12,28 @@
             kurs: '{{ old('kurs', $ticket->kurs ?? 'IDR') }}',
             harga_modal: '{{ old('harga_modal', ($ticket->kurs != 'IDR' ? $ticket->harga_modal_asing : $ticket->harga_modal)) }}',
             harga_jual: '{{ old('harga_jual', ($ticket->kurs != 'IDR' ? $ticket->harga_jual_asing : $ticket->harga_jual)) }}',
+            custom_kurs: {{ old('custom_kurs', ($ticket->kurs != 'IDR' && $ticket->harga_modal_asing > 0) ? ($ticket->harga_modal / $ticket->harga_modal_asing) : 'null') }},
+            kursUsd: {{ $kursUsd ?? 0 }},
+            kursSar: {{ $kursSar ?? 0 }},
+            kursMyr: {{ $kursMyr ?? 0 }},
+            init() {
+                if (this.custom_kurs === null && ['USD', 'SAR', 'MYR'].includes(this.kurs)) {
+                    if (this.kurs === 'USD') this.custom_kurs = this.kursUsd;
+                    else if (this.kurs === 'SAR') this.custom_kurs = this.kursSar;
+                    else if (this.kurs === 'MYR') this.custom_kurs = this.kursMyr;
+                }
+                this.$watch('kurs', (newValue) => {
+                    if (newValue === 'USD') this.custom_kurs = this.kursUsd;
+                    else if (newValue === 'SAR') this.custom_kurs = this.kursSar;
+                    else if (newValue === 'MYR') this.custom_kurs = this.kursMyr;
+                    else this.custom_kurs = null;
+                });
+            },
             get currencySymbol() {
                 return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
             },
             get exchangeRate() {
-                if (this.kurs === 'USD') return {{ $kursUsd ?? 0 }};
-                if (this.kurs === 'SAR') return {{ $kursSar ?? 0 }};
-                if (this.kurs === 'MYR') return {{ $kursMyr ?? 0 }};
-                return 1;
+                return parseFloat(this.custom_kurs) || 1;
             },
             get convertedModal() {
                 if (this.kurs === 'IDR' || !this.harga_modal) return null;
@@ -138,6 +152,15 @@
                     </select>
                 </div>
 
+                <!-- Custom Kurs -->
+                <div class="md:col-span-2" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kurs <span x-text="kurs"></span> Hari Ini</label>
+                    <div class="relative">
+                        <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                        <input type="number" name="custom_kurs" x-model="custom_kurs" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                    </div>
+                </div>
+
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Modal</label>
                     <div class="relative">
@@ -149,22 +172,6 @@
                         <span x-text="formatRupiah(convertedModal)"></span>
                     </div>
                     @error('harga_modal') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-
-                    <!-- Kurs Info Compact -->
-                    <div class="mt-2 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30 w-fit" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
-                            <span class="opacity-70">Kurs USD Hari Ini:</span>
-                            <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
-                            <span class="opacity-70">Kurs SAR Hari Ini:</span>
-                            <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
-                            <span class="opacity-70">Kurs RM Hari Ini:</span>
-                            <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
@@ -177,22 +184,6 @@
                         <span x-text="formatRupiah(convertedJual)"></span>
                     </div>
                     @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-
-                    <!-- Kurs Info Compact -->
-                    <div class="mt-2 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30 w-fit" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
-                            <span class="opacity-70">Kurs USD Hari Ini:</span>
-                            <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
-                            <span class="opacity-70">Kurs SAR Hari Ini:</span>
-                            <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
-                            <span class="opacity-70">Kurs RM Hari Ini:</span>
-                            <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
