@@ -17,11 +17,11 @@
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kode Tabungan</label>
-                    <input type="text" name="kode_tabungan" value="{{ $tabungan->kode_tabungan }}" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500" />
+                    <input type="text" name="kode_tabungan" value="{{ $tabungan->kode_tabungan }}" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" />
                 </div>
                 <div>
                      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Jamaah</label>
-                    <select name="jamaah_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
+                    <select name="jamaah_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30">
                         <option value="">Pilih Jamaah</option>
                         @foreach($jamaahs as $jamaah)
                             <option value="{{ $jamaah->id }}" {{ $tabungan->jamaah_id == $jamaah->id ? 'selected' : '' }}>{{ $jamaah->nama_lengkap }} ({{ $jamaah->nomor_paspor_1 ?? 'No Passport' }})</option>
@@ -30,11 +30,11 @@
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Tanggal Pendaftaran</label>
-                    <input type="date" name="tanggal_pendaftaran" value="{{ old('tanggal_pendaftaran', $tabungan->tanggal_pendaftaran) }}" min="1900-01-01" max="9999-12-31" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="date" name="tanggal_pendaftaran" value="{{ old('tanggal_pendaftaran', $tabungan->tanggal_pendaftaran) }}" min="1900-01-01" max="9999-12-31" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" required />
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Status Tabungan</label>
-                    <select name="status_tabungan" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
+                    <select name="status_tabungan" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30">
                         <option value="active" {{ $tabungan->status_tabungan == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="non-active" {{ $tabungan->status_tabungan == 'non-active' ? 'selected' : '' }}>Non-Active</option>
                     </select>
@@ -47,7 +47,7 @@
              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Bank Tabungan</label>
-                    <select name="bank_tabungan" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
+                    <select name="bank_tabungan" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30">
                         @foreach(['Bank Travel', 'Bank BSI', 'Bank Muamalat', 'Bank BRI', 'Bank BNI', 'Bank BCA', 'Bank Mandiri'] as $bank)
                             <option value="{{ $bank }}" {{ $tabungan->bank_tabungan == $bank ? 'selected' : '' }}>{{ $bank }}</option>
                         @endforeach
@@ -55,15 +55,15 @@
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nomor Rekening</label>
-                    <input type="text" name="rekening_tabungan" value="{{ old('rekening_tabungan', $tabungan->rekening_tabungan) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="text" name="rekening_tabungan" value="{{ old('rekening_tabungan', $tabungan->rekening_tabungan) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" required />
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Setoran Tabungan (IDR)</label>
-                    <input type="number" name="setoran_tabungan" value="{{ old('setoran_tabungan', $tabungan->setoran_tabungan) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm" required />
+                    <input type="number" name="setoran_tabungan" value="{{ old('setoran_tabungan', $tabungan->setoran_tabungan) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" required />
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Metode Pembayaran</label>
-                     <select name="metode_pembayaran" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">
+                     <select name="metode_pembayaran" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30">
                         @foreach(['Cash', 'Transfer', 'Debit', 'QRIS', 'Other'] as $method)
                             <option value="{{ $method }}" {{ $tabungan->metode_pembayaran == $method ? 'selected' : '' }}>{{ $method }}</option>
                         @endforeach
@@ -71,14 +71,14 @@
                 </div>
                  <div class="md:col-span-2">
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Catatan Pembayaran</label>
-                    <textarea name="catatan_pembayaran" rows="3" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm">{{ old('catatan_pembayaran', $tabungan->catatan_pembayaran) }}</textarea>
+                    <textarea name="catatan_pembayaran" rows="3" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30">{{ old('catatan_pembayaran', $tabungan->catatan_pembayaran) }}</textarea>
                 </div>
             </div>
         </div>
 
         <div class="mt-8 flex justify-end gap-3">
-            <a href="{{ route('tabungan-umroh') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Batal</a>
-            <button type="submit" class="rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-600">Simpan Perubahan</button>
+            <a href="{{ route('tabungan-umroh') }}" class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">Batal</a>
+            <button type="submit" class="rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-500/20">Simpan Perubahan</button>
         </div>
         </form>
     </div>

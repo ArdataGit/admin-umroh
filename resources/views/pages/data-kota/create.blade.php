@@ -12,12 +12,12 @@
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kode Kota <span class="text-red-500">*</span></label>
-                <input type="text" name="kode_kota" value="{{ old('kode_kota') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm @error('kode_kota') border-red-500 @enderror" placeholder="Misal: BJM" required />
+                <input type="text" name="kode_kota" value="{{ old('kode_kota') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('kode_kota') border-red-500 @enderror" placeholder="Misal: BJM" required />
                 @error('kode_kota') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nama Kota <span class="text-red-500">*</span></label>
-                <input type="text" name="nama_kota" value="{{ old('nama_kota') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm @error('nama_kota') border-red-500 @enderror" placeholder="Misal: Banjarmasin" required />
+                <input type="text" name="nama_kota" value="{{ old('nama_kota') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('nama_kota') border-red-500 @enderror" placeholder="Misal: Banjarmasin" required />
                 @error('nama_kota') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
