@@ -71,7 +71,7 @@
                                 Rp
                             </span>
                             <input type="hidden" name="jumlah_pembayaran" :value="jumlah">
-                            <input type="text" :value="formatNumber(jumlah)" @input="$el.value = $el.value.replace(/\D/g, ''); jumlah = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(jumlah)" placeholder="Masukkan jumlah" required
+                            <input type="text" :value="formatNumber(jumlah)" @input="$el.value = $el.value.replace(/\D/g, ''); jumlah = $el.value === '' ? '' : parseInt($el.value); $el.value = formatNumber(jumlah)" placeholder="Masukkan jumlah" required
                                 class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">
                         </div>
                         @error('jumlah_pembayaran') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror

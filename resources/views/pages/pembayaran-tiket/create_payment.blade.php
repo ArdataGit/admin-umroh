@@ -33,6 +33,10 @@
                 },
                 formatRupiah(number) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                },
+                formatNumber(num) {
+                    if (!num && num !== 0) return '';
+                    return new Intl.NumberFormat('id-ID').format(Math.round(num));
                 }
             }">
                 @csrf
@@ -65,7 +69,8 @@
                             <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
                                 Rp
                             </span>
-                            <input type="number" name="jumlah_pembayaran" x-model="jumlah" placeholder="Masukkan jumlah" required min="1" step="0.01"
+                            <input type="hidden" name="jumlah_pembayaran" :value="jumlah">
+                            <input type="text" :value="formatNumber(jumlah)" @input="$el.value = $el.value.replace(/\D/g, ''); jumlah = $el.value === '' ? '' : parseInt($el.value); $el.value = formatNumber(jumlah)" placeholder="Masukkan jumlah" required
                                 class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">
                         </div>
                         @error('jumlah_pembayaran') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
