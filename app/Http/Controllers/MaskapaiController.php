@@ -54,6 +54,7 @@ class MaskapaiController extends Controller
             'rute_penerbangan' => 'required|in:Direct,Transit',
             'lama_perjalanan' => 'required|integer|min:0',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|numeric|min:0',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
             'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -68,21 +69,27 @@ class MaskapaiController extends Controller
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['kurs_asing'] = $validated['harga_tiket'];
             $validated['harga_tiket'] = $validated['harga_tiket'] * $rate;
         } else {
             $validated['kurs_asing'] = 0;
         }
+
+        unset($validated['custom_kurs']);
 
         $this->maskapaiService->create($validated);
 
@@ -119,6 +126,7 @@ class MaskapaiController extends Controller
             'rute_penerbangan' => 'required|in:Direct,Transit',
             'lama_perjalanan' => 'required|integer|min:0',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|numeric|min:0',
             'harga_tiket' => 'required|numeric|min:0',
             'catatan_penerbangan' => 'nullable|string',
             'foto_maskapai' => 'nullable|image|mimes:jpeg,png,jpg,gif',
@@ -138,21 +146,27 @@ class MaskapaiController extends Controller
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['kurs_asing'] = $validated['harga_tiket'];
             $validated['harga_tiket'] = $validated['harga_tiket'] * $rate;
         } else {
             $validated['kurs_asing'] = 0;
         }
+
+        unset($validated['custom_kurs']);
 
         $maskapai = $this->maskapaiService->update($id, $validated);
 

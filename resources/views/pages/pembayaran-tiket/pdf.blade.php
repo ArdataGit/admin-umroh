@@ -332,7 +332,9 @@
                         <div style="position: relative; height: 80px;">
                             <img src="{{ public_path('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: 0px;">
                         </div>
-                        <div class="signature-name" style="position: relative; z-index: 1;">SARIDI, MM</div>
+                        <div class="signature-name" style="position: relative; z-index: 1;">ANJELIA RAHMAH</div>
+                        <br>
+                        <div class="signature-name" style="position: relative; z-index: 1;">ADMINISTRATOR</div>
                     </div>
                 </td>
             </tr>
