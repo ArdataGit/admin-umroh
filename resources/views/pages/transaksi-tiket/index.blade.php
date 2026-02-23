@@ -17,15 +17,31 @@
       currentPage: 1,
       itemsPerPage: 10,
       searchQuery: "",
+      startDate: "",
+      endDate: "",
       showDeleteModal: false,
       deleteTarget: null,
       get filteredItems() {
-        if (!this.searchQuery) return this.items;
-        const query = this.searchQuery.toLowerCase();
-        return this.items.filter(i => {
-          return i.kode_transaksi.toLowerCase().includes(query) ||
-                 i.pelanggan?.nama_pelanggan.toLowerCase().includes(query);
-        });
+        let result = this.items;
+        
+        // Filter by text search
+        if (this.searchQuery) {
+          const query = this.searchQuery.toLowerCase();
+          result = result.filter(i => {
+            return i.kode_transaksi.toLowerCase().includes(query) ||
+                   i.pelanggan?.nama_pelanggan.toLowerCase().includes(query);
+          });
+        }
+        
+        // Filter by date range
+        if (this.startDate) {
+          result = result.filter(i => new Date(i.tanggal_transaksi) >= new Date(this.startDate));
+        }
+        if (this.endDate) {
+          result = result.filter(i => new Date(i.tanggal_transaksi) <= new Date(this.endDate));
+        }
+        
+        return result;
       },
       get paginatedItems() {
         const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -56,9 +72,13 @@
                         Tambah Transaksi
                     </a>
                 </div>
-                 <div class="relative">
-                    <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari..." class="h-10 w-full rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:w-64"/>
-                </div>
+                 <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="date" x-model="startDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Mulai">
+                    <input type="date" x-model="endDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Selesai">
+                    <div class="relative">
+                        <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari..." class="h-10 w-full rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:w-64"/>
+                    </div>
+                 </div>
             </div>
             
             <div class="overflow-x-auto">

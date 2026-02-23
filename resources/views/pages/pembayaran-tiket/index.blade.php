@@ -13,15 +13,29 @@
         sortField: "",
         sortDirection: "asc",
         searchQuery: "",
+        startDate: "",
+        endDate: "",
         
         get filteredItems() {
-            if (!this.searchQuery) return this.items;
-            const query = this.searchQuery.toLowerCase();
-            return this.items.filter(item => {
-                return (item.kode_transaksi && item.kode_transaksi.toLowerCase().includes(query)) ||
-                       (item.transaksi_tiket && item.transaksi_tiket.kode_transaksi && item.transaksi_tiket.kode_transaksi.toLowerCase().includes(query)) ||
-                       (item.transaksi_tiket && item.transaksi_tiket.pelanggan && item.transaksi_tiket.pelanggan.nama_pelanggan && item.transaksi_tiket.pelanggan.nama_pelanggan.toLowerCase().includes(query));
-            });
+            let result = this.items;
+            
+            if (this.searchQuery) {
+                const query = this.searchQuery.toLowerCase();
+                result = result.filter(item => {
+                    return (item.kode_transaksi && item.kode_transaksi.toLowerCase().includes(query)) ||
+                           (item.transaksi_tiket && item.transaksi_tiket.kode_transaksi && item.transaksi_tiket.kode_transaksi.toLowerCase().includes(query)) ||
+                           (item.transaksi_tiket && item.transaksi_tiket.pelanggan && item.transaksi_tiket.pelanggan.nama_pelanggan && item.transaksi_tiket.pelanggan.nama_pelanggan.toLowerCase().includes(query));
+                });
+            }
+
+            if (this.startDate) {
+                result = result.filter(i => new Date(i.tanggal_pembayaran) >= new Date(this.startDate));
+            }
+            if (this.endDate) {
+                result = result.filter(i => new Date(i.tanggal_pembayaran) <= new Date(this.endDate));
+            }
+            
+            return result;
         },
         get sortedItems() {
             if (!this.sortField) return this.filteredItems;
@@ -95,7 +109,9 @@
                 </a>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <form>
+                <form class="flex flex-col sm:flex-row gap-2">
+                    <input type="date" x-model="startDate" @input="currentPage = 1" class="h-[42px] rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Mulai">
+                    <input type="date" x-model="endDate" @input="currentPage = 1" class="h-[42px] rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Selesai">
                     <div class="relative">
                         <button type="button" class="absolute -translate-y-1/2 left-4 top-1/2">
                             <svg class="fill-gray-500 dark:fill-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
