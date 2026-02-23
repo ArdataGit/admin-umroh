@@ -67,6 +67,7 @@
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Metode</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Jumlah</th>
+                            <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Bukti</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</th>
                         </tr>
