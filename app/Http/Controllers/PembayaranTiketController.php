@@ -64,6 +64,7 @@ class PembayaranTiketController extends Controller
             'tanggal_pembayaran' => 'required|date',
             'catatan' => 'nullable|string',
             'kode_referensi' => 'nullable|string',
+            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf',
         ]);
 
         // Handle Currency Conversion
@@ -90,6 +91,13 @@ class PembayaranTiketController extends Controller
         $nextId = $lastPayment ? ($lastPayment->id + 1) : 1;
         $kodePembayaran = 'PT-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
+        $buktiPath = null;
+        if ($request->hasFile('bukti_pembayaran')) {
+            $file = $request->file('bukti_pembayaran');
+            $filename = time() . '_' . Str::slug($transaksi->kode_transaksi) . '.' . $file->getClientOriginalExtension();
+            $buktiPath = $file->storeAs('bukti_pembayaran_tiket', $filename, 'public');
+        }
+
         PembayaranTiket::create([
             'transaksi_tiket_id' => $transaksi->id,
             'kode_transaksi' => $kodePembayaran,
@@ -100,7 +108,8 @@ class PembayaranTiketController extends Controller
             'metode_pembayaran' => $validated['metode_pembayaran'],
             'status_pembayaran' => 'paid', // Direct 'paid' for manual entry
             'catatan' => $validated['catatan'],
-            'kode_referensi' => $validated['kode_referensi']
+            'kode_referensi' => $validated['kode_referensi'],
+            'bukti_pembayaran' => $buktiPath
         ]);
 
         return redirect()->route('pembayaran-tiket.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
@@ -147,6 +156,7 @@ class PembayaranTiketController extends Controller
             'tanggal_pembayaran' => 'required|date',
             'catatan' => 'nullable|string',
             'kode_referensi' => 'nullable|string',
+            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
         ]);
 
         // Handle Currency Conversion
@@ -166,6 +176,19 @@ class PembayaranTiketController extends Controller
             $validated['jumlah_pembayaran'] = $validated['jumlah_pembayaran'] * $rate;
         } else {
             $validated['kurs_asing'] = 0;
+        }
+
+        if ($request->hasFile('bukti_pembayaran')) {
+            $file = $request->file('bukti_pembayaran');
+            $filename = time() . '_' . Str::slug($pembayaran->transaksiTiket->kode_transaksi) . '.' . $file->getClientOriginalExtension();
+            $buktiPath = $file->storeAs('bukti_pembayaran_tiket', $filename, 'public');
+            
+            // Delete old file if exists
+            if ($pembayaran->bukti_pembayaran && \Illuminate\Support\Facades\Storage::disk('public')->exists($pembayaran->bukti_pembayaran)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($pembayaran->bukti_pembayaran);
+            }
+            
+            $validated['bukti_pembayaran'] = $buktiPath;
         }
 
         $pembayaran->update($validated);

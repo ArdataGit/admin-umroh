@@ -15,7 +15,7 @@
                 <p class="text-sm text-gray-500">Kode Transaksi: {{ $transaksi->kode_transaksi }} | Total Tagihan: Rp {{ number_format($transaksi->total_transaksi, 0, ',', '.') }}</p>
             </div>
             
-            <form action="{{ route('pembayaran-tiket.store-payment', $transaksi->id) }}" method="POST" class="p-6 space-y-6" x-data="{
+            <form action="{{ route('pembayaran-tiket.store-payment', $transaksi->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" x-data="{
                 kurs: '{{ old('kurs', 'IDR') }}',
                 jumlah: '{{ old('jumlah_pembayaran') }}',
                 get currencySymbol() {
@@ -123,9 +123,18 @@
                     </div>
 
                      <!-- Catatan -->
-                     <div class="col-span-1 md:col-span-2">
+                     <div class="col-span-1 md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">Catatan (Optional)</label>
                         <textarea name="catatan" rows="3" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">{{ old('catatan') }}</textarea>
+                    </div>
+
+                    <!-- Bukti Pembayaran -->
+                     <div class="col-span-1 md:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">Bukti Pembayaran (Optional)</label>
+                        <input type="file" name="bukti_pembayaran" accept="image/*,.pdf"
+                            class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">
+                        <p class="mt-1 text-xs text-gray-500">Maks. 2MB (JPG, PNG, PDF)</p>
+                        @error('bukti_pembayaran') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                 </div>
 

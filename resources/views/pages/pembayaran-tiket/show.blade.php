@@ -67,7 +67,7 @@
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Metode</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Jumlah</th>
-                            <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
+                            <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Bukti</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</th>
                         </tr>
                     </thead>
@@ -85,11 +85,20 @@
                                     {{ ucfirst($payment->status_pembayaran) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                                @if($payment->bukti_pembayaran)
+                                    <a href="{{ asset('storage/' . $payment->bukti_pembayaran) }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                        Lihat Bukti
+                                    </a>
+                                @else
+                                    <span class="text-sm text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $payment->catatan ?? '-' }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Belum ada riwayat pembayaran.</td>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Belum ada riwayat pembayaran.</td>
                         </tr>
                         @endforelse
                     </tbody>

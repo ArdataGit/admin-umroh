@@ -19,7 +19,8 @@ class PembayaranTiket extends Model
         'metode_pembayaran',
         'status_pembayaran',
         'kode_referensi',
-        'catatan'
+        'catatan',
+        'bukti_pembayaran'
     ];
 
     public function transaksiTiket()

@@ -15,7 +15,7 @@
                 <p class="text-sm text-gray-500">Transaksi Tiket: {{ $transaksi->kode_transaksi }} | Total Tagihan: Rp {{ number_format($transaksi->total_transaksi, 0, ',', '.') }}</p>
             </div>
             
-            <form action="{{ route('pembayaran-tiket.update', $pembayaran->id) }}" method="POST" class="p-6 space-y-6" x-data="{
+            <form action="{{ route('pembayaran-tiket.update', $pembayaran->id) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" x-data="{
                 kurs: '{{ old('kurs', $pembayaran->kurs ?? 'IDR') }}',
                 jumlah: {{ old('jumlah_pembayaran', $pembayaran->kurs !== 'IDR' ? ($pembayaran->kurs_asing ?? 0) : ($pembayaran->jumlah_pembayaran ?? 0)) }},
                 get currencySymbol() {
@@ -124,9 +124,26 @@
                     </div>
 
                      <!-- Catatan -->
-                     <div class="col-span-1 md:col-span-2">
+                     <div class="col-span-1 md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">Catatan (Optional)</label>
                         <textarea name="catatan" rows="3" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">{{ old('catatan', $pembayaran->catatan) }}</textarea>
+                    </div>
+
+                    <!-- Bukti Pembayaran -->
+                     <div class="col-span-1 md:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">Bukti Pembayaran (Optional)</label>
+                        @if($pembayaran->bukti_pembayaran)
+                            <div class="mb-2">
+                                <a href="{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                    Lihat Bukti Saat Ini
+                                </a>
+                            </div>
+                        @endif
+                        <input type="file" name="bukti_pembayaran" accept="image/*,.pdf"
+                            class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:text-white">
+                        <p class="mt-1 text-xs text-gray-500">Maks. 2MB (JPG, PNG, PDF). Biarkan kosong jika tidak ingin mengubah.</p>
+                        @error('bukti_pembayaran') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
