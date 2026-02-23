@@ -65,8 +65,23 @@
             </tr>
         </tfoot>
     </table>
-    <div style="margin-top: 20px; float: right; width: 250px; text-align: center; position: relative;">
-        <div style="margin-bottom: 10px;">Banjarmasin, {{ date('d F Y') }}</div>
+    <div style="margin-top: 10px; width: 100%; display: flex; justify-content: space-between;">
+        <div style="width: 45%; margin-top: 10px;">
+            @php $paidPayments = $pembayarans->where('status_pembayaran', 'paid'); @endphp
+            @if($paidPayments->count() > 0)
+                <div style="font-size: 10px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">Histori Pembayaran :</div>
+                <table style="width: 100%; margin-top: 0;">
+                    @foreach($paidPayments as $payment)
+                        <tr>
+                            <td style="font-weight: normal; font-size: 10px; border: none; padding: 2px 0;">{{ \Carbon\Carbon::parse($payment->tanggal_pembayaran)->format('d/m/Y') }}</td>
+                            <td class="right" style="font-size: 10px; border: none; padding: 2px 0;">Rp {{ number_format($payment->jumlah_pembayaran, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </table>
+            @endif
+        </div>
+        <div style="width: 250px; text-align: center; position: relative;">
+            <div style="margin-bottom: 10px;">Banjarmasin, {{ date('d F Y') }}</div>
         <div style="position: relative; height: 80px;">
             <img src="{{ asset('images/surat/stempel.png') }}" style="position: absolute; left: 50%; transform: translateX(-50%); width: 100px; opacity: 0.8; top: -10px;">
         </div>
