@@ -316,7 +316,7 @@ class MenuHelper
         ];
     }
 
-    public static function getMenuGroups()
+    public static function getAllMenuGroups()
     {
         return [
             // [
@@ -344,6 +344,56 @@ class MenuHelper
             //     'items' => self::getOthersItems()
             // ]
         ];
+    }
+
+    public static function getMenuGroups()
+    {
+        $allGroups = self::getAllMenuGroups();
+        $user = auth()->user();
+
+        // If no user, or user is super-admin, return all groups without filtering
+        if (!$user || ($user->role && $user->role->name === 'super-admin')) {
+            return $allGroups;
+        }
+
+        $allowedPaths = [];
+        if ($user->role) {
+            $allowedPaths = $user->role->permissions->pluck('menu_path')->toArray();
+        }
+
+        $filteredGroups = [];
+
+        foreach ($allGroups as $group) {
+            $filteredItems = [];
+            foreach ($group['items'] as $item) {
+                if (isset($item['subItems'])) {
+                    $filteredSubItems = [];
+                    foreach ($item['subItems'] as $subItem) {
+                        $path = '/' . ltrim($subItem['path'], '/');
+                        if (in_array($path, $allowedPaths)) {
+                            $filteredSubItems[] = $subItem;
+                        }
+                    }
+                    if (count($filteredSubItems) > 0) {
+                        $newItem = $item;
+                        $newItem['subItems'] = $filteredSubItems;
+                        $filteredItems[] = $newItem;
+                    }
+                } else {
+                    $path = '/' . ltrim($item['path'], '/');
+                    if (in_array($path, $allowedPaths)) {
+                        $filteredItems[] = $item;
+                    }
+                }
+            }
+            if (count($filteredItems) > 0) {
+                $newGroup = $group;
+                $newGroup['items'] = $filteredItems;
+                $filteredGroups[] = $newGroup;
+            }
+        }
+
+        return $filteredGroups;
     }
 
     public static function isActive($path)

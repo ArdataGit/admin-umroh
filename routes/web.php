@@ -47,6 +47,7 @@ use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\RugiLabaPenjualanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 
 
@@ -541,6 +542,17 @@ Route::get('/videos', function () {
 
 
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
+    Route::get('/user/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/user', [UserController::class, 'store'])->name('user.store');
+    Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+    
+    Route::post('/role', [RoleController::class, 'store'])->name('role.store');
+    Route::delete('/role/{id}', [RoleController::class, 'destroy'])->name('role.destroy');
+
     Route::get('/permission', [PermissionController::class, 'index'])->name('permission.index');
+    Route::get('/permission/{id}', [RoleController::class, 'edit'])->name('permission.edit');
+    Route::put('/permission/{id}', [RoleController::class, 'update'])->name('permission.update');
 
 });
