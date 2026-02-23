@@ -13,7 +13,7 @@ class PembayaranTiketController extends Controller
 {
     public function index()
     {
-        $pembayarans = PembayaranTiket::with(['transaksiTiket.pelanggan'])
+        $pembayarans = PembayaranTiket::with(['transaksiTiket.pelanggan', 'transaksiTiket.details.ticket'])
             ->latest()
             ->get();
 

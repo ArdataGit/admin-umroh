@@ -17,8 +17,7 @@
       currentPage: 1,
       itemsPerPage: 10,
       searchQuery: "",
-      startDate: "",
-      endDate: "",
+      departureDate: "",
       showDeleteModal: false,
       deleteTarget: null,
       get filteredItems() {
@@ -33,12 +32,14 @@
           });
         }
         
-        // Filter by date range
-        if (this.startDate) {
-          result = result.filter(i => new Date(i.tanggal_transaksi) >= new Date(this.startDate));
-        }
-        if (this.endDate) {
-          result = result.filter(i => new Date(i.tanggal_transaksi) <= new Date(this.endDate));
+        // Filter by departure date
+        if (this.departureDate) {
+          result = result.filter(item => {
+            if (!item.details) return false;
+            return item.details.some(detail => {
+              return detail.ticket && detail.ticket.tanggal_keberangkatan === this.departureDate;
+            });
+          });
         }
         
         return result;
@@ -72,9 +73,8 @@
                         Tambah Transaksi
                     </a>
                 </div>
-                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="date" x-model="startDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Mulai">
-                    <input type="date" x-model="endDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Selesai">
+                 <div class="flex flex-col sm:flex-row gap-2 items-center">
+                    <input type="date" x-model="departureDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Keberangkatan Tiket">
                     <div class="relative">
                         <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Cari..." class="h-10 w-full rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:w-64"/>
                     </div>

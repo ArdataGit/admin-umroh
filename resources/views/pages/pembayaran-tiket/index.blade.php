@@ -13,8 +13,7 @@
         sortField: "",
         sortDirection: "asc",
         searchQuery: "",
-        startDate: "",
-        endDate: "",
+        departureDate: "",
         
         get filteredItems() {
             let result = this.items;
@@ -28,11 +27,13 @@
                 });
             }
 
-            if (this.startDate) {
-                result = result.filter(i => new Date(i.tanggal_pembayaran) >= new Date(this.startDate));
-            }
-            if (this.endDate) {
-                result = result.filter(i => new Date(i.tanggal_pembayaran) <= new Date(this.endDate));
+            if (this.departureDate) {
+                result = result.filter(item => {
+                    if (!item.transaksi_tiket || !item.transaksi_tiket.details) return false;
+                    return item.transaksi_tiket.details.some(detail => {
+                        return detail.ticket && detail.ticket.tanggal_keberangkatan === this.departureDate;
+                    });
+                });
             }
             
             return result;
@@ -109,9 +110,8 @@
                 </a>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <form class="flex flex-col sm:flex-row gap-2">
-                    <input type="date" x-model="startDate" @input="currentPage = 1" class="h-[42px] rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Mulai">
-                    <input type="date" x-model="endDate" @input="currentPage = 1" class="h-[42px] rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Selesai">
+                <form class="flex flex-col sm:flex-row gap-2 items-end">
+                    <input type="date" x-model="departureDate" @input="currentPage = 1" class="h-[42px] rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Keberangkatan Tiket">
                     <div class="relative">
                         <button type="button" class="absolute -translate-y-1/2 left-4 top-1/2">
                             <svg class="fill-gray-500 dark:fill-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -23,16 +23,26 @@
       sortField: "",
       sortDirection: "asc",
       searchQuery: "",
+      departureDate: "",
       showDeleteModal: false,
       deleteTarget: null,
       get filteredTickets() {
-        if (!this.searchQuery) return this.tickets;
-        return this.tickets.filter(ticket => {
+        let result = this.tickets;
+        
+        if (this.searchQuery) {
           const query = this.searchQuery.toLowerCase();
-          return ticket.kode_tiket.toLowerCase().includes(query) ||
-                 ticket.nama_tiket.toLowerCase().includes(query) ||
-                 ticket.kode_pnr.toLowerCase().includes(query);
-        });
+          result = result.filter(ticket => {
+            return (ticket.kode_tiket && ticket.kode_tiket.toLowerCase().includes(query)) ||
+                   (ticket.nama_tiket && ticket.nama_tiket.toLowerCase().includes(query)) ||
+                   (ticket.kode_pnr && ticket.kode_pnr.toLowerCase().includes(query));
+          });
+        }
+
+        if (this.departureDate) {
+          result = result.filter(ticket => ticket.tanggal_keberangkatan === this.departureDate);
+        }
+
+        return result;
       },
       get sortedTickets() {
         if (!this.sortField) return this.filteredTickets;
@@ -80,7 +90,10 @@
             </select>
             <a href="{{ route('data-ticket.create') }}" class="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white">Tambah Ticket</a>
         </div>
-        <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Search..." class="h-10 w-full rounded-lg border border-gray-300 px-4 text-sm sm:w-64"/>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input type="date" x-model="departureDate" @input="currentPage = 1" class="h-10 rounded-lg border border-gray-300 px-4 text-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white" title="Tanggal Keberangkatan Tiket">
+            <input type="text" x-model="searchQuery" @input="currentPage = 1" placeholder="Search..." class="h-10 w-full rounded-lg border border-gray-300 px-4 text-sm sm:w-64 dark:border-gray-700 dark:bg-gray-900 dark:text-white"/>
+        </div>
     </div>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
