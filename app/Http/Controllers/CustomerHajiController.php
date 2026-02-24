@@ -119,4 +119,107 @@ class CustomerHajiController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menyimpan: ' . $e->getMessage()], 500);
         }
     }
+    public function show($id)
+    {
+        $customerHaji = CustomerHaji::with(['jamaah', 'keberangkatanHaji.paketHaji', 'agent', 'pembayaranHaji'])->findOrFail($id);
+
+        return view('pages.customer-haji.show', [
+            'title' => 'Detail Jamaah Haji Manifest',
+            'customer' => $customerHaji
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $customerHaji = CustomerHaji::with(['keberangkatanHaji.paketHaji'])->findOrFail($id);
+        $jamaahs = \App\Models\Jamaah::all();
+        $agents = \App\Models\Agent::all();
+        $keberangkatan = $customerHaji->keberangkatanHaji;
+
+        return view('pages.customer-haji.edit', [
+            'title' => 'Edit Jamaah Haji Manifest',
+            'customer' => $customerHaji,
+            'keberangkatan' => $keberangkatan,
+            'jamaahs' => $jamaahs,
+            'agents' => $agents
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'jamaah_id' => 'required|exists:jamaahs,id',
+            'agent_id' => 'required|exists:agents,id',
+            'tipe_kamar' => 'required|in:quad,triple,double',
+            'jumlah_jamaah' => 'required|integer|min:1',
+            'nama_keluarga' => 'nullable|string',
+            'harga_paket' => 'required|numeric', // Price per pax
+            'diskon' => 'required|numeric', // Total Discount
+            'catatan' => 'nullable|string'
+        ]);
+
+        try {
+            $customerHaji = CustomerHaji::findOrFail($id);
+
+            // Recalculate financial fields
+            $unitPrice = $validated['harga_paket'];
+            $qty = $validated['jumlah_jamaah'];
+            $discount = $validated['diskon'];
+            
+            $totalTagihan = ($unitPrice * $qty) - $discount;
+            $sisaTagihan = $totalTagihan - $customerHaji->total_bayar;
+
+            $customerHaji->update([
+                'jamaah_id' => $validated['jamaah_id'],
+                'agent_id' => $validated['agent_id'],
+                'tipe_kamar' => $validated['tipe_kamar'],
+                'jumlah_jamaah' => $validated['jumlah_jamaah'],
+                'nama_keluarga' => $validated['nama_keluarga'],
+                'harga_paket' => $validated['harga_paket'],
+                'diskon' => $validated['diskon'],
+                'total_tagihan' => $totalTagihan,
+                'sisa_tagihan' => $sisaTagihan,
+                'status_visa' => $request->has('status_visa'),
+                'status_tiket' => $request->has('status_tiket'),
+                'status_siskopatuh' => $request->has('status_siskopatuh'),
+                'status_perlengkapan' => $request->has('status_perlengkapan'),
+                'catatan' => $validated['catatan']
+            ]);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Data Jamaah Haji berhasil diperbarui',
+                'redirect' => route('customer-haji.index', $customerHaji->keberangkatan_haji_id)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $customerHaji = CustomerHaji::findOrFail($id);
+            $keberangkatanId = $customerHaji->keberangkatan_haji_id;
+            
+            $customerHaji->delete();
+            
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data Jamaah Haji berhasil dihapus'
+                ]);
+            }
+            
+            return redirect()->route('customer-haji.index', $keberangkatanId)->with('success', 'Data Jamaah Haji berhasil dihapus');
+
+        } catch (\Exception $e) {
+             if (request()->wantsJson()) {
+                 return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+             }
+             return back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
+    }
 }
+

@@ -304,6 +304,10 @@ Route::delete('/keberangkatan-haji/{id}', [KeberangkatanHajiController::class, '
 Route::get('/customer-haji/{id}', [CustomerHajiController::class, 'index'])->name('customer-haji.index');
 Route::get('/customer-haji/{id}/create', [CustomerHajiController::class, 'create'])->name('customer-haji.create');
 Route::post('/customer-haji/{id}', [CustomerHajiController::class, 'store'])->name('customer-haji.store');
+Route::get('/customer-haji/detail/{id}', [CustomerHajiController::class, 'show'])->name('customer-haji.show');
+Route::get('/customer-haji/edit/{id}', [CustomerHajiController::class, 'edit'])->name('customer-haji.edit');
+Route::put('/customer-haji/update/{id}', [CustomerHajiController::class, 'update'])->name('customer-haji.update');
+Route::delete('/customer-haji/delete/{id}', [CustomerHajiController::class, 'destroy'])->name('customer-haji.destroy');
 
 // Unified Pendaftaran Umroh Routes
 
