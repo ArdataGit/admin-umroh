@@ -102,7 +102,7 @@
                                         </template>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" :max="item.stok" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
+                                        <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
                                     </td>
                                     <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
                                         Rp <span x-text="formatNumber(item.total_harga)"></span>
@@ -178,6 +178,30 @@
                         <span>Total Transaksi</span>
                         <span>Rp <span x-text="formatNumber(form.total_transaksi)"></span></span>
                     </div>
+
+                    <!-- Payment Section -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-3">
+                        <h4 class="font-medium text-gray-800 dark:text-white">Pembayaran Awal</h4>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-400">Metode Pembayaran</label>
+                            <select x-model="form.metode_pembayaran" class="w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                <option value="">Pilih Metode</option>
+                                <option value="cash">Cash</option>
+                                <option value="transfer">Transfer Bank</option>
+                                <option value="debit">Debit Card</option>
+                                <option value="credit">Credit Card</option>
+                                <option value="qris">QRIS</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+                             <span>Jumlah Bayar</span>
+                             <input type="text" :value="formatNumber(form.jumlah_bayar)" @input="$el.value = $el.value.replace(/\D/g, ''); form.jumlah_bayar = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(form.jumlah_bayar); calculateSisa()" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                        </div>
+                        <div class="flex justify-between items-center text-sm font-bold text-gray-800 dark:text-white">
+                             <span>Sisa Tagihan</span>
+                             <span>Rp <span x-text="formatNumber(sisaTagihan)"></span></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -210,11 +234,15 @@
                 status_transaksi: '{{ $transaksi->status_transaksi }}',
                 alamat_transaksi: '{{ $transaksi->alamat_transaksi }}',
                 catatan: '{{ $transaksi->catatan }}',
-                bukti_transaksi: null
+                bukti_transaksi: null,
+                // Payment Fields
+                jumlah_bayar: {{ $initialPayment->jumlah_pembayaran ?? 0 }},
+                metode_pembayaran: '{{ $initialPayment->metode_pembayaran ?? '' }}'
             },
             subtotal: 0,
             taxAmount: 0,
             discountAmount: 0,
+            sisaTagihan: 0,
             
             init() {
                 this.filteredTickets = this.tickets;
@@ -240,12 +268,8 @@
                 // Check if already exists
                 const existing = this.form.details.find(d => d.ticket_id === ticket.id);
                 if (existing) {
-                    if (existing.quantity < ticket.jumlah_tiket) {
-                        existing.quantity++;
-                        this.calculateLineTotal(this.form.details.indexOf(existing));
-                    } else {
-                        alert('Stok tiket tidak mencukupi untuk menambah lagi.');
-                    }
+                    existing.quantity++;
+                    this.calculateLineTotal(this.form.details.indexOf(existing));
                 } else {
                     this.form.details.push({
                         ticket_id: ticket.id,
@@ -270,10 +294,6 @@
             },
             calculateLineTotal(index) {
                 const item = this.form.details[index];
-                if (item.quantity > item.stok) {
-                    alert('Jumlah melebihi stok tersedia!');
-                    item.quantity = item.stok;
-                }
                 item.total_harga = item.quantity * item.harga_satuan;
                 this.calculateGrandTotal();
             },
@@ -285,6 +305,10 @@
                 const shipping = parseFloat(this.form.shipping_cost) || 0;
                 
                 this.form.total_transaksi = this.subtotal + this.taxAmount - this.discountAmount + shipping;
+                this.calculateSisa();
+            },
+            calculateSisa() {
+                this.sisaTagihan = this.form.total_transaksi - this.form.jumlah_bayar;
             },
             formatNumber(num) {
                 if (!num && num !== 0) return '';
@@ -314,6 +338,8 @@
                 formData.append('status_transaksi', this.form.status_transaksi);
                 formData.append('alamat_transaksi', this.form.alamat_transaksi || '');
                 formData.append('catatan', this.form.catatan || '');
+                formData.append('jumlah_bayar', this.form.jumlah_bayar);
+                formData.append('metode_pembayaran', this.form.metode_pembayaran || '');
                 
                 if (this.form.bukti_transaksi) {
                     formData.append('bukti_transaksi', this.form.bukti_transaksi);

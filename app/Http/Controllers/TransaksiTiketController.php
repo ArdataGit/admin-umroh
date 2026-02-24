@@ -156,7 +156,9 @@ class TransaksiTiketController extends Controller
 
     public function edit($id)
     {
-        $transaksi = TransaksiTiket::with('details.ticket')->findOrFail($id);
+        $transaksi = TransaksiTiket::with(['details.ticket', 'pembayaranTikets'])->findOrFail($id);
+        
+        $initialPayment = $transaksi->pembayaranTikets->first();
         
         $details = $transaksi->details->map(function($detail) {
             return [
@@ -177,7 +179,8 @@ class TransaksiTiketController extends Controller
             'transaksi' => $transaksi,
             'details' => $details,
             'tickets' => Ticket::all(),
-            'pelanggans' => Pelanggan::all()
+            'pelanggans' => Pelanggan::all(),
+            'initialPayment' => $initialPayment
         ]);
     }
 
@@ -198,7 +201,10 @@ class TransaksiTiketController extends Controller
             'status_transaksi' => 'required|in:process,completed,cancelled',
             'alamat_transaksi' => 'nullable|string',
             'catatan' => 'nullable|string',
-            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'bukti_transaksi' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // Payment Fields
+            'jumlah_bayar' => 'nullable|numeric|min:0',
+            'metode_pembayaran' => 'nullable|string'
         ]);
 
         try {
@@ -253,11 +259,29 @@ class TransaksiTiketController extends Controller
                 $ticket = Ticket::findOrFail($detail['ticket_id']);
 
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
-                    if ($ticket->jumlah_tiket < $detail['quantity']) {
-                        throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
-                    }
                     $ticket->decrement('jumlah_tiket', $detail['quantity']);
                 }
+            }
+
+            // 5. Update Initial Payment
+            $initialPayment = $transaksi->pembayaranTikets()->orderBy('id', 'asc')->first();
+            if ($initialPayment) {
+                $jumlahBayar = $validated['jumlah_bayar'] ?? 0;
+                $metodeBayar = $validated['metode_pembayaran'];
+                
+                if ($jumlahBayar > 0 && empty($metodeBayar)) {
+                    throw new \Exception("Metode pembayaran harus dipilih jika ada pembayaran.");
+                }
+
+                $statusBayar = ($jumlahBayar > 0) ? 'paid' : 'pending';
+                $metodeBayar = $metodeBayar ?? '-';
+
+                $initialPayment->update([
+                    'jumlah_pembayaran' => $jumlahBayar,
+                    'metode_pembayaran' => $metodeBayar,
+                    'status_pembayaran' => $statusBayar,
+                    'tanggal_pembayaran' => $validated['tanggal_transaksi']
+                ]);
             }
 
             DB::commit();
