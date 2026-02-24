@@ -9,31 +9,21 @@ class DashboardController extends Controller
     public function index()
     {
         // 1. Transaction Counts
-        $totalTransaksiHaji = \App\Models\TransaksiTabunganHaji::count();
-        $totalTransaksiUmroh = \App\Models\TransaksiTabunganUmroh::count();
+        $totalTransaksiHaji = \App\Models\PembayaranHaji::count();
+        $totalTransaksiUmroh = \App\Models\PembayaranUmroh::count();
 
-        // 2. Jamaah Counts (Distinct Jamaah in Tabungan or overall?)
-        // Assuming we count Jamaah who have TabunganHaji / TabunganUmroh
-        $totalJamaahHaji = \App\Models\TabunganHaji::distinct('jamaah_id')->count('jamaah_id');
-        $totalJamaahUmroh = \App\Models\TabunganUmroh::distinct('jamaah_id')->count('jamaah_id');
+        // 2. Jamaah Counts
+        $totalJamaahHaji = \App\Models\CustomerHaji::count();
+        $totalJamaahUmroh = \App\Models\CustomerUmroh::count();
 
         // 3. Payment Status (Sudah Bayar / Sisa Tagihan)
-        // This is tricky without strict invoice logic. approximating using transaction sums.
-        // "Sudah Pembayaran" -> Count of Transactions that are 'setoran'? 
-        // Or Sum of Setoran? The UI showed a Number (12,332), suggesting a count or a person count.
-        // Let's assume it means "Jamaah Full Paid" or "Transactions Count".
-        // Given the UI design having "Sisa Tagihan" as a number (12,332), it probably refers to count of people or invoices.
-        // For now, let's use Transaction Counts again or maybe "Active Tabungan" vs "Archived".
-        // Let's stick to simple metrics first:
+        // Sudah Pembayaran Haji/Umroh: Count of Customer where sisa_tagihan == 0
+        $sudahBayarHaji = \App\Models\CustomerHaji::where('sisa_tagihan', '<=', 0)->count();
+        $sudahBayarUmroh = \App\Models\CustomerUmroh::where('sisa_tagihan', '<=', 0)->count();
         
-        // Let's interpret "Sudah Pembayaran" as "Total Setoran Count" for now.
-        $sudahBayarHaji = \App\Models\TransaksiTabunganHaji::where('jenis_transaksi', 'setoran')->count();
-        $sudahBayarUmroh = \App\Models\TransaksiTabunganUmroh::where('jenis_transaksi', 'setoran')->count();
-        
-        // "Sisa Tagihan" -> Maybe "Pending Transactions"? or "Belum Lunas"?
-        // Let's use 0 for now as we don't have a clear definition of "Bill" yet.
-        $sisaTagihanHaji = 0; 
-        $sisaTagihanUmroh = 0;
+        // Sisa Tagihan Haji/Umroh: Count of Customer where sisa_tagihan > 0
+        $sisaTagihanHaji = \App\Models\CustomerHaji::where('sisa_tagihan', '>', 0)->count();
+        $sisaTagihanUmroh = \App\Models\CustomerUmroh::where('sisa_tagihan', '>', 0)->count();
 
         // 4. Tabungan Data (Money)
         $totalSaldoHaji = \App\Models\TabunganHaji::sum('setoran_tabungan');
