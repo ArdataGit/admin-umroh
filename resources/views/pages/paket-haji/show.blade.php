@@ -24,23 +24,23 @@
             <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white">Informasi Penerbangan</h3>
             <div class="space-y-3">
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Tanggal Keberangkatan</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Tanggal Keberangkatan</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->tanggal_keberangkatan }}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Jumlah Hari</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Jumlah Hari</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->jumlah_hari }} Hari</span>
                 </div>
                  <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Maskapai</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Maskapai</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->maskapai->nama_maskapai }}</span>
                 </div>
                  <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Rute</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Rute</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white uppercase">{{ $paketHaji->rute_penerbangan }}</span>
                 </div>
                  <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Lokasi Keberangkatan</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Lokasi Keberangkatan</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->lokasi_keberangkatan }}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
@@ -48,7 +48,7 @@
                     <span class="px-2 py-1 rounded text-xs font-semibold uppercase {{ $paketHaji->status_paket == 'active' ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">{{ $paketHaji->status_paket }}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Kuota</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Kuota</span>
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->kuota_jamaah }} Pax</span>
                 </div>
             </div>
@@ -68,7 +68,7 @@
     <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
         <!-- Varian 1 -->
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-            <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketHaji->jenis_paket_1 }}</h4>
+            <h4 class="mb-3 text-lg font-semibold text-blue-600 dark:text-blue-500">{{ $paketHaji->jenis_paket_1 }}</h4>
             <div class="space-y-2 text-sm">
                 <p><span class="text-gray-500 dark:text-gray-400">Hotel Mekkah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMekkah1->nama_hotel }}</span></p>
                 <p><span class="text-gray-500 dark:text-gray-400">Hotel Madinah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMadinah1->nama_hotel }}</span></p>
@@ -86,7 +86,7 @@
         <!-- Varian 2 -->
         @if($paketHaji->jenis_paket_2)
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-            <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketHaji->jenis_paket_2 }}</h4>
+            <h4 class="mb-3 text-lg font-semibold text-blue-600 dark:text-blue-500">{{ $paketHaji->jenis_paket_2 }}</h4>
              <div class="space-y-2 text-sm">
                 <p><span class="text-gray-500 dark:text-gray-400">Hotel Mekkah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMekkah2->nama_hotel ?? '-' }}</span></p>
                 <p><span class="text-gray-500 dark:text-gray-400">Hotel Madinah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMadinah2->nama_hotel ?? '-' }}</span></p>
