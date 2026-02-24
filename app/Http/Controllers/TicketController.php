@@ -51,6 +51,11 @@ class TicketController extends Controller
 
     public function store(Request $request)
     {
+        // Strip dot separators before validation
+        if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'kode_tiket' => 'required|string|unique:tickets,kode_tiket',
             'jenis_tiket' => 'required|in:Ekonomi,Bisnis',
@@ -134,6 +139,11 @@ class TicketController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Strip dot separators before validation
+        if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'jenis_tiket' => 'required|in:Ekonomi,Bisnis',
             'nama_tiket' => 'required|string|max:255',
