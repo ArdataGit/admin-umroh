@@ -11,7 +11,7 @@ class MenuHelper
                 'name' => 'Data Pendaftar',
                 'subItems' => [
                     ['name' => 'Pendaftaran Haji', 'path' => '/pendaftaran-haji', 'crud' => true],
-                    ['name' => 'Pendaftaran Umroh', 'path' => '/pendaftaran-umroh'],
+                    ['name' => 'Pendaftaran Umroh', 'path' => '/pendaftaran-umroh', 'crud' => true],
                 ]
             ],
             [
