@@ -117,7 +117,7 @@ class PembayaranTiketController extends Controller
 
     public function detail($id)
     {
-        $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan'])->findOrFail($id);
+        $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan', 'transaksiTiket.details.ticket'])->findOrFail($id);
 
         return view('pages.pembayaran-tiket.detail', [
             'title' => 'Detail Pembayaran Tiket',

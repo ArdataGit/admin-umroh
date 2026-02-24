@@ -12,7 +12,10 @@
             <div class="border-b border-gray-100 px-6 py-5 dark:border-gray-800 flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-semibold text-gray-800 dark:text-white">Detail Pembayaran - {{ $pembayaran->kode_transaksi }}</h3>
-                    <p class="text-sm text-gray-500">Transaksi Tiket: {{ $pembayaran->transaksiTiket->kode_transaksi }}</p>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400">
+                        Tiket: {{ $pembayaran->transaksiTiket->details->map(fn($d) => $d->ticket->nama_tiket ?? '-')->unique()->implode(', ') }}
+                    </p>
+                    <p class="text-xs text-gray-500">Transaksi Tiket: {{ $pembayaran->transaksiTiket->kode_transaksi }}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <a href="{{ route('pembayaran-tiket.edit', $pembayaran->id) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</a>
