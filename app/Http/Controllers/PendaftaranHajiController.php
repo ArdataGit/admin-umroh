@@ -12,20 +12,49 @@ use Illuminate\Support\Facades\Storage;
 
 class PendaftaranHajiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/pendaftaran-haji.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
         $pendaftarans = CustomerHaji::with(['jamaah', 'keberangkatanHaji', 'agent'])
             ->latest()
             ->get();
 
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/pendaftaran-haji.create', $permissions);
+        $canEdit = $isAdmin || in_array('/pendaftaran-haji.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/pendaftaran-haji.delete', $permissions);
+
         return view('pages.pendaftaran-haji.index', [
             'title' => 'Data Pendaftaran Haji',
-            'pendaftarans' => $pendaftarans
+            'pendaftarans' => $pendaftarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Generate Auto Code J-XXX
         $lastJamaah = Jamaah::latest('id')->first();
         $nextId = $lastJamaah ? ($lastJamaah->id + 1) : 1;
@@ -44,6 +73,8 @@ class PendaftaranHajiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             // Section 1: Jamaah Data
             'kode_jamaah' => 'required|unique:jamaahs,kode_jamaah',
@@ -204,6 +235,8 @@ class PendaftaranHajiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $pendaftaran = CustomerHaji::with(['jamaah', 'keberangkatanHaji', 'agent'])->findOrFail($id);
         $agents = Agent::all();
         $keberangkatans = KeberangkatanHaji::with('paketHaji')->where('status_keberangkatan', 'active')->get();
@@ -218,6 +251,8 @@ class PendaftaranHajiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $customerHaji = CustomerHaji::findOrFail($id);
         $jamaah = $customerHaji->jamaah;
 
@@ -348,6 +383,8 @@ class PendaftaranHajiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         try {
             $pendaftaran = CustomerHaji::findOrFail($id);
             $pendaftaran->delete();

@@ -75,17 +75,40 @@
                                                             $pathValue = '/' . ltrim($subItem['path'], '/'); 
                                                             $isChecked = in_array($pathValue, $rolePermissions) || $role->name === 'super-admin';
                                                         @endphp
-                                                        <label class="flex items-center justify-between cursor-pointer rounded-lg p-2 hover:bg-white dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
-                                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $subItem['name'] }}</span>
-                                                            <div class="relative">
-                                                                <input type="checkbox" name="permissions[]" value="{{ $pathValue }}" class="sr-only peer" {{ $isChecked ? 'checked' : '' }} @if($role->name === 'super-admin') disabled @endif>
-                                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                                                            </div>
-                                                        </label>
-                                                        @if($role->name === 'super-admin' && $isChecked)
-                                                            <!-- Required hidden field since disabled checkbox isn't submitted -->
-                                                            <input type="hidden" name="permissions[]" value="{{ $pathValue }}">
-                                                        @endif
+                                                        <div class="flex flex-col gap-2">
+                                                            <label class="flex items-center justify-between cursor-pointer rounded-lg p-2 hover:bg-white dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                                                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $subItem['name'] }}</span>
+                                                                <div class="relative">
+                                                                    <input type="checkbox" name="permissions[]" value="{{ $pathValue }}" class="sr-only peer" {{ $isChecked ? 'checked' : '' }} @if($role->name === 'super-admin') disabled @endif>
+                                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-600/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                                                </div>
+                                                            </label>
+                                                            @if($role->name === 'super-admin' && $isChecked)
+                                                                <!-- Required hidden field since disabled checkbox isn't submitted -->
+                                                                <input type="hidden" name="permissions[]" value="{{ $pathValue }}">
+                                                            @endif
+
+                                                            @if(isset($subItem['crud']) && $subItem['crud'])
+                                                                <div class="pl-6 flex flex-col gap-2 border-l-2 border-gray-100 dark:border-gray-700 ml-4 mb-2">
+                                                                    @foreach(['create' => 'Tambah Data', 'edit' => 'Edit Data', 'delete' => 'Hapus Data'] as $action => $label)
+                                                                        @php
+                                                                            $crudPath = $pathValue . '.' . $action;
+                                                                            $isCrudChecked = in_array($crudPath, $rolePermissions) || $role->name === 'super-admin';
+                                                                        @endphp
+                                                                        <label class="flex items-center justify-between cursor-pointer rounded-lg p-1.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ $label }}</span>
+                                                                            <div class="relative scale-90">
+                                                                                <input type="checkbox" name="permissions[]" value="{{ $crudPath }}" class="sr-only peer" {{ $isCrudChecked ? 'checked' : '' }} @if($role->name === 'super-admin') disabled @endif>
+                                                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                                                            </div>
+                                                                        </label>
+                                                                        @if($role->name === 'super-admin' && $isCrudChecked)
+                                                                            <input type="hidden" name="permissions[]" value="{{ $crudPath }}">
+                                                                        @endif
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        </div>
                                                     @endforeach
                                                 </div>
                                             </div>
