@@ -10,11 +10,11 @@
     <div class="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
         <div>
              <h2 class="text-lg font-semibold text-gray-800 dark:text-white">{{ $paketHaji->nama_paket }}</h2>
-             <p class="text-sm text-gray-500">{{ $paketHaji->kode_paket }}</p>
+             <p class="text-sm text-gray-500 dark:text-gray-400">{{ $paketHaji->kode_paket }}</p>
         </div>
        
         <div class="flex gap-2">
-            <a href="{{ route('paket-haji') }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50">Kembali</a>
+            <a href="{{ route('paket-haji') }}" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Kembali</a>
             <a href="{{ route('paket-haji.edit', $paketHaji->id) }}" class="inline-flex items-center justify-center rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-blue-600">Edit</a>
         </div>
     </div>
@@ -44,8 +44,8 @@
                     <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $paketHaji->lokasi_keberangkatan }}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
-                    <span class="text-sm text-gray-500">Status</span>
-                    <span class="px-2 py-1 rounded text-xs font-semibold uppercase {{ $paketHaji->status_paket == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">{{ $paketHaji->status_paket }}</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Status</span>
+                    <span class="px-2 py-1 rounded text-xs font-semibold uppercase {{ $paketHaji->status_paket == 'active' ? 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' }}">{{ $paketHaji->status_paket }}</span>
                 </div>
                 <div class="flex justify-between border-b border-gray-100 pb-2 dark:border-gray-800">
                     <span class="text-sm text-gray-500">Kuota</span>
@@ -57,9 +57,9 @@
         <div>
              <h3 class="mb-4 text-base font-semibold text-gray-800 dark:text-white">Brosur Paket</h3>
              @if($paketHaji->foto_brosur)
-                <img src="{{ asset('storage/' . $paketHaji->foto_brosur) }}" class="w-full rounded-lg border border-gray-200">
+                <img src="{{ asset('storage/' . $paketHaji->foto_brosur) }}" class="w-full rounded-lg border border-gray-200 dark:border-gray-700">
              @else
-                <div class="flex h-48 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400">No Brochure</div>
+                <div class="flex h-48 w-full items-center justify-center rounded-lg bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">No Brochure</div>
              @endif
         </div>
     </div>
@@ -70,15 +70,15 @@
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketHaji->jenis_paket_1 }}</h4>
             <div class="space-y-2 text-sm">
-                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketHaji->hotelMekkah1->nama_hotel }}</p>
-                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketHaji->hotelMadinah1->nama_hotel }}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Hotel Mekkah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMekkah1->nama_hotel }}</span></p>
+                <p><span class="text-gray-500 dark:text-gray-400">Hotel Madinah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMadinah1->nama_hotel }}</span></p>
                 @if($paketHaji->hotelTransit1)
-                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketHaji->hotelTransit1->nama_hotel }}</p>
+                    <p><span class="text-gray-500 dark:text-gray-400">Hotel Transit:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelTransit1->nama_hotel }}</span></p>
                 @endif
                 <div class="mt-4 space-y-1 border-t border-gray-100 pt-2 dark:border-gray-800">
-                    <div class="flex justify-between"><span>Quad:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_quad_1, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Triple:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_triple_1, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Double:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_double_1, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Quad:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_quad_1, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Triple:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_triple_1, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Double:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_double_1, 0, ',', '.') }}</span></div>
                 </div>
             </div>
         </div>
@@ -88,15 +88,15 @@
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketHaji->jenis_paket_2 }}</h4>
              <div class="space-y-2 text-sm">
-                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketHaji->hotelMekkah2->nama_hotel ?? '-' }}</p>
-                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketHaji->hotelMadinah2->nama_hotel ?? '-' }}</p>
+                <p><span class="text-gray-500 dark:text-gray-400">Hotel Mekkah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMekkah2->nama_hotel ?? '-' }}</span></p>
+                <p><span class="text-gray-500 dark:text-gray-400">Hotel Madinah:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelMadinah2->nama_hotel ?? '-' }}</span></p>
                 @if($paketHaji->hotelTransit2)
-                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketHaji->hotelTransit2->nama_hotel }}</p>
+                    <p><span class="text-gray-500 dark:text-gray-400">Hotel Transit:</span> <span class="text-gray-800 dark:text-white">{{ $paketHaji->hotelTransit2->nama_hotel }}</span></p>
                 @endif
                 <div class="mt-4 space-y-1 border-t border-gray-100 pt-2 dark:border-gray-800">
-                    <div class="flex justify-between"><span>Quad:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_quad_2, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Triple:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_triple_2, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Double:</span> <span class="font-semibold">Rp {{ number_format($paketHaji->harga_double_2, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Quad:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_quad_2, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Triple:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_triple_2, 0, ',', '.') }}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Double:</span> <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketHaji->harga_double_2, 0, ',', '.') }}</span></div>
                 </div>
             </div>
         </div>

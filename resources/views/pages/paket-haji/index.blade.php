@@ -103,10 +103,10 @@
              <div class="flex items-center gap-2">
                 <label class="text-sm text-gray-600 dark:text-gray-400">Show</label>
                 <select x-model="itemsPerPage" @change="currentPage = 1" class="h-10 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
+                    <option value="10" class="dark:bg-gray-900">10</option>
+                    <option value="25" class="dark:bg-gray-900">25</option>
+                    <option value="50" class="dark:bg-gray-900">50</option>
+                    <option value="100" class="dark:bg-gray-900">100</option>
                 </select>
                 <label class="text-sm text-gray-600 dark:text-gray-400">entries</label>
             </div>
@@ -311,12 +311,12 @@
 
     <!-- Delete Modal -->
     <div x-show="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" x-cloak>
-        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96 dark:bg-gray-900 dark:text-white">
             <h3 class="text-lg font-bold">Hapus Paket?</h3>
-            <p>Hapus paket <span x-text="deleteTarget?.name" class="font-bold"></span>?</p>
+            <p class="text-gray-600 dark:text-gray-400">Hapus paket <span x-text="deleteTarget?.name" class="font-bold text-gray-900 dark:text-white"></span>?</p>
             <div class="flex justify-end gap-2 mt-4">
-                <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-200 rounded">Batal</button>
-                <button @click="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded">Hapus</button>
+                <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-200 rounded text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Batal</button>
+                <button @click="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
             </div>
         </div>
     </div>
