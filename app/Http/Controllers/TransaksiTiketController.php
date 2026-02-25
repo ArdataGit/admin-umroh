@@ -321,4 +321,58 @@ class TransaksiTiketController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
         }
     }
+
+    public function exportPdf($id)
+    {
+        $transaksi = TransaksiTiket::with([
+            'pelanggan',
+            'details.ticket',
+            'pembayaranTikets'
+        ])->findOrFail($id);
+
+        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.pembayaran-tiket.pdf', [
+            'title' => 'Invoice Transaksi Tiket - ' . $transaksi->kode_transaksi,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+
+        $firstDetail = $transaksi->details->first();
+        $dateSuffix = '';
+        if ($firstDetail && $firstDetail->ticket) {
+            $dateSuffix = '_' . $firstDetail->ticket->tanggal_keberangkatan . '_' . $firstDetail->ticket->tanggal_kepulangan;
+        }
+        
+        return $pdf->download('Invoice_' . \Illuminate\Support\Str::slug($transaksi->kode_transaksi) . $dateSuffix . '.pdf');
+    }
+
+    public function printPdf($id)
+    {
+        $transaksi = TransaksiTiket::with([
+            'pelanggan',
+            'details.ticket',
+            'pembayaranTikets'
+        ])->findOrFail($id);
+
+        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.pembayaran-tiket.pdf', [
+            'title' => 'Invoice Transaksi Tiket - ' . $transaksi->kode_transaksi,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+
+        $firstDetail = $transaksi->details->first();
+        $dateSuffix = '';
+        if ($firstDetail && $firstDetail->ticket) {
+            $dateSuffix = '_' . $firstDetail->ticket->tanggal_keberangkatan . '_' . $firstDetail->ticket->tanggal_kepulangan;
+        }
+        
+        return $pdf->stream('Invoice_' . \Illuminate\Support\Str::slug($transaksi->kode_transaksi) . $dateSuffix . '.pdf');
+    }
 }

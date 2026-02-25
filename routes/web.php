@@ -267,6 +267,8 @@ Route::get('/transaksi-tiket/{id}', [TransaksiTiketController::class, 'show'])->
 Route::get('/transaksi-tiket/{id}/edit', [TransaksiTiketController::class, 'edit'])->name('transaksi-tiket.edit');
 Route::put('/transaksi-tiket/{id}', [TransaksiTiketController::class, 'update'])->name('transaksi-tiket.update');
 Route::delete('/transaksi-tiket/{id}', [TransaksiTiketController::class, 'destroy'])->name('transaksi-tiket.destroy');
+Route::get('/transaksi-tiket/pdf/{id}', [TransaksiTiketController::class, 'exportPdf'])->name('transaksi-tiket.export-pdf');
+Route::get('/transaksi-tiket/print/{id}', [TransaksiTiketController::class, 'printPdf'])->name('transaksi-tiket.print-pdf');
 
 // Keberangkatan Umroh Routes
 
