@@ -38,7 +38,6 @@
                 <th style="width: 20%">Nama Mitra</th>
                 <th style="width: 15%">Jumlah</th>
                 <th style="width: 10%">Metode</th>
-                <th style="width: 10%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -51,17 +50,16 @@
                     <td>{{ $item->transaksi_tiket->pelanggan->nama_pelanggan ?? '-' }}</td>
                     <td class="right">Rp {{ number_format($item->jumlah_pembayaran, 0, ',', '.') }}</td>
                     <td class="center capitalize">{{ $item->metode_pembayaran }}</td>
-                    <td class="center uppercase">{{ $item->status_pembayaran }}</td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="center">Tidak ada data pembayaran tiket</td></tr>
+                <tr><td colspan="7" class="center">Tidak ada data pembayaran tiket</td></tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr style="font-weight: bold; background-color: #f2f2f2;">
                 <td colspan="5" class="right">TOTAL</td>
                 <td class="right">Rp {{ number_format($pembayarans->sum('jumlah_pembayaran'), 0, ',', '.') }}</td>
-                <td colspan="2"></td>
+                <td colspan="1"></td>
             </tr>
         </tfoot>
     </table>

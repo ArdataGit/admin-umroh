@@ -150,9 +150,6 @@
                              <th class="px-4 py-3 text-left">
                                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Metode Pembayaran</p>
                             </th>
-                             <th class="px-4 py-3 text-center">
-                                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Status Pembayaran</p>
-                            </th>
                              <th class="px-4 py-3 text-left">
                                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kode Referensi</p>
                             </th>
@@ -185,16 +182,6 @@
                                 <td class="px-4 py-4">
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400 capitalize" x-text="item.metode_pembayaran"></p>
                                 </td>
-                                <td class="px-4 py-4 text-center">
-                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        :class="{
-                                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': item.status_pembayaran === 'paid',
-                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': item.status_pembayaran === 'pending',
-                                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': item.status_pembayaran === 'failed'
-                                        }"
-                                        x-text="item.status_pembayaran">
-                                     </span>
-                                </td>
                                 <td class="px-4 py-4">
                                      <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="item.kode_referensi || '-'"></p>
                                 </td>
@@ -224,7 +211,7 @@
                             </tr>
                          </template>
                          <tr x-show="filteredItems.length === 0">
-                            <td colspan="10" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="9" class="px-6 py-8 text-center text-gray-500">
                                 Tidak ada data pembayaran tiket.
                             </td>
                          </tr>

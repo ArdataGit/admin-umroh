@@ -276,7 +276,7 @@ class PembayaranTiketController extends Controller
             "Expires" => "0"
         ];
 
-        $columns = ['No', 'Tanggal', 'Kode Transaksi', 'Trx. Tiket', 'Nama Mitra', 'Jumlah', 'Metode', 'Status', 'Referensi'];
+        $columns = ['No', 'Tanggal', 'Kode Transaksi', 'Trx. Tiket', 'Nama Mitra', 'Jumlah', 'Metode', 'Referensi'];
 
         $callback = function() use ($pembayarans, $columns) {
             $file = fopen('php://output', 'w');
@@ -291,7 +291,6 @@ class PembayaranTiketController extends Controller
                     $item->transaksi_tiket->pelanggan->nama_pelanggan ?? '-',
                     $item->jumlah_pembayaran,
                     $item->metode_pembayaran,
-                    $item->status_pembayaran,
                     $item->kode_referensi
                 ]);
             }

@@ -67,7 +67,6 @@
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Tanggal</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Metode</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Jumlah</th>
-                            <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Status</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Bukti</th>
                             <th class="px-6 py-3 text-sm font-medium text-gray-500 dark:text-gray-400">Catatan</th>
                         </tr>
@@ -79,13 +78,6 @@
                             <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ \Carbon\Carbon::parse($payment->tanggal_pembayaran)->translatedFormat('d F Y') }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 capitalize">{{ $payment->metode_pembayaran == 'cash' ? 'Cash' : $payment->metode_pembayaran }}</td>
                             <td class="px-6 py-4 text-sm text-gray-800 dark:text-white font-medium">Rp {{ number_format($payment->jumlah_pembayaran, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4">
-                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full 
-                                    {{ $payment->status_pembayaran == 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 
-                                      ($payment->status_pembayaran == 'pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400') }}">
-                                    {{ ucfirst($payment->status_pembayaran) }}
-                                </span>
-                            </td>
                             <td class="px-6 py-4">
                                 @if($payment->bukti_pembayaran)
                                     <a href="{{ asset('storage/' . $payment->bukti_pembayaran) }}" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
@@ -99,7 +91,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Belum ada riwayat pembayaran.</td>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Belum ada riwayat pembayaran.</td>
                         </tr>
                         @endforelse
                     </tbody>
