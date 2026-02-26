@@ -218,6 +218,21 @@ class MenuHelper
         ];
     }
 
+    public static function getMenuStatistic(){
+        return [
+            [
+                'icon' => 'chart-pie',
+                'name' => 'Statistik',
+                'subItems' => [
+                    ['name' => 'Penjualan Maskapai', 'path' => '/statistik/penjualan-maskapai'],
+                    ['name' => 'Penjualan Pelanggan', 'path' => '/statistik/penjualan-pelanggan'],
+                     ['name' => 'Laporan Keberangkatan Umroh', 'path' => '/statistik/laporan-keberangkatan-umroh'],
+                     ['name' => 'Laporan Keberangkatan Haji', 'path' => '/statistik/laporan-keberangkatan-haji'],
+                ]
+            ],
+        ];
+    }
+
     public static function getMenuPengaturan(){
         return [
             [
@@ -334,6 +349,10 @@ class MenuHelper
             [
                 'title' => 'Menu Gudang',
                 'items' => self::getMenuGudang()
+            ],
+            [
+                'title' => 'Menu Statistik',
+                'items' => self::getMenuStatistic()
             ],
             [
                 'title' => 'Menu Pengaturan',
