@@ -54,7 +54,7 @@
                                 {{ $history->action }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 max-w-xs truncate" title="{{ $history->keterangan }}">
+                        <td class="px-6 py-4" title="{{ $history->keterangan }}">
                             {{ $history->keterangan ?? '-' }}
                         </td>
                     </tr>
