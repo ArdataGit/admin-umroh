@@ -259,6 +259,9 @@ class TransaksiTiketController extends Controller
                 $ticket = Ticket::findOrFail($detail['ticket_id']);
 
                 if (in_array($validated['status_transaksi'], ['process', 'completed'])) {
+                    if ($ticket->jumlah_tiket < $detail['quantity']) {
+                        throw new \Exception("Stok tidak cukup untuk tiket: " . $ticket->nama_tiket);
+                    }
                     $ticket->decrement('jumlah_tiket', $detail['quantity']);
                 }
             }
