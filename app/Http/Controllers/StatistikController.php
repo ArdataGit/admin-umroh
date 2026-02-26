@@ -224,4 +224,173 @@ class StatistikController extends Controller
             ]
         ]);
     }
+
+    public function laporanPenjualanUmroh(Request $request)
+    {
+        $day = $request->get('day');
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $range = $request->get('range', 'all');
+
+        $query = \App\Models\CustomerUmroh::select(
+                'agents.nama_agent',
+                DB::raw('COUNT(*) as total_penjualan')
+            )
+            ->join('agents', 'customer_umrohs.agent_id', '=', 'agents.id');
+
+        // Apply Range Filter
+        if ($range === 'today') {
+            $query->whereDate('customer_umrohs.created_at', Carbon::today());
+        } elseif ($range === 'month') {
+            $query->whereMonth('customer_umrohs.created_at', Carbon::now()->month)
+                  ->whereYear('customer_umrohs.created_at', Carbon::now()->year);
+        } elseif ($range === 'year') {
+            $query->whereYear('customer_umrohs.created_at', Carbon::now()->year);
+        }
+
+        // Apply Granular Filters
+        if ($day) {
+            $query->whereDay('customer_umrohs.created_at', $day);
+        }
+        if ($month) {
+            $query->whereMonth('customer_umrohs.created_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('customer_umrohs.created_at', $year);
+        }
+
+        $salesData = $query->groupBy('agents.nama_agent')
+            ->orderBy('total_penjualan', 'desc')
+            ->get();
+
+        return view('pages.statistik.laporan-penjualan-umroh', [
+            'title' => 'Laporan Penjualan Umroh Berdasarkan Agen',
+            'salesData' => $salesData,
+            'filters' => [
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
+                'range' => $range
+            ]
+        ]);
+    }
+
+    public function laporanPenjualanHaji(Request $request)
+    {
+        $day = $request->get('day');
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $range = $request->get('range', 'all');
+
+        $query = \App\Models\CustomerHaji::select(
+                'agents.nama_agent',
+                DB::raw('COUNT(*) as total_penjualan')
+            )
+            ->join('agents', 'customer_hajis.agent_id', '=', 'agents.id');
+
+        // Apply Range Filter
+        if ($range === 'today') {
+            $query->whereDate('customer_hajis.created_at', Carbon::today());
+        } elseif ($range === 'month') {
+            $query->whereMonth('customer_hajis.created_at', Carbon::now()->month)
+                  ->whereYear('customer_hajis.created_at', Carbon::now()->year);
+        } elseif ($range === 'year') {
+            $query->whereYear('customer_hajis.created_at', Carbon::now()->year);
+        }
+
+        // Apply Granular Filters
+        if ($day) {
+            $query->whereDay('customer_hajis.created_at', $day);
+        }
+        if ($month) {
+            $query->whereMonth('customer_hajis.created_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('customer_hajis.created_at', $year);
+        }
+
+        $salesData = $query->groupBy('agents.nama_agent')
+            ->orderBy('total_penjualan', 'desc')
+            ->get();
+
+        return view('pages.statistik.laporan-penjualan-haji', [
+            'title' => 'Laporan Penjualan Haji Berdasarkan Agen',
+            'salesData' => $salesData,
+            'filters' => [
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
+                'range' => $range
+            ]
+        ]);
+    }
+
+    public function laporanProduk(Request $request)
+    {
+        $day = $request->get('day');
+        $month = $request->get('month');
+        $year = $request->get('year');
+        $range = $request->get('range', 'all');
+
+        // We need to link PengeluaranProduk -> Jamaah -> CustomerUmroh/Haji -> Agent
+        // Since a Jamaah can have multiple registrations, we'll try to find the agent 
+        // from their registrations. If they have both Umroh and Haji, we'll take the latest one.
+        
+        $query = \App\Models\PengeluaranProdukDetail::select(
+                'produks.nama_produk',
+                'agents.nama_agent',
+                DB::raw('SUM(pengeluaran_produk_details.quantity) as total_quantity')
+            )
+            ->join('produks', 'pengeluaran_produk_details.produk_id', '=', 'produks.id')
+            ->join('pengeluaran_produks', 'pengeluaran_produk_details.pengeluaran_produk_id', '=', 'pengeluaran_produks.id')
+            ->join('jamaahs', 'pengeluaran_produks.jamaah_id', '=', 'jamaahs.id')
+            // Link to agent via CustomerUmroh or CustomerHaji
+            // Using a subquery to get an agent associated with the jamaah
+            ->join(DB::raw('(
+                SELECT jamaah_id, MAX(agent_id) as agent_id FROM (
+                    SELECT jamaah_id, agent_id FROM customer_umrohs
+                    UNION ALL
+                    SELECT jamaah_id, agent_id FROM customer_hajis
+                ) as all_registrations
+                GROUP BY jamaah_id
+            ) as jamaah_agents'), 'jamaah_agents.jamaah_id', '=', 'jamaahs.id')
+            ->join('agents', 'jamaah_agents.agent_id', '=', 'agents.id');
+
+        // Apply Range Filter
+        if ($range === 'today') {
+            $query->whereDate('pengeluaran_produks.tanggal_pengeluaran', Carbon::today());
+        } elseif ($range === 'month') {
+            $query->whereMonth('pengeluaran_produks.tanggal_pengeluaran', Carbon::now()->month)
+                  ->whereYear('pengeluaran_produks.tanggal_pengeluaran', Carbon::now()->year);
+        } elseif ($range === 'year') {
+            $query->whereYear('pengeluaran_produks.tanggal_pengeluaran', Carbon::now()->year);
+        }
+
+        // Apply Granular Filters
+        if ($day) {
+            $query->whereDay('pengeluaran_produks.tanggal_pengeluaran', $day);
+        }
+        if ($month) {
+            $query->whereMonth('pengeluaran_produks.tanggal_pengeluaran', $month);
+        }
+        if ($year) {
+            $query->whereYear('pengeluaran_produks.tanggal_pengeluaran', $year);
+        }
+
+        $productData = $query->groupBy('produks.nama_produk', 'agents.nama_agent')
+            ->orderBy('produks.nama_produk')
+            ->orderBy('total_quantity', 'desc')
+            ->get();
+
+        return view('pages.statistik.laporan-produk', [
+            'title' => 'Laporan Distribusi Produk ke Agen',
+            'productData' => $productData,
+            'filters' => [
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
+                'range' => $range
+            ]
+        ]);
+    }
 }

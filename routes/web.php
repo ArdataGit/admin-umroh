@@ -567,5 +567,8 @@ Route::get('/videos', function () {
 Route::get('/statistik/penjualan-pelanggan', [App\Http\Controllers\StatistikController::class, 'penjualanPelanggan'])->name('statistik.penjualan-pelanggan');
 Route::get('/statistik/laporan-keberangkatan-umroh', [App\Http\Controllers\StatistikController::class, 'laporanKeberangkatanUmroh'])->name('statistik.laporan-keberangkatan-umroh');
 Route::get('/statistik/laporan-keberangkatan-haji', [App\Http\Controllers\StatistikController::class, 'laporanKeberangkatanHaji'])->name('statistik.laporan-keberangkatan-haji');
+Route::get('/statistik/laporan-penjualan-umroh', [App\Http\Controllers\StatistikController::class, 'laporanPenjualanUmroh'])->name('statistik.laporan-penjualan-umroh');
+Route::get('/statistik/laporan-penjualan-haji', [App\Http\Controllers\StatistikController::class, 'laporanPenjualanHaji'])->name('statistik.laporan-penjualan-haji');
+Route::get('/statistik/laporan-produk', [App\Http\Controllers\StatistikController::class, 'laporanProduk'])->name('statistik.laporan-produk');
 
 });

@@ -225,9 +225,12 @@ class MenuHelper
                 'name' => 'Statistik',
                 'subItems' => [
                     ['name' => 'Penjualan Maskapai', 'path' => '/statistik/penjualan-maskapai'],
-                    ['name' => 'Penjualan Pelanggan', 'path' => '/statistik/penjualan-pelanggan'],
-                     ['name' => 'Laporan Keberangkatan Umroh', 'path' => '/statistik/laporan-keberangkatan-umroh'],
-                     ['name' => 'Laporan Keberangkatan Haji', 'path' => '/statistik/laporan-keberangkatan-haji'],
+                    ['name' => 'Penjualan Travel', 'path' => '/statistik/penjualan-pelanggan'],
+                    ['name' => 'Laporan Keberangkatan Umroh', 'path' => '/statistik/laporan-keberangkatan-umroh'],
+                    ['name' => 'Laporan Keberangkatan Haji', 'path' => '/statistik/laporan-keberangkatan-haji'],
+                    ['name' => 'Laporan Penjualan Umroh', 'path' => '/statistik/laporan-penjualan-umroh'],
+                    ['name' => 'Laporan Penjualan Haji', 'path' => '/statistik/laporan-penjualan-haji'],
+                    ['name' => 'Laporan Properti', 'path' => '/statistik/laporan-produk'],
                 ]
             ],
         ];
