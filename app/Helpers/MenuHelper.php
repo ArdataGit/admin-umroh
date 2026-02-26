@@ -226,7 +226,7 @@ class MenuHelper
                 'subItems' => [
                     ['name' => 'User', 'path' => '/user'],
                     ['name' => 'Permission', 'path' => '/permission'],
-                    
+                    ['name' => 'History Action', 'path' => '/history-action'],
                 ]
             ],
             // [

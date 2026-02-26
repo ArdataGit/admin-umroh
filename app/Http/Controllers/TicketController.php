@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Services\TicketService;
 use App\Models\Ticket;
 use App\Models\Maskapai;
+use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
@@ -110,6 +112,14 @@ class TicketController extends Controller
 
         $this->ticketService->create($validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Ticket',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data tiket baru: ' . $validated['nama_tiket'] . ' (' . $validated['kode_tiket'] . ')'
+        ]);
+
         return redirect()->route('data-ticket')->with('success', 'Ticket berhasil ditambahkan');
     }
 
@@ -203,16 +213,33 @@ class TicketController extends Controller
 
         $this->ticketService->update($id, $validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Ticket',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data tiket: ' . $validated['nama_tiket'] . ' (' . $ticket->kode_tiket . ')'
+        ]);
+
         return redirect()->route('data-ticket')->with('success', 'Ticket berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $ticket = $this->ticketService->getById($id);
         $deleted = $this->ticketService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Ticket tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Ticket',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data tiket: ' . ($ticket ? $ticket->nama_tiket : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Ticket berhasil dihapus']);
     }

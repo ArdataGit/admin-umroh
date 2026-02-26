@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\HotelService;
 use App\Models\SystemSetting;
 use App\Services\ExchangeRateService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class HotelController extends Controller
 {
@@ -73,7 +75,15 @@ class HotelController extends Controller
         }
 
         // Create hotel
-        $this->hotelService->create($validated);
+        $hotel = $this->hotelService->create($validated);
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data hotel baru: ' . $validated['nama_hotel']
+        ]);
 
         return redirect()->route('data-hotel')->with('success', 'Data hotel berhasil ditambahkan');
     }
@@ -139,15 +149,32 @@ class HotelController extends Controller
             return redirect()->route('data-hotel')->with('error', 'Data hotel tidak ditemukan');
         }
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data hotel: ' . $validated['nama_hotel']
+        ]);
+
         return redirect()->route('data-hotel')->with('success', 'Data hotel berhasil diperbarui');
     }
 
     public function destroy($id){
+        $hotel = $this->hotelService->getById($id);
         $deleted = $this->hotelService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data hotel tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data hotel: ' . ($hotel ? $hotel->nama_hotel : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data hotel berhasil dihapus']);
     }

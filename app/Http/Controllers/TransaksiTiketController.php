@@ -10,6 +10,8 @@ use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class TransaksiTiketController extends Controller
 {
@@ -132,6 +134,14 @@ class TransaksiTiketController extends Controller
             ]);
 
             DB::commit();
+
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Tiket',
+                'action' => 'Create',
+                'keterangan' => 'Membuat transaksi tiket baru dengan kode: ' . $validated['kode_transaksi']
+            ]);
 
             return response()->json([
                 'success' => true, 
@@ -289,6 +299,14 @@ class TransaksiTiketController extends Controller
 
             DB::commit();
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Tiket',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui transaksi tiket dengan kode: ' . $transaksi->kode_transaksi
+            ]);
+
             return response()->json([
                 'success' => true, 
                 'message' => 'Transaksi berhasil diperbarui',
@@ -315,9 +333,18 @@ class TransaksiTiketController extends Controller
                 }
             }
 
+            $kodeTransaksi = $transaksi->kode_transaksi;
             $transaksi->delete();
             DB::commit();
             
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Tiket',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus transaksi tiket dengan kode: ' . $kodeTransaksi
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Transaksi berhasil dihapus']);
         } catch (\Exception $e) {
             DB::rollBack();

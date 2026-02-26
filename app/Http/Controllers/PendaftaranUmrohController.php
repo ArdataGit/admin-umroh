@@ -9,6 +9,8 @@ use App\Models\CustomerUmroh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PendaftaranUmrohController extends Controller
 {
@@ -207,6 +209,14 @@ class PendaftaranUmrohController extends Controller
 
             DB::commit();
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Umroh',
+                'action' => 'Create',
+                'keterangan' => 'Mendaftarkan jamaah umroh baru: ' . $validated['nama_jamaah'] . ' (' . $validated['kode_jamaah'] . ')'
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran Umroh Berhasil Disimpan',
@@ -369,6 +379,14 @@ class PendaftaranUmrohController extends Controller
 
             DB::commit();
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Umroh',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui data pendaftaran umroh jamaah: ' . $validated['nama_jamaah'] . ' (' . $validated['kode_jamaah'] . ')'
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data Pendaftaran Berhasil Diperbarui',
@@ -387,7 +405,16 @@ class PendaftaranUmrohController extends Controller
 
         try {
             $pendaftaran = CustomerUmroh::findOrFail($id);
+            $namaJamaah = $pendaftaran->jamaah->nama_jamaah ?? 'ID ' . $id;
             $pendaftaran->delete();
+
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Umroh',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus data pendaftaran umroh jamaah: ' . $namaJamaah
+            ]);
 
             return response()->json(['success' => true, 'message' => 'Data pendaftaran berhasil dihapus']);
         } catch (\Exception $e) {

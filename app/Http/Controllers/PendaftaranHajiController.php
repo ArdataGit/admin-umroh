@@ -9,6 +9,8 @@ use App\Models\CustomerHaji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PendaftaranHajiController extends Controller
 {
@@ -207,6 +209,14 @@ class PendaftaranHajiController extends Controller
 
             DB::commit();
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Haji',
+                'action' => 'Create',
+                'keterangan' => 'Mendaftarkan jamaah haji baru: ' . $validated['nama_jamaah'] . ' (' . $validated['kode_jamaah'] . ')'
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran Haji Berhasil Disimpan',
@@ -369,6 +379,14 @@ class PendaftaranHajiController extends Controller
 
             DB::commit();
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Haji',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui data pendaftaran haji jamaah: ' . $validated['nama_jamaah'] . ' (' . $validated['kode_jamaah'] . ')'
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data Pendaftaran Haji Berhasil Diperbarui',
@@ -387,7 +405,16 @@ class PendaftaranHajiController extends Controller
 
         try {
             $pendaftaran = CustomerHaji::findOrFail($id);
+            $namaJamaah = $pendaftaran->jamaah->nama_jamaah ?? 'ID ' . $id;
             $pendaftaran->delete();
+
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pendaftaran Haji',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus data pendaftaran haji jamaah: ' . $namaJamaah
+            ]);
 
             return response()->json(['success' => true, 'message' => 'Data pendaftaran berhasil dihapus']);
         } catch (\Exception $e) {
