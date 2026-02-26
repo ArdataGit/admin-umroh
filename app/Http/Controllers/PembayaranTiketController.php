@@ -8,6 +8,8 @@ use App\Services\ExchangeRateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranTiketController extends Controller
 {
@@ -147,6 +149,14 @@ class PembayaranTiketController extends Controller
             'bukti_pembayaran' => $buktiPath
         ]);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Tiket',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan pembayaran baru: ' . $kodePembayaran . ' untuk Transaksi: ' . $transaksi->kode_transaksi
+        ]);
+
         return redirect()->route('pembayaran-tiket.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
     }
 
@@ -232,6 +242,14 @@ class PembayaranTiketController extends Controller
 
         $pembayaran->update($validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Tiket',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui pembayaran: ' . $pembayaran->kode_transaksi
+        ]);
+
         return redirect()->route('pembayaran-tiket.show', $pembayaran->transaksi_tiket_id)->with('success', 'Pembayaran berhasil diperbarui');
     }
 
@@ -241,7 +259,16 @@ class PembayaranTiketController extends Controller
         
         $pembayaran = PembayaranTiket::findOrFail($id);
         $transaksiId = $pembayaran->transaksi_tiket_id;
+        $kodePembayaran = $pembayaran->kode_transaksi;
         $pembayaran->delete();
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Tiket',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus pembayaran: ' . $kodePembayaran
+        ]);
 
         return redirect()->route('pembayaran-tiket.show', $transaksiId)->with('success', 'Pembayaran berhasil dihapus');
     }

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\HotelService;
 use App\Models\SystemSetting;
 use App\Services\ExchangeRateService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class HotelController extends Controller
 {
@@ -19,16 +21,18 @@ class HotelController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->role->nama_role === 'super-admin') {
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
             return true;
         }
 
-        $permission = $user->role->permissions()
-            ->where('permission_path', '/data-hotel.' . $action)
+        $permission = "/data-hotel.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
             ->exists();
 
-        if (!$permission) {
-            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data hotel');
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data hotel.');
         }
 
         return true;
@@ -36,11 +40,11 @@ class HotelController extends Controller
 
     public function index(){
         $user = auth()->user();
-        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
         
-        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.create')->exists();
-        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.edit')->exists();
-        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.delete')->exists();
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-hotel.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-hotel.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-hotel.delete')->exists());
 
         $dataHotel = $this->hotelService->getAll();
         return view('pages.data-hotel.index', [
@@ -110,7 +114,15 @@ class HotelController extends Controller
         }
 
         // Create hotel
-        $this->hotelService->create($validated);
+        $hotel = $this->hotelService->create($validated);
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data hotel baru: ' . $validated['nama_hotel']
+        ]);
 
         return redirect()->route('data-hotel')->with('success', 'Data hotel berhasil ditambahkan');
     }
@@ -180,6 +192,14 @@ class HotelController extends Controller
             return redirect()->route('data-hotel')->with('error', 'Data hotel tidak ditemukan');
         }
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data hotel: ' . $validated['nama_hotel']
+        ]);
+
         return redirect()->route('data-hotel')->with('success', 'Data hotel berhasil diperbarui');
     }
 
@@ -191,6 +211,14 @@ class HotelController extends Controller
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data hotel tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Hotel',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data hotel: ' . ($hotel ? $hotel->nama_hotel : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data hotel berhasil dihapus']);
     }

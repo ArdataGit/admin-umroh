@@ -561,4 +561,6 @@ Route::get('/videos', function () {
     Route::get('/permission/{id}', [RoleController::class, 'edit'])->name('permission.edit');
     Route::put('/permission/{id}', [RoleController::class, 'update'])->name('permission.update');
 
+    Route::get('/history-action', [App\Http\Controllers\HistoryActionController::class, 'index'])->name('history-action.index');
+
 });

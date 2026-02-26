@@ -229,7 +229,7 @@ class MenuHelper
                 'subItems' => [
                     ['name' => 'User', 'path' => '/user', 'crud' => true],
                     ['name' => 'Permission', 'path' => '/permission', 'crud' => true],
-                    
+                    ['name' => 'History Action', 'path' => '/history-action'],   
                 ]
             ],
             // [

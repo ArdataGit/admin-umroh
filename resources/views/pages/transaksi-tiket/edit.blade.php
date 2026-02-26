@@ -70,7 +70,7 @@
                                 <tr class="border-b dark:border-gray-700">
                                     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
                                         <p x-text="item.nama_tiket"></p>
-                                        <p class="text-xs text-gray-500" x-text="'Stok: ' + item.stok"></p>
+                                        <p class="text-xs text-gray-500" x-text="'Stok: ' + (item.stok_awal - item.quantity)"></p>
                                     </td>
                                     <td class="px-4 py-3">
                                         <template x-if="item.kurs && item.kurs !== 'IDR'">
@@ -102,7 +102,7 @@
                                         </template>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
+                                        <input type="number" x-model.number="item.quantity" @input="calculateLineTotal(index)" min="1" :max="item.stok_awal" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
                                     </td>
                                     <td class="px-4 py-3 font-semibold text-gray-900 dark:text-white">
                                         Rp <span x-text="formatNumber(item.total_harga)"></span>
@@ -249,6 +249,8 @@
                 // Calculate rate for initial details
                 this.form.details.forEach(item => {
                     item.rate = (parseFloat(item.harga_jual_asing) || 0) > 0 ? (parseFloat(item.harga_satuan) / parseFloat(item.harga_jual_asing)) : 0;
+                    // Simpan stok awal untuk penentuan max qty: sisa stok + qty di order ini
+                    item.stok_awal = parseInt(item.stok) + parseInt(item.quantity);
                 });
                 this.calculateGrandTotal();
             },
@@ -268,14 +270,23 @@
                 // Check if already exists
                 const existing = this.form.details.find(d => d.ticket_id === ticket.id);
                 if (existing) {
-                    existing.quantity++;
-                    this.calculateLineTotal(this.form.details.indexOf(existing));
+                    if (existing.quantity < existing.stok_awal) {
+                        existing.quantity++;
+                        this.calculateLineTotal(this.form.details.indexOf(existing));
+                    } else {
+                        alert('Stok tiket tidak mencukupi untuk menambah lagi.');
+                    }
                 } else {
+                    if (ticket.jumlah_tiket < 1) {
+                        alert('Stok tiket ini sudah habis.');
+                        return;
+                    }
                     this.form.details.push({
                         ticket_id: ticket.id,
                         nama_tiket: ticket.nama_tiket,
                         kode_tiket: ticket.kode_tiket,
                         stok: ticket.jumlah_tiket,
+                        stok_awal: ticket.jumlah_tiket, // untuk tiket baru, stok maksimal adalah stok saat ini
                         kurs: ticket.kurs,
                         harga_jual_asing: parseFloat(ticket.harga_jual_asing) || 0,
                         harga_satuan: parseFloat(ticket.harga_jual) || 0,
@@ -294,7 +305,11 @@
             },
             calculateLineTotal(index) {
                 const item = this.form.details[index];
-                item.total_harga = item.quantity * item.harga_satuan;
+                if (item.quantity > item.stok_awal) {
+                    alert('Jumlah melebihi stok yang tersedia (Maksimal ' + item.stok_awal + ')');
+                    item.quantity = item.stok_awal;
+                }
+                item.total_harga = (item.quantity || 0) * item.harga_satuan;
                 this.calculateGrandTotal();
             },
             calculateGrandTotal() {
