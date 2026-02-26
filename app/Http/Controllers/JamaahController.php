@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\JamaahService;
 use App\Models\Jamaah;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class JamaahController extends Controller
 {
@@ -70,6 +72,14 @@ class JamaahController extends Controller
 
         $this->jamaahService->create($validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Jamaah',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data jamaah baru: ' . $validated['nama_jamaah'] . ' (' . $validated['kode_jamaah'] . ')'
+        ]);
+
         return redirect()->route('data-jamaah')->with('success', 'Data jamaah berhasil ditambahkan');
     }
 
@@ -125,16 +135,33 @@ class JamaahController extends Controller
             return redirect()->route('data-jamaah')->with('error', 'Data jamaah tidak ditemukan');
         }
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Jamaah',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data jamaah: ' . $jamaah->nama_jamaah . ' (' . $jamaah->kode_jamaah . ')'
+        ]);
+
         return redirect()->route('data-jamaah')->with('success', 'Data jamaah berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $jamaah = $this->jamaahService->getById($id);
         $deleted = $this->jamaahService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data jamaah tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Jamaah',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data jamaah: ' . ($jamaah ? $jamaah->nama_jamaah : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data jamaah berhasil dihapus']);
     }

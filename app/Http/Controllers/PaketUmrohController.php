@@ -8,6 +8,8 @@ use App\Models\PaketUmroh;
 use App\Models\Maskapai;
 use App\Models\Hotel;
 use App\Models\Kota;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PaketUmrohController extends Controller
 {
@@ -103,6 +105,14 @@ class PaketUmrohController extends Controller
 
         $this->paketUmrohService->create($validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Umroh',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan paket umroh baru: ' . $validated['nama_paket'] . ' (' . $validated['kode_paket'] . ')'
+        ]);
+
         return redirect()->route('paket-umroh')->with('success', 'Paket umroh berhasil ditambahkan');
     }
 
@@ -171,16 +181,35 @@ class PaketUmrohController extends Controller
 
         $this->paketUmrohService->update($id, $validated);
 
+        $paketUmroh = $this->paketUmrohService->getById($id);
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Umroh',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui paket umroh: ' . ($paketUmroh ? $paketUmroh->nama_paket : 'ID ' . $id) . ' (' . ($paketUmroh ? $paketUmroh->kode_paket : '') . ')'
+        ]);
+
         return redirect()->route('paket-umroh')->with('success', 'Paket umroh berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $paketUmroh = $this->paketUmrohService->getById($id);
         $deleted = $this->paketUmrohService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Paket umroh tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Umroh',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus paket umroh: ' . ($paketUmroh ? $paketUmroh->nama_paket : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Paket umroh berhasil dihapus']);
     }
