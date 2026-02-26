@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\AgentService;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class AgentController extends Controller
 {
@@ -98,6 +100,14 @@ class AgentController extends Controller
 
         $this->agentService->create($validated);
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Agent',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data agent baru: ' . $validated['nama_agent'] . ' (' . $validated['kode_agent'] . ')'
+        ]);
+
         return redirect()->route('data-agent')->with('success', 'Data agent berhasil ditambahkan');
     }
 
@@ -156,18 +166,35 @@ class AgentController extends Controller
             return redirect()->route('data-agent')->with('error', 'Data agent tidak ditemukan');
         }
 
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Agent',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data agent: ' . $agent->nama_agent . ' (' . $agent->kode_agent . ')'
+        ]);
+
         return redirect()->route('data-agent')->with('success', 'Data agent berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $this->checkPermission('delete');
-
+        
+        $agent = $this->agentService->getById($id);
         $deleted = $this->agentService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data agent tidak ditemukan'], 404);
         }
+
+        // Pencatatan History Action
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Agent',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data agent: ' . ($agent ? $agent->nama_agent : 'ID ' . $id)
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data agent berhasil dihapus']);
     }

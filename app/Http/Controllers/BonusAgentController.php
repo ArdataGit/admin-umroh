@@ -9,6 +9,8 @@ use App\Models\BonusPayout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class BonusAgentController extends Controller
 {
@@ -111,6 +113,14 @@ class BonusAgentController extends Controller
 
             BonusPayout::create($data);
 
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Bonus Agent',
+                'action' => 'Create',
+                'keterangan' => 'Mencatat pembayaran bonus baru untuk Agent: ' . $agent->nama_agent . ' dengan kode: ' . $data['kode_transaksi'] . ' sebesar ' . number_format($data['jumlah_bayar'], 0, ',', '.')
+            ]);
+
             DB::commit();
             return redirect()->route('payment-agent.show', $validated['agent_id'])->with('success', 'Pembayaran bonus berhasil dicatat.');
         } catch (\Exception $e) {
@@ -167,6 +177,14 @@ class BonusAgentController extends Controller
             }
 
             $payout->update($data);
+
+            // Pencatatan History Action
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Bonus Agent',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui data pembayaran bonus Agent: ' . $payout->agent->nama_agent . ' dengan kode: ' . $payout->kode_transaksi
+            ]);
 
             DB::commit();
             return redirect()->route('payment-agent.show', $payout->agent_id)->with('success', 'Pembayaran bonus berhasil diperbarui.');
