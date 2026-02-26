@@ -8,8 +8,36 @@ use Carbon\Carbon;
 
 class SetoranUmrohController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/setoran-umroh.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data setoran umroh.');
+        }
+
+        return true;
+    }
+
     public function generalIndex()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/setoran-umroh.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/setoran-umroh.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/setoran-umroh.delete')->exists());
+
         $transaksis = \App\Models\TransaksiTabunganUmroh::with(['tabunganUmroh.jamaah'])
             ->where('jenis_transaksi', 'setoran')
             ->orderBy('tanggal_transaksi', 'desc')
@@ -17,7 +45,10 @@ class SetoranUmrohController extends Controller
 
         return view('pages.setoran-umroh.general-index', [
             'title' => 'Data Setoran Umroh',
-            'transaksis' => $transaksis
+            'transaksis' => $transaksis,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
@@ -40,6 +71,8 @@ class SetoranUmrohController extends Controller
 
     public function create($id)
     {
+        $this->checkPermission('create');
+        
         $tabungan = TabunganUmroh::with('jamaah')->findOrFail($id);
         
         // Generate Transaction Code
@@ -59,6 +92,8 @@ class SetoranUmrohController extends Controller
 
     public function store(Request $request, $id)
     {
+        $this->checkPermission('create');
+        
         $tabungan = TabunganUmroh::findOrFail($id);
 
         $validated = $request->validate([
@@ -97,6 +132,8 @@ class SetoranUmrohController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $transaksi = \App\Models\TransaksiTabunganUmroh::findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 
@@ -120,6 +157,8 @@ class SetoranUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $transaksi = \App\Models\TransaksiTabunganUmroh::with(['tabunganUmroh.jamaah'])->findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 
@@ -132,6 +171,8 @@ class SetoranUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $transaksi = \App\Models\TransaksiTabunganUmroh::findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 

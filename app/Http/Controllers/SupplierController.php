@@ -15,14 +15,50 @@ class SupplierController extends Controller
         $this->supplierService = $supplierService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/data-supplier.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data supplier.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-supplier.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-supplier.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-supplier.delete')->exists());
+
         $dataSupplier = $this->supplierService->getAll();
-        return view('pages.data-supplier.index', ['title' => 'Data Supplier', 'dataSupplier' => $dataSupplier]);
+        return view('pages.data-supplier.index', [
+            'title' => 'Data Supplier',
+            'dataSupplier' => $dataSupplier,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Auto-generate kode_supplier: S-001, S-002, etc.
         $lastSupplier = Supplier::orderBy('id', 'desc')->first();
         $lastNumber = $lastSupplier ? intval(substr($lastSupplier->kode_supplier, 2)) : 0;
@@ -37,6 +73,8 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_supplier' => 'required|string|unique:suppliers,kode_supplier',
             'nama_supplier' => 'required|string|max:255',
@@ -54,6 +92,8 @@ class SupplierController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $supplier = $this->supplierService->getById($id);
 
         if (!$supplier) {
@@ -68,6 +108,8 @@ class SupplierController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'nama_supplier' => 'required|string|max:255',
             'kontak_supplier' => 'nullable|string|max:255',
@@ -88,6 +130,8 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $deleted = $this->supplierService->delete($id);
 
         if (!$deleted) {

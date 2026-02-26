@@ -16,14 +16,48 @@ class LayananController extends Controller
         $this->layananService = $layananService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/data-layanan.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data layanan');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-layanan.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-layanan.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-layanan.delete')->exists();
+
         $dataLayanan = $this->layananService->getAll();
-        return view('pages.data-layanan.index', ['title' => 'Data Layanan', 'dataLayanan' => $dataLayanan]);
+        return view('pages.data-layanan.index', [
+            'title' => 'Data Layanan',
+            'dataLayanan' => $dataLayanan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Auto-generate kode_layanan: SR-001, SR-002, etc.
         $lastLayanan = \App\Models\Layanan::orderBy('id', 'desc')->first();
         $lastNumber = $lastLayanan ? intval(substr($lastLayanan->kode_layanan, 3)) : 0;
@@ -47,6 +81,8 @@ class LayananController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_layanan' => 'required|string|unique:layanans,kode_layanan',
             'jenis_layanan' => 'required|in:Pesawat,Hotel,Visa,Transport,Handling,Tour,Layanan,Lainnya',
@@ -96,6 +132,8 @@ class LayananController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $layanan = $this->layananService->getById($id);
 
         if (!$layanan) {
@@ -119,6 +157,8 @@ class LayananController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'jenis_layanan' => 'required|in:Pesawat,Hotel,Visa,Transport,Handling,Tour,Layanan,Lainnya',
             'nama_layanan' => 'required|string|max:255',
@@ -179,6 +219,8 @@ class LayananController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $deleted = $this->layananService->delete($id);
 
         if (!$deleted) {

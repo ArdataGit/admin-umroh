@@ -11,17 +11,50 @@ use Illuminate\Support\Facades\DB;
 
 class PengeluaranProdukController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/pengeluaran-produk.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pengeluaran produk.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pengeluaran-produk.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pengeluaran-produk.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pengeluaran-produk.delete')->exists());
+
         $pengeluarans = PengeluaranProduk::with(['jamaah', 'details'])->latest()->get();
         return view('pages.pengeluaran-produk.index', [
             'title' => 'Pengeluaran Produk',
-            'pengeluarans' => $pengeluarans
+            'pengeluarans' => $pengeluarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $lastTransaction = PengeluaranProduk::latest()->first();
         $nextId = $lastTransaction ? ($lastTransaction->id + 1) : 1;
         // Format PK-XXX, e.g., PK-001
@@ -37,6 +70,8 @@ class PengeluaranProdukController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_pengeluaran' => 'required|unique:pengeluaran_produks,kode_pengeluaran',
             'jamaah_id' => 'required|exists:jamaahs,id',
@@ -118,6 +153,8 @@ class PengeluaranProdukController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pengeluaran = PengeluaranProduk::with('details.produk')->findOrFail($id);
         
         // Prepare details data for x-data
@@ -144,6 +181,8 @@ class PengeluaranProdukController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         // Code pengeluaran cannot be edited, so exclude from validation
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
@@ -230,6 +269,8 @@ class PengeluaranProdukController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         try {
             DB::beginTransaction();
             $pengeluaran = PengeluaranProduk::with('details')->findOrFail($id);

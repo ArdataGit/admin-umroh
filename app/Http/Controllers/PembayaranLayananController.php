@@ -7,15 +7,44 @@ use Illuminate\Http\Request;
 
 class PembayaranLayananController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pembayaran-layanan.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' pembayaran layanan');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-layanan.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-layanan.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-layanan.delete')->exists();
+
         $pembayarans = PembayaranLayanan::with(['transaksiLayanan.pelanggan'])
             ->latest()
             ->get();
 
         return view('pages.pembayaran-layanan.index', [
             'title' => 'Data Pembayaran Layanan',
-            'pembayarans' => $pembayarans
+            'pembayarans' => $pembayarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
@@ -33,6 +62,8 @@ class PembayaranLayananController extends Controller
 
     public function createPayment($id)
     {
+        $this->checkPermission('create');
+        
         $transaksi = \App\Models\TransaksiLayanan::with(['pelanggan'])->findOrFail($id);
         
         return view('pages.pembayaran-layanan.create_payment', [
@@ -43,6 +74,8 @@ class PembayaranLayananController extends Controller
 
     public function storePayment(Request $request, $id)
     {
+        $this->checkPermission('create');
+        
         $transaksi = \App\Models\TransaksiLayanan::findOrFail($id);
 
         $validated = $request->validate([
@@ -77,6 +110,8 @@ class PembayaranLayananController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranLayanan::with('transaksiLayanan.pelanggan')->findOrFail($id);
         
         return view('pages.pembayaran-layanan.edit', [
@@ -87,6 +122,8 @@ class PembayaranLayananController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranLayanan::findOrFail($id);
 
         $validated = $request->validate([
@@ -110,6 +147,8 @@ class PembayaranLayananController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $pembayaran = PembayaranLayanan::findOrFail($id);
         $pembayaran->delete();
 

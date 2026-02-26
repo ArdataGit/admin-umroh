@@ -11,17 +11,50 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/user.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data user.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/user.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/user.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/user.delete')->exists());
+
         $users = User::with('role')->latest()->get();
         return view('pages.system.user.index', [
             'title' => 'User Management',
-            'users' => $users
+            'users' => $users,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $roles = Role::orderBy('name')->get();
         return view('pages.system.user.create', [
             'title' => 'Tambah User Baru',
@@ -31,6 +64,8 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -62,6 +97,8 @@ class UserController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $user = User::findOrFail($id);
         $roles = Role::orderBy('name')->get();
         return view('pages.system.user.edit', [
@@ -73,6 +110,8 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
@@ -112,6 +151,8 @@ class UserController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $user = User::findOrFail($id);
 
         if ($user->avatar && file_exists(public_path('avatars/' . $user->avatar))) {

@@ -15,14 +15,50 @@ class ProdukController extends Controller
         $this->produkService = $produkService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/data-produk.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data produk.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-produk.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-produk.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-produk.delete')->exists());
+
         $dataProduk = $this->produkService->getAll();
-        return view('pages.data-produk.index', ['title' => 'Data Produk', 'dataProduk' => $dataProduk]);
+        return view('pages.data-produk.index', [
+            'title' => 'Data Produk',
+            'dataProduk' => $dataProduk,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Auto-generate kode_produk: PR-001, PR-002, etc.
         $lastProduk = \App\Models\Produk::orderBy('id', 'desc')->first();
         $lastNumber = $lastProduk ? intval(substr($lastProduk->kode_produk, 3)) : 0;
@@ -37,6 +73,8 @@ class ProdukController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_produk' => 'required|string|unique:produks,kode_produk',
             'nama_produk' => 'required|string|max:255',
@@ -72,6 +110,8 @@ class ProdukController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $produk = $this->produkService->getById($id);
 
         if (!$produk) {
@@ -86,6 +126,8 @@ class ProdukController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'nama_produk' => 'required|string|max:255',
             'standar_stok' => 'required|integer|min:0',
@@ -116,6 +158,8 @@ class ProdukController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $produk = $this->produkService->getById($id);
 
         if (!$produk) {

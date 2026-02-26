@@ -222,6 +222,7 @@
                                 </td>
                                 <td class="px-4 py-4 text-center">
                                     <div class="flex items-center justify-center gap-2">
+                                        @if($canCreate)
                                         <template x-if="agent.sisa_bonus > 0">
                                             <a :href="`/bonus-agent/${agent.id}`" class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500" title="Add Payment">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -229,6 +230,7 @@
                                                 </svg>
                                             </a>
                                         </template>
+                                        @endif
                                         
                                         <a :href="`/payment-agent/${agent.id}`" class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500" title="Show Payment">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

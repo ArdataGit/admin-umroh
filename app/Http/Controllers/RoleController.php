@@ -9,8 +9,31 @@ use App\Helpers\MenuHelper;
 
 class RoleController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/permission.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data permission.');
+        }
+
+        return true;
+    }
+
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $request->validate([
             'name' => 'required|string|unique:roles,name|max:255'
         ]);
@@ -22,6 +45,8 @@ class RoleController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $role = Role::with('permissions')->findOrFail($id);
         $menuGroups = MenuHelper::getAllMenuGroups();
         
@@ -34,6 +59,8 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $role = Role::findOrFail($id);
 
         $request->validate([
@@ -65,6 +92,8 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $role = Role::findOrFail($id);
 
         if ($role->users()->count() > 0) {

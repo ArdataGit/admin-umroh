@@ -14,17 +14,48 @@ class KotaController extends Controller
         $this->kotaService = $kotaService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/data-kota.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data kota');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-kota.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-kota.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-kota.delete')->exists();
+
         $kotas = $this->kotaService->getAll();
         return view('pages.data-kota.index', [
             'title' => 'Data Kota',
-            'kotas' => $kotas
+            'kotas' => $kotas,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         return view('pages.data-kota.create', [
             'title' => 'Tambah Data Kota'
         ]);
@@ -32,6 +63,8 @@ class KotaController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_kota' => 'required|string|unique:kotas,kode_kota',
             'nama_kota' => 'required|string|max:255',
@@ -53,6 +86,8 @@ class KotaController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $kota = $this->kotaService->getById($id);
         return view('pages.data-kota.edit', [
             'title' => 'Edit Kota',
@@ -62,6 +97,8 @@ class KotaController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'kode_kota' => 'required|string|unique:kotas,kode_kota,' . $id,
             'nama_kota' => 'required|string|max:255',
@@ -74,6 +111,8 @@ class KotaController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $this->kotaService->delete($id);
         return response()->json(['success' => true]);
     }

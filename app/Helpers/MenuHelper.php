@@ -18,62 +18,62 @@ class MenuHelper
                 'icon' => 'users-group',
                 'name' => 'Data Jamaah',
                 'subItems' => [
-                    ['name' => 'Data Jamaah', 'path' => '/data-jamaah'],
+                    ['name' => 'Data Jamaah', 'path' => '/data-jamaah', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'user-profile',
                 'name' => 'Data Agent',
                 'subItems' => [
-                    ['name' => 'Data Agent', 'path' => '/data-agent'],
-                    ['name' => 'Bonus Agent', 'path' => '/bonus-agent'],
+                    ['name' => 'Data Agent', 'path' => '/data-agent', 'crud' => true],
+                    ['name' => 'Bonus Agent', 'path' => '/bonus-agent', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'briefcase',
                 'name' => 'Data Karyawan',
                 'subItems' => [
-                    ['name' => 'Data Karyawan', 'path' => '/data-karyawan'],
+                    ['name' => 'Data Karyawan', 'path' => '/data-karyawan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'package',
                 'name' => 'Data Paket',
                 'subItems' => [
-                    ['name' => 'Paket Umroh', 'path' => '/paket-umroh'],
-                    ['name' => 'Paket Haji', 'path' => '/paket-haji'],
+                    ['name' => 'Paket Umroh', 'path' => '/paket-umroh', 'crud' => true],
+                    ['name' => 'Paket Haji', 'path' => '/paket-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'plane-departure',
                 'name' => 'Data Keberangkatan',
                 'subItems' => [
-                    ['name' => 'Keberangkatan Umroh', 'path' => '/keberangkatan-umroh'],
-                    ['name' => 'Keberangkatan Haji', 'path' => '/keberangkatan-haji'],
+                    ['name' => 'Keberangkatan Umroh', 'path' => '/keberangkatan-umroh', 'crud' => true],
+                    ['name' => 'Keberangkatan Haji', 'path' => '/keberangkatan-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'credit-card',
                 'name' => 'Data Pembayaran',
                 'subItems' => [
-                    ['name' => 'Pembayaran Umroh', 'path' => '/pembayaran-umroh'],
-                    ['name' => 'Pembayaran Haji', 'path' => '/pembayaran-haji'],
+                    ['name' => 'Pembayaran Umroh', 'path' => '/pembayaran-umroh', 'crud' => true],
+                    ['name' => 'Pembayaran Haji', 'path' => '/pembayaran-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'money-out',
                 'name' => 'Data Pengeluaran',
                 'subItems' => [
-                    ['name' => 'Pengeluaran Umroh', 'path' => '/pengeluaran-umroh'],
-                    ['name' => 'Pengeluaran Haji', 'path' => '/pengeluaran-haji'],
-                    ['name' => 'Pengeluaran Umum', 'path' => '/pengeluaran-umum'],
+                    ['name' => 'Pengeluaran Umroh', 'path' => '/pengeluaran-umroh', 'crud' => true],
+                    ['name' => 'Pengeluaran Haji', 'path' => '/pengeluaran-haji', 'crud' => true],
+                    ['name' => 'Pengeluaran Umum', 'path' => '/pengeluaran-umum', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'money-in',
                 'name' => 'Data Pemasukan',
                 'subItems' => [
-                    ['name' => 'Pemasukan Umum', 'path' => '/pemasukan-umum'],
+                    ['name' => 'Pemasukan Umum', 'path' => '/pemasukan-umum', 'crud' => true],
                 ]
             ],
             [
@@ -90,29 +90,29 @@ class MenuHelper
                 'icon' => 'file-text',
                 'name' => 'Data Dokumen',
                 'subItems' => [
-                    ['name' => 'Surat Rekomendasi', 'path' => '/surat-rekomendasi'],
-                    ['name' => 'Surat Izin Cuti', 'path' => '/surat-izin-cuti'],
+                    ['name' => 'Surat Rekomendasi', 'path' => '/surat-rekomendasi', 'crud' => true],
+                    ['name' => 'Surat Izin Cuti', 'path' => '/surat-izin-cuti', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'plane',
                 'name' => 'Data Maskapai',
                 'subItems' => [
-                    ['name' => 'Data Maskapai', 'path' => '/data-maskapai'],
+                    ['name' => 'Data Maskapai', 'path' => '/data-maskapai', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'building',
                 'name' => 'Data Hotel',
                 'subItems' => [
-                    ['name' => 'Data Hotel', 'path' => '/data-hotel'],
+                    ['name' => 'Data Hotel', 'path' => '/data-hotel', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'map-pin',
                 'name' => 'Data Kota',
                 'subItems' => [
-                    ['name' => 'Data Kota', 'path' => '/data-kota'],
+                    ['name' => 'Data Kota', 'path' => '/data-kota', 'crud' => true],
                 ]
             ],
 
@@ -125,53 +125,53 @@ class MenuHelper
                 'icon' => 'users-group',
                 'name' => 'Data Pelanggan',
                 'subItems' => [
-                    ['name' => 'Data Pelanggan', 'path' => '/data-pelanggan'],
+                    ['name' => 'Data Pelanggan', 'path' => '/data-pelanggan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'grid-layers',
                 'name' => 'Data Layanan',
                 'subItems' => [
-                    ['name' => 'Data Layanan', 'path' => '/data-layanan'],
+                    ['name' => 'Data Layanan', 'path' => '/data-layanan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Transaksi Layanan',
                 'subItems' => [
-                    ['name' => 'Transaksi Layanan', 'path' => '/transaksi-layanan'],
-                    ['name' => 'Pembayaran Layanan', 'path' => '/pembayaran-layanan'],
+                    ['name' => 'Transaksi Layanan', 'path' => '/transaksi-layanan', 'crud' => true],
+                    ['name' => 'Pembayaran Layanan', 'path' => '/pembayaran-layanan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'ticket',
                 'name' => 'Data Tiket',
                 'subItems' => [
-                    ['name' => 'Data Tiket', 'path' => '/data-tiket'],
+                    ['name' => 'Data Tiket', 'path' => '/data-tiket', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Transaksi Tiket',
                 'subItems' => [
-                    ['name' => 'Transaksi Tiket', 'path' => '/transaksi-tiket'],
-                    ['name' => 'Pembayaran Tiket', 'path' => '/pembayaran-tiket'],
+                    ['name' => 'Transaksi Tiket', 'path' => '/transaksi-tiket', 'crud' => true],
+                    ['name' => 'Pembayaran Tiket', 'path' => '/pembayaran-tiket', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'piggy-bank',
                 'name' => 'Data Tabungan',
                 'subItems' => [
-                    ['name' => 'Tabungan Umroh', 'path' => '/tabungan-umroh'],
-                    ['name' => 'Tabungan Haji', 'path' => '/tabungan-haji'],
+                    ['name' => 'Tabungan Umroh', 'path' => '/tabungan-umroh', 'crud' => true],
+                    ['name' => 'Tabungan Haji', 'path' => '/tabungan-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'wallet',
                 'name' => 'Data Setoran',
                 'subItems' => [
-                    ['name' => 'Setoran Umroh', 'path' => '/setoran-umroh'],
-                    ['name' => 'Setoran Haji', 'path' => '/setoran-haji'],
+                    ['name' => 'Setoran Umroh', 'path' => '/setoran-umroh', 'crud' => true],
+                    ['name' => 'Setoran Haji', 'path' => '/setoran-haji', 'crud' => true],
                 ]
             ],
         ];
@@ -183,19 +183,20 @@ class MenuHelper
                 'icon' => 'package',
                 'name' => 'Data Produk',
                 'subItems' => [
-                    ['name' => 'Data Produk', 'path' => '/data-produk'],
+                    ['name' => 'Data Produk', 'path' => '/data-produk', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'tables',
                 'name' => 'Stock Opname',
                 'subItems' => [
-                    ['name' => 'Stock Opname', 'path' => '/stock-opname'],
+                    ['name' => 'Stock Opname', 'path' => '/stock-opname', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Pembelian Produk',
+                'crud' => true,
                 'subItems' => [
                     ['name' => 'Pembelian Produk', 'path' => '/pembelian-produk'],
                 ]
@@ -203,6 +204,7 @@ class MenuHelper
             [
                 'icon' => 'money-out',
                 'name' => 'Pengeluaran Produk',
+                'crud' => true,
                 'subItems' => [
                     ['name' => 'Pengeluaran Produk', 'path' => '/pengeluaran-produk'],
                 ]
@@ -210,6 +212,7 @@ class MenuHelper
             [
                 'icon' => 'truck',
                 'name' => 'Data Supplier',
+                'crud' => true,
                 'subItems' => [
                     ['name' => 'Data Supplier', 'path' => '/data-supplier'],
                 ]
@@ -224,8 +227,8 @@ class MenuHelper
                 'icon' => 'shield',
                 'name' => 'Access System',
                 'subItems' => [
-                    ['name' => 'User', 'path' => '/user'],
-                    ['name' => 'Permission', 'path' => '/permission'],
+                    ['name' => 'User', 'path' => '/user', 'crud' => true],
+                    ['name' => 'Permission', 'path' => '/permission', 'crud' => true],
                     
                 ]
             ],

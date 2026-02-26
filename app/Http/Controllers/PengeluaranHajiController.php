@@ -10,17 +10,48 @@ use Illuminate\Support\Str;
 
 class PengeluaranHajiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pengeluaran-haji.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pengeluaran haji');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-haji.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-haji.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-haji.delete')->exists();
+
         $pengeluaran = PengeluaranHaji::with('keberangkatanHaji')->latest()->get();
         return view('pages.pengeluaran-haji.index', [
             'title' => 'Data Pengeluaran Haji',
-            'pengeluaran' => $pengeluaran
+            'pengeluaran' => $pengeluaran,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $keberangkatans = KeberangkatanHaji::with('paketHaji')->where('status_keberangkatan', 'active')->get();
         // Generate Auto Code CH-XXX
         $count = PengeluaranHaji::count() + 1;
@@ -35,6 +66,8 @@ class PengeluaranHajiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'keberangkatan_haji_id' => 'required|exists:keberangkatan_hajis,id',
             'kode_pengeluaran' => 'required|unique:pengeluaran_hajis,kode_pengeluaran',

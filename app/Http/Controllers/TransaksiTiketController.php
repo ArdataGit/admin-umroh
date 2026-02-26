@@ -13,17 +13,50 @@ use Illuminate\Support\Facades\Storage;
 
 class TransaksiTiketController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/transaksi-tiket.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data transaksi tiket.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/transaksi-tiket.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/transaksi-tiket.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/transaksi-tiket.delete')->exists());
+
         $transaksi = TransaksiTiket::with(['pelanggan', 'details.ticket', 'pembayaranTikets'])->latest()->get();
         return view('pages.transaksi-tiket.index', [
             'title' => 'Transaksi Tiket',
-            'transaksi' => $transaksi
+            'transaksi' => $transaksi,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $lastTransaction = TransaksiTiket::latest()->first();
         $nextId = $lastTransaction ? ($lastTransaction->id + 1) : 1;
         // Format TI-XXX (Ticket Invoice)
@@ -39,6 +72,8 @@ class TransaksiTiketController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_transaksi' => 'required|unique:transaksi_tikets,kode_transaksi',
             'pelanggan_id' => 'required|exists:pelanggans,id',
@@ -156,6 +191,8 @@ class TransaksiTiketController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $transaksi = TransaksiTiket::with(['details.ticket', 'pembayaranTikets'])->findOrFail($id);
         
         $initialPayment = $transaksi->pembayaranTikets->first();
@@ -186,6 +223,8 @@ class TransaksiTiketController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
             'tanggal_transaksi' => 'required|date',
@@ -300,6 +339,8 @@ class TransaksiTiketController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         try {
             DB::beginTransaction();
             $transaksi = TransaksiTiket::with('details')->findOrFail($id);

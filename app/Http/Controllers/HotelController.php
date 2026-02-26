@@ -14,12 +14,47 @@ class HotelController extends Controller
     public function __construct(HotelService $hotelService){
         $this->hotelService = $hotelService;
     }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/data-hotel.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data hotel');
+        }
+
+        return true;
+    }
+
     public function index(){
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/data-hotel.delete')->exists();
+
         $dataHotel = $this->hotelService->getAll();
-        return view('pages.data-hotel.index', ['title' => 'Data Hotel', 'dataHotel' => $dataHotel]);
+        return view('pages.data-hotel.index', [
+            'title' => 'Data Hotel',
+            'dataHotel' => $dataHotel,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create(){
+        $this->checkPermission('create');
+        
         ExchangeRateService::updateRates();
 
         $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
@@ -35,6 +70,8 @@ class HotelController extends Controller
     }
 
     public function store(Request $request){
+        $this->checkPermission('create');
+        
         // Validation
         $validated = $request->validate([
             'nama_hotel' => 'required|string|max:255',
@@ -79,6 +116,8 @@ class HotelController extends Controller
     }
 
     public function edit($id){
+        $this->checkPermission('edit');
+        
         $hotel = $this->hotelService->getById($id);
         
         if (!$hotel) {
@@ -101,6 +140,8 @@ class HotelController extends Controller
     }
 
     public function update(Request $request, $id){
+        $this->checkPermission('edit');
+        
         // Validation
         $validated = $request->validate([
             'nama_hotel' => 'required|string|max:255',
@@ -143,6 +184,8 @@ class HotelController extends Controller
     }
 
     public function destroy($id){
+        $this->checkPermission('delete');
+        
         $deleted = $this->hotelService->delete($id);
 
         if (!$deleted) {

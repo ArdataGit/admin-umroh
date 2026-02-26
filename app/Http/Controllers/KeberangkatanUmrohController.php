@@ -9,17 +9,46 @@ use Illuminate\Support\Facades\DB;
 
 class KeberangkatanUmrohController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/keberangkatan-umroh.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/keberangkatan-umroh.create', $permissions);
+        $canEdit = $isAdmin || in_array('/keberangkatan-umroh.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/keberangkatan-umroh.delete', $permissions);
+
         $keberangkatan = KeberangkatanUmroh::with(['paketUmroh.maskapai'])->latest()->get();
         return view('pages.keberangkatan-umroh.index', [
             'title' => 'Keberangkatan Umroh',
-            'keberangkatan' => $keberangkatan
+            'keberangkatan' => $keberangkatan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         $lastKeberangkatan = KeberangkatanUmroh::latest()->first();
         $nextId = $lastKeberangkatan ? ($lastKeberangkatan->id + 1) : 1;
         // Format KU-XXX
@@ -34,6 +63,8 @@ class KeberangkatanUmrohController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_keberangkatan' => 'required|unique:keberangkatan_umrohs,kode_keberangkatan',
             'paket_umroh_id' => 'required|exists:paket_umrohs,id',
@@ -77,6 +108,8 @@ class KeberangkatanUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $keberangkatan = KeberangkatanUmroh::findOrFail($id);
         return view('pages.keberangkatan-umroh.edit', [
             'title' => 'Edit Keberangkatan',
@@ -87,6 +120,8 @@ class KeberangkatanUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'paket_umroh_id' => 'required|exists:paket_umrohs,id',
             'status_keberangkatan' => 'required|in:active,completed',
@@ -122,6 +157,8 @@ class KeberangkatanUmrohController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         try {
             $keberangkatan = KeberangkatanUmroh::findOrFail($id);
             $keberangkatan->delete();

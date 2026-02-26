@@ -9,17 +9,48 @@ use Illuminate\Support\Str;
 
 class PemasukanUmumController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pemasukan-umum.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pemasukan umum');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pemasukan-umum.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pemasukan-umum.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pemasukan-umum.delete')->exists();
+
         $pemasukan = PemasukanUmum::latest()->get();
         return view('pages.pemasukan-umum.index', [
             'title' => 'Data Pemasukan Umum',
-            'pemasukan' => $pemasukan
+            'pemasukan' => $pemasukan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Generate Auto Code IG-XXX
         $count = PemasukanUmum::count() + 1;
         $kodePemasukan = 'IG-' . str_pad($count, 6, '0', STR_PAD_LEFT);
@@ -32,6 +63,8 @@ class PemasukanUmumController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_pemasukan' => 'required|unique:pemasukan_umums,kode_pemasukan',
             'tanggal_pemasukan' => 'required|date',

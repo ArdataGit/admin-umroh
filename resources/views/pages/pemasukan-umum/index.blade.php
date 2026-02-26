@@ -94,10 +94,12 @@
 
         <div class="flex flex-col gap-2 px-5 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div class="flex items-center gap-3">
+                @if($canCreate)
                 <a href="{{ route('pemasukan-umum.create') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-600/20">
                     <svg class="h-5 w-5" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                     Tambah Pemasukan
                 </a>
+                @endif
             </div>
              <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <form>

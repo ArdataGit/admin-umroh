@@ -9,17 +9,48 @@ use Illuminate\Support\Str;
 
 class PengeluaranUmumController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pengeluaran-umum.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pengeluaran umum');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-umum.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-umum.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pengeluaran-umum.delete')->exists();
+
         $pengeluaran = PengeluaranUmum::latest()->get();
         return view('pages.pengeluaran-umum.index', [
             'title' => 'Data Pengeluaran Umum',
-            'pengeluaran' => $pengeluaran
+            'pengeluaran' => $pengeluaran,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Generate Auto Code CG-XXX
         $count = PengeluaranUmum::count() + 1;
         $kodePengeluaran = 'CG-' . str_pad($count, 6, '0', STR_PAD_LEFT);
@@ -32,6 +63,8 @@ class PengeluaranUmumController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_pengeluaran' => 'required|unique:pengeluaran_umums,kode_pengeluaran',
             'tanggal_pengeluaran' => 'required|date',
@@ -70,6 +103,8 @@ class PengeluaranUmumController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pengeluaran = PengeluaranUmum::findOrFail($id);
         return view('pages.pengeluaran-umum.edit', [
             'title' => 'Edit Pengeluaran Umum',
@@ -79,6 +114,8 @@ class PengeluaranUmumController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $pengeluaran = PengeluaranUmum::findOrFail($id);
 
         $validated = $request->validate([
@@ -112,6 +149,8 @@ class PengeluaranUmumController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $pengeluaran = PengeluaranUmum::findOrFail($id);
         
         if ($pengeluaran->bukti_pengeluaran && Storage::disk('public')->exists($pengeluaran->bukti_pengeluaran)) {

@@ -16,14 +16,50 @@ class TabunganHajiController extends Controller
         $this->tabunganHajiService = $tabunganHajiService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/tabungan-haji.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data tabungan haji.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/tabungan-haji.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/tabungan-haji.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/tabungan-haji.delete')->exists());
+
         $tabunganHajis = $this->tabunganHajiService->getAll();
-        return view('pages.tabungan-haji.index', ['title' => 'Data Tabungan Haji', 'tabunganHajis' => $tabunganHajis]);
+        return view('pages.tabungan-haji.index', [
+            'title' => 'Data Tabungan Haji',
+            'tabunganHajis' => $tabunganHajis,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Auto-generate kode_tabungan: TH-001, TH-002, etc.
         $lastTabungan = TabunganHaji::orderBy('id', 'desc')->first();
         $lastNumber = $lastTabungan ? intval(substr($lastTabungan->kode_tabungan, 3)) : 0;
@@ -41,6 +77,8 @@ class TabunganHajiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_tabungan' => 'required|string|unique:tabungan_hajis,kode_tabungan',
             'jamaah_id' => 'required|exists:jamaahs,id',
@@ -60,6 +98,8 @@ class TabunganHajiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $tabungan = $this->tabunganHajiService->getById($id);
         if (!$tabungan) {
             return redirect()->route('tabungan-haji')->with('error', 'Tabungan haji tidak ditemukan');
@@ -76,6 +116,8 @@ class TabunganHajiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
             'tanggal_pendaftaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
@@ -94,6 +136,8 @@ class TabunganHajiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $deleted = $this->tabunganHajiService->delete($id);
 
         if (!$deleted) {

@@ -10,17 +10,48 @@ use Illuminate\Support\Str;
 
 class SuratIzinCutiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/surat-izin-cuti.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data surat izin cuti');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/surat-izin-cuti.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/surat-izin-cuti.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/surat-izin-cuti.delete')->exists();
+
         $surat = SuratIzinCuti::with(['jamaah', 'keberangkatanUmroh'])->latest()->get();
         return view('pages.surat-izin-cuti.index', [
             'title' => 'Data Surat Izin Cuti',
-            'surat' => $surat
+            'surat' => $surat,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $jamaah = Jamaah::orderBy('nama_jamaah', 'asc')->get();
         $keberangkatan = KeberangkatanUmroh::where('status_keberangkatan', 'active')->latest()->get();
 
@@ -33,6 +64,8 @@ class SuratIzinCutiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
             'keberangkatan_umroh_id' => 'required|exists:keberangkatan_umrohs,id',
@@ -52,6 +85,8 @@ class SuratIzinCutiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $surat = SuratIzinCuti::findOrFail($id);
         $jamaah = Jamaah::orderBy('nama_jamaah', 'asc')->get();
         $keberangkatan = KeberangkatanUmroh::where('status_keberangkatan', 'active')->latest()->get();
@@ -66,6 +101,8 @@ class SuratIzinCutiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $surat = SuratIzinCuti::findOrFail($id);
 
         $validated = $request->validate([
@@ -87,6 +124,8 @@ class SuratIzinCutiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $surat = SuratIzinCuti::findOrFail($id);
         $surat->delete();
 

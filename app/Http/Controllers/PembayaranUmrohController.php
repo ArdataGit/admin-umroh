@@ -9,15 +9,44 @@ use Illuminate\Support\Str;
 
 class PembayaranUmrohController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pembayaran-umroh.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pembayaran umroh');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-umroh.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-umroh.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-umroh.delete')->exists();
+
         $pembayarans = PembayaranUmroh::with(['customerUmroh.jamaah', 'customerUmroh.keberangkatanUmroh', 'customerUmroh.agent'])
             ->latest()
             ->get();
 
         return view('pages.pembayaran-umroh.index', [
             'title' => 'Data Pembayaran Umroh',
-            'pembayarans' => $pembayarans
+            'pembayarans' => $pembayarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
     public function show($id)
@@ -32,6 +61,8 @@ class PembayaranUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranUmroh::with(['customerUmroh.jamaah'])->findOrFail($id);
         
         return view('pages.pembayaran-umroh.edit', [
@@ -42,6 +73,8 @@ class PembayaranUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'jumlah_pembayaran' => 'required|numeric|min:0',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
@@ -70,18 +103,28 @@ class PembayaranUmrohController extends Controller
     // History List per Jamaah (CustomerUmroh)
     public function history($id)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-umroh.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-umroh.edit')->exists();
+
         $customerUmroh = \App\Models\CustomerUmroh::with(['jamaah', 'keberangkatanUmroh.paketUmroh', 'pembayaranUmroh'])->findOrFail($id);
         
         return view('pages.pembayaran-umroh.history', [
             'title' => 'Riwayat Pembayaran - ' . $customerUmroh->jamaah->nama_jamaah,
             'customerUmroh' => $customerUmroh,
-            'pembayarans' => $customerUmroh->pembayaranUmroh()->latest()->get()
+            'pembayarans' => $customerUmroh->pembayaranUmroh()->latest()->get(),
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit
         ]);
     }
 
     // Form Add Payment
     public function createPayment($id)
     {
+        $this->checkPermission('create');
+        
         $customerUmroh = \App\Models\CustomerUmroh::with(['jamaah', 'keberangkatanUmroh'])->findOrFail($id);
         
         return view('pages.pembayaran-umroh.create_payment', [
@@ -93,6 +136,8 @@ class PembayaranUmrohController extends Controller
     // Store New Payment
     public function storePayment(Request $request, $id)
     {
+        $this->checkPermission('create');
+        
         $customerUmroh = \App\Models\CustomerUmroh::findOrFail($id);
 
         $validated = $request->validate([

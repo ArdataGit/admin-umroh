@@ -15,77 +15,121 @@ class JamaahController extends Controller
         $this->jamaahService = $jamaahService;
     }
 
-    public function index()
+    private function checkPermission($action)
     {
-        $dataJamaah = $this->jamaahService->getAll();
-        return view('pages.data-jamaah.index', ['title' => 'Data Jamaah', 'dataJamaah' => $dataJamaah]);
-    }
-
-    public function create()
-    {
-        // Auto-generate kode_jamaah: J-001, J-002, etc.
-        $lastJamaah = Jamaah::orderBy('id', 'desc')->first();
-        $lastNumber = $lastJamaah ? intval(substr($lastJamaah->kode_jamaah, 2)) : 0;
-        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-        $kodeJamaah = 'J-' . $newNumber;
-
-        return view('pages.data-jamaah.create', [
-            'title' => 'Tambah Data Jamaah',
-            'kodeJamaah' => $kodeJamaah
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'kode_jamaah' => 'required|string|unique:jamaahs,kode_jamaah',
-            'nik_jamaah' => 'required|string|max:20',
-            'nama_jamaah' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'required|string|max:255',
-            'tanggal_lahir' => 'required|date|before:today|after:1900-01-01',
-            'kontak_jamaah' => 'required|string|max:20',
-            'email_jamaah' => 'nullable|email|max:255',
-            'kecamatan' => 'required|string|max:255',
-            'kabupaten_kota' => 'required|string|max:255',
-            'provinsi' => 'required|string|max:255',
-            'alamat_jamaah' => 'required|string',
-            'alamat_lengkap' => 'required|string',
-            'catatan_jamaah' => 'nullable|string',
-            
-            // Paspor
-            'nama_paspor' => 'nullable|string|max:255',
-            'nomor_paspor' => 'nullable|string|max:50',
-            'kantor_imigrasi' => 'nullable|string|max:255',
-            'tgl_paspor_aktif' => 'nullable|date',
-            'tgl_paspor_expired' => 'nullable|date|after:tgl_paspor_aktif',
-
-            // Files
-            'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg',
-            'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg',
-            'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg',
-            'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg',
-        ]);
-
-        $this->jamaahService->create($validated);
-
-        return redirect()->route('data-jamaah')->with('success', 'Data jamaah berhasil ditambahkan');
-    }
-
-    public function edit($id)
-    {
-        $jamaah = $this->jamaahService->getById($id);
-
-        if (!$jamaah) {
-            return redirect()->route('data-jamaah')->with('error', 'Data jamaah tidak ditemukan');
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
         }
 
-        return view('pages.data-jamaah.edit', [
-            'title' => 'Edit Data Jamaah',
-            'jamaah' => $jamaah
-        ]);
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-jamaah.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
+
+    
+        public function index()
+        {
+            $user = auth()->user();
+            $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+            $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+
+            $canCreate = $isAdmin || in_array('/data-jamaah.create', $permissions);
+            $canEdit = $isAdmin || in_array('/data-jamaah.edit', $permissions);
+            $canDelete = $isAdmin || in_array('/data-jamaah.delete', $permissions);
+
+            $dataJamaah = $this->jamaahService->getAll();
+            return view('pages.data-jamaah.index', [
+                'title' => 'Data Jamaah',
+                'dataJamaah' => $dataJamaah,
+                'canCreate' => $canCreate,
+                'canEdit' => $canEdit,
+                'canDelete' => $canDelete
+            ]);
+        }
+
+
+    
+        public function create()
+        {
+            $this->checkPermission('create');
+
+            // Auto-generate kode_jamaah: J-001, J-002, etc.
+            $lastJamaah = Jamaah::orderBy('id', 'desc')->first();
+            $lastNumber = $lastJamaah ? intval(substr($lastJamaah->kode_jamaah, 2)) : 0;
+            $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+            $kodeJamaah = 'J-' . $newNumber;
+
+            return view('pages.data-jamaah.create', [
+                'title' => 'Tambah Data Jamaah',
+                'kodeJamaah' => $kodeJamaah
+            ]);
+        }
+
+
+    
+        public function store(Request $request)
+        {
+            $this->checkPermission('create');
+
+            $validated = $request->validate([
+                'kode_jamaah' => 'required|string|unique:jamaahs,kode_jamaah',
+                'nik_jamaah' => 'required|string|max:20',
+                'nama_jamaah' => 'required|string|max:255',
+                'jenis_kelamin' => 'required|in:L,P',
+                'tempat_lahir' => 'required|string|max:255',
+                'tanggal_lahir' => 'required|date|before:today|after:1900-01-01',
+                'kontak_jamaah' => 'required|string|max:20',
+                'email_jamaah' => 'nullable|email|max:255',
+                'kecamatan' => 'required|string|max:255',
+                'kabupaten_kota' => 'required|string|max:255',
+                'provinsi' => 'required|string|max:255',
+                'alamat_jamaah' => 'required|string',
+                'alamat_lengkap' => 'required|string',
+                'catatan_jamaah' => 'nullable|string',
+
+                // Paspor
+                'nama_paspor' => 'nullable|string|max:255',
+                'nomor_paspor' => 'nullable|string|max:50',
+                'kantor_imigrasi' => 'nullable|string|max:255',
+                'tgl_paspor_aktif' => 'nullable|date',
+                'tgl_paspor_expired' => 'nullable|date|after:tgl_paspor_aktif',
+
+                // Files
+                'foto_jamaah' => 'nullable|image|mimes:jpeg,png,jpg',
+                'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg',
+                'foto_kk' => 'nullable|image|mimes:jpeg,png,jpg',
+                'foto_paspor_1' => 'nullable|image|mimes:jpeg,png,jpg',
+                'foto_paspor_2' => 'nullable|image|mimes:jpeg,png,jpg',
+            ]);
+
+            $this->jamaahService->create($validated);
+
+            return redirect()->route('data-jamaah')->with('success', 'Data jamaah berhasil ditambahkan');
+        }
+
+
+    
+        public function edit($id)
+        {
+            $this->checkPermission('edit');
+
+            $jamaah = $this->jamaahService->getById($id);
+
+            if (!$jamaah) {
+                return redirect()->route('data-jamaah')->with('error', 'Data jamaah tidak ditemukan');
+            }
+
+            return view('pages.data-jamaah.edit', [
+                'title' => 'Edit Data Jamaah',
+                'jamaah' => $jamaah
+            ]);
+        }
+
 
     public function update(Request $request, $id)
     {
@@ -128,16 +172,20 @@ class JamaahController extends Controller
         return redirect()->route('data-jamaah')->with('success', 'Data jamaah berhasil diperbarui');
     }
 
-    public function destroy($id)
-    {
-        $deleted = $this->jamaahService->delete($id);
+    
+        public function destroy($id)
+        {
+            $this->checkPermission('delete');
 
-        if (!$deleted) {
-            return response()->json(['success' => false, 'message' => 'Data jamaah tidak ditemukan'], 404);
+            $deleted = $this->jamaahService->delete($id);
+
+            if (!$deleted) {
+                return response()->json(['success' => false, 'message' => 'Data jamaah tidak ditemukan'], 404);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Data jamaah berhasil dihapus']);
         }
 
-        return response()->json(['success' => true, 'message' => 'Data jamaah berhasil dihapus']);
-    }
 
     public function show($id)
     {

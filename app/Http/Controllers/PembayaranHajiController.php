@@ -10,15 +10,44 @@ use Illuminate\Support\Str;
 
 class PembayaranHajiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/pembayaran-haji.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pembayaran haji');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-haji.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-haji.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-haji.delete')->exists();
+
         $pembayarans = PembayaranHaji::with(['customerHaji.jamaah', 'customerHaji.keberangkatanHaji.paketHaji', 'customerHaji.agent'])
             ->latest()
             ->get();
 
         return view('pages.pembayaran-haji.index', [
             'title' => 'Data Pembayaran Haji',
-            'pembayarans' => $pembayarans
+            'pembayarans' => $pembayarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
@@ -36,6 +65,8 @@ class PembayaranHajiController extends Controller
     // Edit Transaksi
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranHaji::with(['customerHaji.jamaah'])->findOrFail($id);
         
         return view('pages.pembayaran-haji.edit', [
@@ -47,6 +78,8 @@ class PembayaranHajiController extends Controller
     // Update Transaksi
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'jumlah_pembayaran' => 'required|numeric|min:0',
             'metode_pembayaran' => 'required|in:cash,transfer,debit,qris,other',
@@ -76,18 +109,28 @@ class PembayaranHajiController extends Controller
     // History List per Jamaah (CustomerHaji)
     public function history($id)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-haji.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/pembayaran-haji.edit')->exists();
+
         $customerHaji = CustomerHaji::with(['jamaah', 'keberangkatanHaji.paketHaji', 'pembayaranHaji'])->findOrFail($id);
         
         return view('pages.pembayaran-haji.history', [
             'title' => 'Riwayat Pembayaran Haji - ' . $customerHaji->jamaah->nama_jamaah,
             'customerHaji' => $customerHaji,
-            'pembayarans' => $customerHaji->pembayaranHaji()->latest()->get()
+            'pembayarans' => $customerHaji->pembayaranHaji()->latest()->get(),
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit
         ]);
     }
 
     // Form Add Payment
     public function createPayment($id)
     {
+        $this->checkPermission('create');
+        
         $customerHaji = CustomerHaji::with(['jamaah', 'keberangkatanHaji'])->findOrFail($id);
         
         return view('pages.pembayaran-haji.create_payment', [
@@ -99,6 +142,8 @@ class PembayaranHajiController extends Controller
     // Store New Payment
     public function storePayment(Request $request, $id)
     {
+        $this->checkPermission('create');
+        
         $customerHaji = CustomerHaji::findOrFail($id);
 
         $validated = $request->validate([

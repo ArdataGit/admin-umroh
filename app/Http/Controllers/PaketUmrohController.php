@@ -18,14 +18,46 @@ class PaketUmrohController extends Controller
         $this->paketUmrohService = $paketUmrohService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/paket-umroh.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/paket-umroh.create', $permissions);
+        $canEdit = $isAdmin || in_array('/paket-umroh.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/paket-umroh.delete', $permissions);
+
         $paketUmrohs = $this->paketUmrohService->getAll();
-        return view('pages.paket-umroh.index', ['title' => 'Data Paket Umroh', 'paketUmrohs' => $paketUmrohs]);
+        return view('pages.paket-umroh.index', [
+            'title' => 'Data Paket Umroh',
+            'paketUmrohs' => $paketUmrohs,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Auto-generate kode_paket: PU-{next_id}
         $maxId = PaketUmroh::max('id') ?? 0;
         $nextId = $maxId + 1;
@@ -58,6 +90,8 @@ class PaketUmrohController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         // Validation with 2 variants logic
         // If variant 2 is optional, fields might be nullable.
         // But user said "input jenis paket 2", implying it might be filled.
@@ -108,6 +142,8 @@ class PaketUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $paketUmroh = $this->paketUmrohService->getById($id);
         if (!$paketUmroh) {
             return redirect()->route('paket-umroh')->with('error', 'Paket umroh tidak ditemukan');
@@ -132,6 +168,8 @@ class PaketUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
              'nama_paket' => 'required|string|max:255',
             'tanggal_keberangkatan' => 'required|date',
@@ -176,6 +214,8 @@ class PaketUmrohController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         $deleted = $this->paketUmrohService->delete($id);
 
         if (!$deleted) {

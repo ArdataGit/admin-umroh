@@ -11,17 +11,50 @@ use Illuminate\Support\Facades\DB;
 
 class PembelianProdukController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/pembelian-produk.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pembelian produk.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembelian-produk.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembelian-produk.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembelian-produk.delete')->exists());
+
         $pembelians = PembelianProduk::with(['supplier', 'details'])->latest()->get();
         return view('pages.pembelian-produk.index', [
             'title' => 'Pembelian Produk',
-            'pembelians' => $pembelians
+            'pembelians' => $pembelians,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $suppliers = Supplier::all();
         $produks = Produk::all();
         
@@ -40,6 +73,8 @@ class PembelianProdukController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_pembelian' => 'required|string|unique:pembelian_produks,kode_pembelian',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -112,6 +147,8 @@ class PembelianProdukController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pembelian = PembelianProduk::with('details.produk')->findOrFail($id);
         $suppliers = Supplier::all();
         $produks = Produk::all();
@@ -140,6 +177,8 @@ class PembelianProdukController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'tanggal_pembelian' => 'required|date',
@@ -216,6 +255,8 @@ class PembelianProdukController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         try {
             DB::beginTransaction();
             $pembelian = PembelianProduk::with('details')->findOrFail($id);

@@ -9,17 +9,50 @@ use Carbon\Carbon;
 
 class StockOpnameController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/stock-opname.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data stock opname.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/stock-opname.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/stock-opname.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/stock-opname.delete')->exists());
+
         $stockOpnames = StockOpname::with('produk')->orderBy('tanggal_adjustment', 'desc')->get();
         return view('pages.stock-opname.index', [
             'title' => 'Stock Opname',
-            'stockOpnames' => $stockOpnames
+            'stockOpnames' => $stockOpnames,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $produks = Produk::all();
         
         // Generate AD Check Code
@@ -37,6 +70,8 @@ class StockOpnameController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_adjustment' => 'required|string|unique:stock_opnames,kode_adjustment',
             'tanggal_adjustment' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
@@ -79,6 +114,8 @@ class StockOpnameController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $stockOpname = StockOpname::findOrFail($id);
         $produks = Produk::all();
 
@@ -91,6 +128,8 @@ class StockOpnameController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $stockOpname = StockOpname::findOrFail($id);
         $produk = Produk::findOrFail($stockOpname->produk_id);
 
@@ -128,6 +167,8 @@ class StockOpnameController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $stockOpname = StockOpname::findOrFail($id);
         $produk = Produk::findOrFail($stockOpname->produk_id);
 

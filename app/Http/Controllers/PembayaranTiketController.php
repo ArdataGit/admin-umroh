@@ -11,15 +11,46 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PembayaranTiketController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/pembayaran-tiket.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data pembayaran tiket.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembayaran-tiket.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembayaran-tiket.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/pembayaran-tiket.delete')->exists());
+
         $pembayarans = PembayaranTiket::with(['transaksiTiket.pelanggan', 'transaksiTiket.details.ticket'])
             ->latest()
             ->get();
 
         return view('pages.pembayaran-tiket.index', [
             'title' => 'Data Pembayaran Tiket',
-            'pembayarans' => $pembayarans
+            'pembayarans' => $pembayarans,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
     public function show($id)
@@ -36,6 +67,8 @@ class PembayaranTiketController extends Controller
 
     public function createPayment($id)
     {
+        $this->checkPermission('create');
+        
         $transaksi = \App\Models\TransaksiTiket::with(['pelanggan'])->findOrFail($id);
         
         ExchangeRateService::updateRates();
@@ -55,6 +88,8 @@ class PembayaranTiketController extends Controller
 
     public function storePayment(Request $request, $id)
     {
+        $this->checkPermission('create');
+        
         $transaksi = \App\Models\TransaksiTiket::findOrFail($id);
 
         $validated = $request->validate([
@@ -127,6 +162,8 @@ class PembayaranTiketController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranTiket::with(['transaksiTiket.pelanggan'])->findOrFail($id);
 
         ExchangeRateService::updateRates();
@@ -147,6 +184,8 @@ class PembayaranTiketController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $pembayaran = PembayaranTiket::findOrFail($id);
 
         $validated = $request->validate([
@@ -198,6 +237,8 @@ class PembayaranTiketController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $pembayaran = PembayaranTiket::findOrFail($id);
         $transaksiId = $pembayaran->transaksi_tiket_id;
         $pembayaran->delete();

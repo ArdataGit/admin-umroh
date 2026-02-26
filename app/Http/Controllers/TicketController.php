@@ -18,14 +18,50 @@ class TicketController extends Controller
         $this->ticketService = $ticketService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        // Super-admin has full access
+        if ($user->role && $user->role->name === 'super-admin') {
+            return true;
+        }
+
+        $permission = "/data-tiket.{$action}";
+        $hasPermission = $user->role && $user->role->permissions()
+            ->where('menu_path', $permission)
+            ->exists();
+
+        if (!$hasPermission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' data tiket.');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role && $user->role->name === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-tiket.create')->exists());
+        $canEdit = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-tiket.edit')->exists());
+        $canDelete = $isSuperAdmin || ($user->role && $user->role->permissions()->where('menu_path', '/data-tiket.delete')->exists());
+
         $tickets = $this->ticketService->getAll();
-        return view('pages.data-ticket.index', ['title' => 'Data Ticket', 'tickets' => $tickets]);
+        return view('pages.data-ticket.index', [
+            'title' => 'Data Ticket',
+            'tickets' => $tickets,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         // Auto-generate kode_tiket: TK-001, TK-002, etc.
         $lastTicket = Ticket::orderBy('id', 'desc')->first();
         $lastNumber = $lastTicket ? intval(substr($lastTicket->kode_tiket, 3)) : 0;
@@ -51,6 +87,8 @@ class TicketController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         // Strip dot separators before validation
         if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
         if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
@@ -115,6 +153,8 @@ class TicketController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $ticket = $this->ticketService->getById($id);
         if (!$ticket) {
             return redirect()->route('data-ticket')->with('error', 'Ticket tidak ditemukan');
@@ -139,6 +179,8 @@ class TicketController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         // Strip dot separators before validation
         if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
         if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
@@ -208,6 +250,8 @@ class TicketController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         $deleted = $this->ticketService->delete($id);
 
         if (!$deleted) {

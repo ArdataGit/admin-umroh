@@ -12,8 +12,32 @@ use Illuminate\Support\Facades\Storage;
 
 class BonusAgentController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/bonus-agent.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/bonus-agent.create', $permissions);
+        $canEdit = $isAdmin || in_array('/bonus-agent.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/bonus-agent.delete', $permissions);
+
         $agents = Agent::with(['bonusPayouts'])->get()->map(function ($agent) {
             // Count Jamaah
             $umrohCount = CustomerUmroh::where('agent_id', $agent->id)->count();
@@ -42,12 +66,17 @@ class BonusAgentController extends Controller
 
         return view('pages.bonus-agent.index', [
             'title' => 'Bonus Agent',
-            'agents' => $agents
+            'agents' => $agents,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'agent_id' => 'required|exists:agents,id',
             'jumlah_bayar' => 'required|numeric|min:1',
@@ -92,6 +121,8 @@ class BonusAgentController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $payout = BonusPayout::with('agent')->findOrFail($id);
         $agent = $payout->agent;
 
@@ -104,6 +135,8 @@ class BonusAgentController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'jumlah_bayar' => 'required|numeric|min:1',
             'tanggal_bayar' => 'required|date',
@@ -346,6 +379,14 @@ class BonusAgentController extends Controller
 
     public function showPaymentHistory($id)
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/bonus-agent.create', $permissions);
+        $canEdit = $isAdmin || in_array('/bonus-agent.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/bonus-agent.delete', $permissions);
+
         $agent = Agent::with(['bonusPayouts'])->findOrFail($id);
 
         // Count Jamaah
@@ -372,7 +413,10 @@ class BonusAgentController extends Controller
 
         return view('pages.payment-agent.show', [
             'title' => 'Riwayat Pembayaran Bonus - ' . $agent->nama_agent,
-            'agent' => $agent
+            'agent' => $agent,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 

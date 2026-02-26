@@ -11,17 +11,48 @@ use Illuminate\Support\Facades\DB;
 
 class TransaksiLayananController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        
+        if ($user->role->nama_role === 'super-admin') {
+            return true;
+        }
+
+        $permission = $user->role->permissions()
+            ->where('permission_path', '/transaksi-layanan.' . $action)
+            ->exists();
+
+        if (!$permission) {
+            abort(403, 'Anda tidak memiliki akses untuk ' . $action . ' transaksi layanan');
+        }
+
+        return true;
+    }
+
     public function index()
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->role->nama_role === 'super-admin';
+        
+        $canCreate = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/transaksi-layanan.create')->exists();
+        $canEdit = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/transaksi-layanan.edit')->exists();
+        $canDelete = $isSuperAdmin || $user->role->permissions()->where('permission_path', '/transaksi-layanan.delete')->exists();
+
         $transaksi = TransaksiLayanan::with(['pelanggan', 'details.layanan', 'pembayaranLayanans'])->latest()->get();
         return view('pages.transaksi-layanan.index', [
             'title' => 'Transaksi Layanan',
-            'transaksi' => $transaksi
+            'transaksi' => $transaksi,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+        
         $lastTransaction = TransaksiLayanan::latest()->first();
         $nextId = $lastTransaction ? ($lastTransaction->id + 1) : 1;
         // Format SO-XXX
@@ -37,6 +68,8 @@ class TransaksiLayananController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+        
         $validated = $request->validate([
             'kode_transaksi' => 'required|unique:transaksi_layanans,kode_transaksi',
             'pelanggan_id' => 'required|exists:pelanggans,id',
@@ -136,6 +169,8 @@ class TransaksiLayananController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+        
         $transaksi = TransaksiLayanan::with('details.layanan')->findOrFail($id);
         
         $details = $transaksi->details->map(function($detail) {
@@ -161,6 +196,8 @@ class TransaksiLayananController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+        
         $validated = $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
             'tanggal_transaksi' => 'required|date',
@@ -223,6 +260,8 @@ class TransaksiLayananController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+        
         try {
             $transaksi = TransaksiLayanan::findOrFail($id);
             $transaksi->delete();
