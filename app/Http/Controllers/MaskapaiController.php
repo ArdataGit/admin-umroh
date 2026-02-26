@@ -7,6 +7,8 @@ use App\Services\MaskapaiService;
 use Illuminate\Support\Facades\Storage;
 use App\Models\SystemSetting;
 use App\Services\ExchangeRateService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class MaskapaiController extends Controller
 {
@@ -91,7 +93,14 @@ class MaskapaiController extends Controller
 
         unset($validated['custom_kurs']);
 
-        $this->maskapaiService->create($validated);
+        $maskapai = $this->maskapaiService->create($validated);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Maskapai',
+            'action' => 'Create',
+            'keterangan' => 'Menambah data maskapai baru: ' . $validated['nama_maskapai'] . ' (' . $validated['kode_maskapai'] . ')'
+        ]);
 
         return redirect()->route('data-maskapai')->with('success', 'Data maskapai berhasil ditambahkan');
     }
@@ -174,16 +183,38 @@ class MaskapaiController extends Controller
             return redirect()->route('data-maskapai')->with('error', 'Data maskapai tidak ditemukan');
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Maskapai',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data maskapai: ' . $maskapai->nama_maskapai . ' (' . $maskapai->kode_maskapai . ')'
+        ]);
+
         return redirect()->route('data-maskapai')->with('success', 'Data maskapai berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $maskapai = $this->maskapaiService->getById($id);
+        if (!$maskapai) {
+            return response()->json(['success' => false, 'message' => 'Data maskapai tidak ditemukan'], 404);
+        }
+
+        $namaMaskapai = $maskapai->nama_maskapai;
+        $kodeMaskapai = $maskapai->kode_maskapai;
+        
         $deleted = $this->maskapaiService->delete($id);
 
         if (!$deleted) {
-            return response()->json(['success' => false, 'message' => 'Data maskapai tidak ditemukan'], 404);
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus data maskapai'], 500);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Maskapai',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data maskapai: ' . $namaMaskapai . ' (' . $kodeMaskapai . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data maskapai berhasil dihapus']);
     }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\TransaksiTiketDetail;
 use App\Models\Maskapai;
 use Illuminate\Http\Request;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -54,6 +56,13 @@ class StatistikController extends Controller
         $salesData = $query->groupBy('maskapais.nama_maskapai')
             ->orderBy('total_nominal', 'desc')
             ->get();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Statistik Penjualan Maskapai',
+            'action' => 'View',
+            'keterangan' => 'Melihat statistik penjualan maskapai'
+        ]);
 
         return view('pages.statistik.penjualan-maskapai', [
             'title' => 'Statistik Penjualan Maskapai',
@@ -114,6 +123,13 @@ class StatistikController extends Controller
 
         $grandTotal = $salesData->sum('total_nominal');
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Statistik Penjualan Travel',
+            'action' => 'View',
+            'keterangan' => 'Melihat statistik penjualan travel'
+        ]);
+
         return view('pages.statistik.penjualan-pelanggan', [
             'title' => 'Statistik Penjualan Pelanggan',
             'salesData' => $salesData,
@@ -164,6 +180,13 @@ class StatistikController extends Controller
             ->orderBy('tanggal_keberangkatan', 'desc')
             ->get();
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Laporan Keberangkatan Umroh',
+            'action' => 'View',
+            'keterangan' => 'Melihat laporan keberangkatan umroh'
+        ]);
+
         return view('pages.statistik.laporan-keberangkatan-umroh', [
             'title' => 'Laporan Keberangkatan Umroh',
             'departures' => $departures,
@@ -212,6 +235,13 @@ class StatistikController extends Controller
         $departures = $query->groupBy('tahun')
             ->orderBy('tahun', 'desc')
             ->get();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Laporan Keberangkatan Haji',
+            'action' => 'View',
+            'keterangan' => 'Melihat laporan keberangkatan haji'
+        ]);
 
         return view('pages.statistik.laporan-keberangkatan-haji', [
             'title' => 'Laporan Keberangkatan Haji',
@@ -263,6 +293,13 @@ class StatistikController extends Controller
             ->orderBy('total_penjualan', 'desc')
             ->get();
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Laporan Penjualan Umroh (Agen)',
+            'action' => 'View',
+            'keterangan' => 'Melihat laporan penjualan umroh berdasarkan agen'
+        ]);
+
         return view('pages.statistik.laporan-penjualan-umroh', [
             'title' => 'Laporan Penjualan Umroh Berdasarkan Agen',
             'salesData' => $salesData,
@@ -312,6 +349,13 @@ class StatistikController extends Controller
         $salesData = $query->groupBy('agents.nama_agent')
             ->orderBy('total_penjualan', 'desc')
             ->get();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Laporan Penjualan Haji (Agen)',
+            'action' => 'View',
+            'keterangan' => 'Melihat laporan penjualan haji berdasarkan agen'
+        ]);
 
         return view('pages.statistik.laporan-penjualan-haji', [
             'title' => 'Laporan Penjualan Haji Berdasarkan Agen',
@@ -381,6 +425,13 @@ class StatistikController extends Controller
             ->orderBy('produks.nama_produk')
             ->orderBy('total_quantity', 'desc')
             ->get();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Laporan Properti (Agen)',
+            'action' => 'View',
+            'keterangan' => 'Melihat laporan distribusi properti ke agen'
+        ]);
 
         return view('pages.statistik.laporan-produk', [
             'title' => 'Laporan Distribusi Produk ke Agen',
