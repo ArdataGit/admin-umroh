@@ -11,17 +11,46 @@ use Illuminate\Support\Facades\Auth;
 
 class KeberangkatanHajiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/keberangkatan-haji.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
     public function index()
     {
         $keberangkatan = KeberangkatanHaji::with(['paketHaji.maskapai'])->latest()->get();
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/keberangkatan-haji.create', $permissions);
+        $canEdit = $isAdmin || in_array('/keberangkatan-haji.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/keberangkatan-haji.delete', $permissions);
+
         return view('pages.keberangkatan-haji.index', [
             'title' => 'Keberangkatan Haji',
-            'keberangkatan' => $keberangkatan
+            'keberangkatan' => $keberangkatan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         $lastKeberangkatan = KeberangkatanHaji::latest()->first();
         $nextId = $lastKeberangkatan ? ($lastKeberangkatan->id + 1) : 1;
         // Format KH-XXX
@@ -36,6 +65,8 @@ class KeberangkatanHajiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_keberangkatan' => 'required|unique:keberangkatan_hajis,kode_keberangkatan',
             'paket_haji_id' => 'required|exists:paket_hajis,id',
@@ -85,6 +116,8 @@ class KeberangkatanHajiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $keberangkatan = KeberangkatanHaji::findOrFail($id);
         return view('pages.keberangkatan-haji.edit', [
             'title' => 'Edit Keberangkatan Haji',
@@ -95,6 +128,8 @@ class KeberangkatanHajiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'paket_haji_id' => 'required|exists:paket_hajis,id',
             'status_keberangkatan' => 'required|in:active,completed',
@@ -135,6 +170,8 @@ class KeberangkatanHajiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         try {
             $keberangkatan = KeberangkatanHaji::findOrFail($id);
             $namaKeberangkatan = $keberangkatan->nama_keberangkatan;

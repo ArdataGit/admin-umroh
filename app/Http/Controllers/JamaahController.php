@@ -17,14 +17,47 @@ class JamaahController extends Controller
         $this->jamaahService = $jamaahService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-jamaah.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
         $dataJamaah = $this->jamaahService->getAll();
-        return view('pages.data-jamaah.index', ['title' => 'Data Jamaah', 'dataJamaah' => $dataJamaah]);
+        
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-jamaah.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-jamaah.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-jamaah.delete', $permissions);
+
+        return view('pages.data-jamaah.index', [
+            'title' => 'Data Jamaah',
+            'dataJamaah' => $dataJamaah,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Auto-generate kode_jamaah: J-001, J-002, etc.
         $lastJamaah = Jamaah::orderBy('id', 'desc')->first();
         $lastNumber = $lastJamaah ? intval(substr($lastJamaah->kode_jamaah, 2)) : 0;
@@ -39,6 +72,8 @@ class JamaahController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_jamaah' => 'required|string|unique:jamaahs,kode_jamaah',
             'nik_jamaah' => 'required|string|max:20',
@@ -84,6 +119,8 @@ class JamaahController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $jamaah = $this->jamaahService->getById($id);
 
         if (!$jamaah) {
@@ -98,6 +135,8 @@ class JamaahController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'nik_jamaah' => 'required|string|max:20',
             'nama_jamaah' => 'required|string|max:255',
@@ -146,6 +185,8 @@ class JamaahController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         $jamaah = $this->jamaahService->getById($id);
         if (!$jamaah) {
             return response()->json(['success' => false, 'message' => 'Data jamaah tidak ditemukan'], 404);

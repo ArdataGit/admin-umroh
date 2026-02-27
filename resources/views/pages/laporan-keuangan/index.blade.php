@@ -8,7 +8,57 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12 space-y-4">
         
+        <!-- Header & Filters -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white">Laporan Keuangan</h2>
+            
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('laporan-keuangan.index', ['period' => 'today']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'today' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Hari-ini
+                </a>
+                <a href="{{ route('laporan-keuangan.index', ['period' => 'month']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Bulan-ini
+                </a>
+                <a href="{{ route('laporan-keuangan.index', ['period' => 'year']) }}" 
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'year' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                   Tahun-ini
+                </a>
+                
+                <!-- Custom Date Trigger -->
+                <div x-data="{ open: {{ $currentPeriod == 'custom' ? 'true' : 'false' }}, start: '{{ $startDate }}', end: '{{ $endDate }}' }" class="relative z-50">
+                    <button @click="open = !open" 
+                            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {{ $currentPeriod == 'custom' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800' }}">
+                        Kustom
+                    </button>
+                    
+                    <div x-show="open" @click.away="open = false" 
+                         class="absolute right-0 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-4 shadow-xl z-50 dark:border-gray-800 dark:bg-gray-900"
+                         style="display: none;">
+                        <form action="{{ route('laporan-keuangan.index') }}" method="GET" class="space-y-3">
+                            <input type="hidden" name="period" value="custom">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Mulai Tanggal</label>
+                                <input type="date" name="start_date" x-model="start" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Sampai Tanggal</label>
+                                <input type="date" name="end_date" x-model="end" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-700">
+                            </div>
+                            <button type="submit" class="w-full rounded-lg bg-blue-600 py-2 text-sm text-white hover:bg-blue-700">Terapkan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
         <!-- Summary Cards -->
+        <div class="mb-2">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Periode</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-white">{{ $periodLabel }}</p>
+        </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
                 <div class="text-sm text-gray-500 dark:text-gray-400">Total Pemasukan</div>
@@ -67,7 +117,7 @@
                     <h3 class="font-semibold text-gray-800 dark:text-white">Rincian Transaksi</h3>
                 </div>
                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <a href="{{ route('laporan-keuangan.export') }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-green-700">
+                    <a href="{{ route('laporan-keuangan.export', ['period' => $currentPeriod, 'start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank" class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-theme-xs hover:bg-green-700">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12.5 7.5L8 12M8 7.5L12.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M15.8333 3.33334H4.16667C3.70643 3.33334 3.33333 3.70644 3.33333 4.16667V15.8333C3.33333 16.2936 3.70643 16.6667 4.16667 16.6667H15.8333C16.2936 16.6667 16.6667 16.2936 16.6667 15.8333V4.16667C16.6667 3.70644 16.2936 3.33334 15.8333 3.33334Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

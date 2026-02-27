@@ -16,14 +16,47 @@ class KaryawanController extends Controller
         $this->karyawanService = $karyawanService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-karyawan.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
         $dataKaryawan = $this->karyawanService->getAll();
-        return view('pages.data-karyawan.index', ['title' => 'Data Karyawan', 'dataKaryawan' => $dataKaryawan]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-karyawan.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-karyawan.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-karyawan.delete', $permissions);
+
+        return view('pages.data-karyawan.index', [
+            'title' => 'Data Karyawan',
+            'dataKaryawan' => $dataKaryawan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Auto-generate kode_karyawan: K-001, K-002, etc.
         $lastKaryawan = \App\Models\Karyawan::orderBy('id', 'desc')->first();
         $lastNumber = $lastKaryawan ? intval(substr($lastKaryawan->kode_karyawan, 2)) : 0;
@@ -38,6 +71,8 @@ class KaryawanController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_karyawan' => 'required|string|unique:karyawans,kode_karyawan',
             'nik_karyawan' => 'required|string|unique:karyawans,nik_karyawan|max:16',
@@ -68,6 +103,8 @@ class KaryawanController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $karyawan = $this->karyawanService->getById($id);
 
         if (!$karyawan) {
@@ -82,6 +119,8 @@ class KaryawanController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'nik_karyawan' => 'required|string|max:16|unique:karyawans,nik_karyawan,' . $id,
             'nama_karyawan' => 'required|string|max:255',
@@ -115,6 +154,8 @@ class KaryawanController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         $karyawan = $this->karyawanService->getById($id);
         if (!$karyawan) {
             return response()->json(['success' => false, 'message' => 'Data karyawan tidak ditemukan'], 404);

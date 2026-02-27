@@ -17,14 +17,47 @@ class AgentController extends Controller
         $this->agentService = $agentService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-agent.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
         $dataAgent = $this->agentService->getAll();
-        return view('pages.data-agent.index', ['title' => 'Data Agent', 'dataAgent' => $dataAgent]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-agent.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-agent.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-agent.delete', $permissions);
+
+        return view('pages.data-agent.index', [
+            'title' => 'Data Agent',
+            'dataAgent' => $dataAgent,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Auto-generate kode_agent: A-001, A-002, etc.
         $lastAgent = \App\Models\Agent::orderBy('id', 'desc')->first();
         $lastNumber = $lastAgent ? intval(substr($lastAgent->kode_agent, 2)) : 0;
@@ -39,6 +72,8 @@ class AgentController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_agent' => 'required|string|unique:agents,kode_agent',
             'nik_agent' => 'required|string|unique:agents,nik_agent|max:16',
@@ -78,6 +113,8 @@ class AgentController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $agent = $this->agentService->getById($id);
 
         if (!$agent) {
@@ -92,6 +129,8 @@ class AgentController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
             'nik_agent' => 'required|string|max:16|unique:agents,nik_agent,' . $id,
             'nama_agent' => 'required|string|max:255',
@@ -139,6 +178,8 @@ class AgentController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         $agent = $this->agentService->getById($id);
         if (!$agent) {
             return response()->json(['success' => false, 'message' => 'Data agent tidak ditemukan'], 404);

@@ -18,14 +18,14 @@ class MenuHelper
                 'icon' => 'users-group',
                 'name' => 'Data Jamaah',
                 'subItems' => [
-                    ['name' => 'Data Jamaah', 'path' => '/data-jamaah'],
+                    ['name' => 'Data Jamaah', 'path' => '/data-jamaah', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'user-profile',
                 'name' => 'Data Agent',
                 'subItems' => [
-                    ['name' => 'Data Agent', 'path' => '/data-agent'],
+                    ['name' => 'Data Agent', 'path' => '/data-agent', 'crud' => true],
                     ['name' => 'Bonus Agent', 'path' => '/bonus-agent'],
                 ]
             ],
@@ -33,23 +33,23 @@ class MenuHelper
                 'icon' => 'briefcase',
                 'name' => 'Data Karyawan',
                 'subItems' => [
-                    ['name' => 'Data Karyawan', 'path' => '/data-karyawan'],
+                    ['name' => 'Data Karyawan', 'path' => '/data-karyawan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'package',
                 'name' => 'Data Paket',
                 'subItems' => [
-                    ['name' => 'Paket Umroh', 'path' => '/paket-umroh'],
-                    ['name' => 'Paket Haji', 'path' => '/paket-haji'],
+                    ['name' => 'Paket Umroh', 'path' => '/paket-umroh', 'crud' => true],
+                    ['name' => 'Paket Haji', 'path' => '/paket-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'plane-departure',
                 'name' => 'Data Keberangkatan',
                 'subItems' => [
-                    ['name' => 'Keberangkatan Umroh', 'path' => '/keberangkatan-umroh'],
-                    ['name' => 'Keberangkatan Haji', 'path' => '/keberangkatan-haji'],
+                    ['name' => 'Keberangkatan Umroh', 'path' => '/keberangkatan-umroh', 'crud' => true],
+                    ['name' => 'Keberangkatan Haji', 'path' => '/keberangkatan-haji', 'crud' => true],
                 ]
             ],
             [
@@ -90,8 +90,8 @@ class MenuHelper
                 'icon' => 'file-text',
                 'name' => 'Data Dokumen',
                 'subItems' => [
-                    ['name' => 'Surat Rekomendasi', 'path' => '/surat-rekomendasi'],
-                    ['name' => 'Surat Izin Cuti', 'path' => '/surat-izin-cuti'],
+                    ['name' => 'Surat Rekomendasi', 'path' => '/surat-rekomendasi', 'crud' => true],
+                    ['name' => 'Surat Izin Cuti', 'path' => '/surat-izin-cuti', 'crud' => true],
                 ]
             ],
             [

@@ -20,14 +20,47 @@ class PaketHajiController extends Controller
         $this->paketHajiService = $paketHajiService;
     }
 
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/paket-haji.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
+
     public function index()
     {
         $paketHajis = $this->paketHajiService->getAll();
-        return view('pages.paket-haji.index', ['title' => 'Data Paket Haji', 'paketHajis' => $paketHajis]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/paket-haji.create', $permissions);
+        $canEdit = $isAdmin || in_array('/paket-haji.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/paket-haji.delete', $permissions);
+
+        return view('pages.paket-haji.index', [
+            'title' => 'Data Paket Haji',
+            'paketHajis' => $paketHajis,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
+
         // Auto-generate kode_paket: PH-1, PH-2, etc. (Next ID)
         $lastPaket = PaketHaji::orderBy('id', 'desc')->first();
         $nextId = $lastPaket ? $lastPaket->id + 1 : 1;
@@ -52,6 +85,8 @@ class PaketHajiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
+
         $validated = $request->validate([
             'kode_paket' => 'required|string|unique:paket_hajis,kode_paket',
             'nama_paket' => 'required|string|max:255',
@@ -104,6 +139,8 @@ class PaketHajiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
+
         $paketHaji = $this->paketHajiService->getById($id);
         if (!$paketHaji) {
             return redirect()->route('paket-haji')->with('error', 'Paket haji tidak ditemukan');
@@ -128,6 +165,8 @@ class PaketHajiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
+
         $validated = $request->validate([
              'nama_paket' => 'required|string|max:255',
             'tanggal_keberangkatan' => 'required|date',
@@ -179,6 +218,8 @@ class PaketHajiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
+
         $paket = $this->paketHajiService->getById($id);
         if (!$paket) {
             return response()->json(['success' => false, 'message' => 'Paket haji tidak ditemukan'], 404);

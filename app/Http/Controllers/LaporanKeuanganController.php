@@ -176,6 +176,36 @@ class LaporanKeuanganController extends Controller
 
     public function index(Request $request)
     {
+        $period = $request->input('period', 'today'); // Default to today
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Determine Date Range
+        $now = \Carbon\Carbon::now();
+        if ($period == 'today') {
+            $startDate = $now->format('Y-m-d');
+            $endDate = $now->format('Y-m-d');
+            $periodLabel = $now->format('d-m-Y');
+        } elseif ($period == 'month') {
+            $startDate = $now->startOfMonth()->format('Y-m-d');
+            $endDate = $now->endOfMonth()->format('Y-m-d');
+            $periodLabel = $now->translatedFormat('F Y');
+        } elseif ($period == 'year') {
+            $startDate = $now->startOfYear()->format('Y-m-d');
+            $endDate = $now->endOfYear()->format('Y-m-d');
+            $periodLabel = $now->format('Y');
+        } elseif ($period == 'custom') {
+            // Use provided start_date and end_date
+            if (!$startDate) $startDate = $now->format('Y-m-d');
+            if (!$endDate) $endDate = $now->format('Y-m-d');
+            $periodLabel = \Carbon\Carbon::parse($startDate)->format('d-m-Y') . ' / ' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+        } else {
+             // Fallback
+             $startDate = $now->format('Y-m-d');
+             $endDate = $now->format('Y-m-d');
+             $periodLabel = $now->format('d-m-Y');
+        }
+
         $transactions = $this->getTransactions();
 
         // SORT BY DATE ASC THEN CREATED_AT ASC
@@ -198,17 +228,62 @@ class LaporanKeuanganController extends Controller
             return (object) $item; // Convert to object for easier blade access
         });
 
+        // Filter by Period
+        $filteredData = $finalData->filter(function($item) use ($startDate, $endDate) {
+            $itemDate = \Carbon\Carbon::parse($item->raw_date)->format('Y-m-d');
+            return $itemDate >= $startDate && $itemDate <= $endDate;
+        })->values();
+        
+        // Final balance to show is the last transaction's saldo in the filtered period, 
+        // or the balance just before the period if no transactions.
+        $lastFiltered = $filteredData->last();
+        if ($lastFiltered) {
+            $displayBalance = $lastFiltered->saldo;
+        } else {
+            // Find the last transaction before start date
+            $beforeData = $finalData->filter(function($item) use ($startDate) {
+                return \Carbon\Carbon::parse($item->raw_date)->format('Y-m-d') < $startDate;
+            })->last();
+            $displayBalance = $beforeData ? $beforeData->saldo : 0;
+        }
+
         return view('pages.laporan-keuangan.index', [
             'title' => 'Laporan Keuangan',
-            'transactions' => $finalData,
-            'total_income' => $sortedTransactions->sum('income'),
-            'total_expense' => $sortedTransactions->sum('expense'),
-            'final_balance' => $runningBalance
+            'transactions' => $filteredData,
+            'total_income' => $filteredData->sum('income'),
+            'total_expense' => $filteredData->sum('expense'),
+            'final_balance' => $displayBalance,
+            'currentPeriod' => $period,
+            'periodLabel' => $periodLabel,
+            'startDate' => $startDate,
+            'endDate' => $endDate
         ]);
     }
 
-    public function export()
+    public function export(Request $request)
     {
+        $period = $request->input('period', 'today'); // Default to today
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $now = \Carbon\Carbon::now();
+        if ($period == 'today') {
+            $startDate = $now->format('Y-m-d');
+            $endDate = $now->format('Y-m-d');
+        } elseif ($period == 'month') {
+            $startDate = $now->startOfMonth()->format('Y-m-d');
+            $endDate = $now->endOfMonth()->format('Y-m-d');
+        } elseif ($period == 'year') {
+            $startDate = $now->startOfYear()->format('Y-m-d');
+            $endDate = $now->endOfYear()->format('Y-m-d');
+        } elseif ($period == 'custom') {
+            if (!$startDate) $startDate = $now->format('Y-m-d');
+            if (!$endDate) $endDate = $now->format('Y-m-d');
+        } else {
+             $startDate = $now->format('Y-m-d');
+             $endDate = $now->format('Y-m-d');
+        }
+
         $transactions = $this->getTransactions();
 
         // SORT BY DATE ASC THEN CREATED_AT ASC
@@ -231,6 +306,12 @@ class LaporanKeuanganController extends Controller
             return $item;
         });
 
+        // Filter by Period for export
+        $filteredExportData = $exportData->filter(function($item) use ($startDate, $endDate) {
+            $itemDate = \Carbon\Carbon::parse($item['raw_date'])->format('Y-m-d');
+            return $itemDate >= $startDate && $itemDate <= $endDate;
+        })->values();
+
         $filename = "laporan_keuangan_" . date('Y-m-d_H-i-s') . ".csv";
         $headers = [
             "Content-Type" => "text/csv",
@@ -242,11 +323,11 @@ class LaporanKeuanganController extends Controller
 
         $columns = ['Tanggal', 'Sumber', 'No Transaksi', 'Keterangan', 'Pemasukan', 'Pengeluaran', 'Saldo'];
 
-        $callback = function() use ($exportData, $columns) {
+        $callback = function() use ($filteredExportData, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
-            foreach ($exportData as $row) {
+            foreach ($filteredExportData as $row) {
                 fputcsv($file, [
                     $row['date'],
                     $row['source'],
