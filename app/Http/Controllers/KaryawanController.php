@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\KaryawanService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class KaryawanController extends Controller
 {
@@ -54,6 +56,13 @@ class KaryawanController extends Controller
 
         $this->karyawanService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Karyawan',
+            'action' => 'Create',
+            'keterangan' => 'Menambah data karyawan baru: ' . $validated['nama_karyawan'] . ' (' . $validated['kode_karyawan'] . ')'
+        ]);
+
         return redirect()->route('data-karyawan')->with('success', 'Data karyawan berhasil ditambahkan');
     }
 
@@ -94,16 +103,38 @@ class KaryawanController extends Controller
             return redirect()->route('data-karyawan')->with('error', 'Data karyawan tidak ditemukan');
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Karyawan',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data karyawan: ' . $karyawan->nama_karyawan . ' (' . $karyawan->kode_karyawan . ')'
+        ]);
+
         return redirect()->route('data-karyawan')->with('success', 'Data karyawan berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $karyawan = $this->karyawanService->getById($id);
+        if (!$karyawan) {
+            return response()->json(['success' => false, 'message' => 'Data karyawan tidak ditemukan'], 404);
+        }
+
+        $namaKaryawan = $karyawan->nama_karyawan;
+        $kodeKaryawan = $karyawan->kode_karyawan;
+
         $deleted = $this->karyawanService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data karyawan tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Karyawan',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data karyawan: ' . $namaKaryawan . ' (' . $kodeKaryawan . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data karyawan berhasil dihapus']);
     }

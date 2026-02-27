@@ -6,6 +6,8 @@ use App\Models\PengeluaranUmum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PengeluaranUmumController extends Controller
 {
@@ -55,6 +57,13 @@ class PengeluaranUmumController extends Controller
             'jumlah_pengeluaran' => $validated['jumlah_pengeluaran'],
             'catatan_pengeluaran' => $validated['catatan_pengeluaran'],
             'bukti_pengeluaran' => $path
+        ]);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umum',
+            'action' => 'Create',
+            'keterangan' => 'Menambah pengeluaran umum baru: ' . $validated['nama_pengeluaran'] . ' (' . $validated['kode_pengeluaran'] . ')'
         ]);
 
         return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil ditambahkan');
@@ -107,6 +116,13 @@ class PengeluaranUmumController extends Controller
             'bukti_pengeluaran' => $path
         ]);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umum',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui pengeluaran umum: ' . $pengeluaran->nama_pengeluaran . ' (' . $pengeluaran->kode_pengeluaran . ')'
+        ]);
+
         return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil diperbarui');
     }
 
@@ -114,11 +130,21 @@ class PengeluaranUmumController extends Controller
     {
         $pengeluaran = PengeluaranUmum::findOrFail($id);
         
+        $namaPengeluaran = $pengeluaran->nama_pengeluaran;
+        $kodePengeluaran = $pengeluaran->kode_pengeluaran;
+
         if ($pengeluaran->bukti_pengeluaran && Storage::disk('public')->exists($pengeluaran->bukti_pengeluaran)) {
             Storage::disk('public')->delete($pengeluaran->bukti_pengeluaran);
         }
 
         $pengeluaran->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umum',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus pengeluaran umum: ' . $namaPengeluaran . ' (' . $kodePengeluaran . ')'
+        ]);
 
         return redirect()->route('pengeluaran-umum.index')->with('success', 'Pengeluaran berhasil dihapus');
     }

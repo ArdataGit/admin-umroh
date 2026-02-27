@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\KotaService;
 use Illuminate\Http\Request;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class KotaController extends Controller
 {
@@ -39,6 +41,13 @@ class KotaController extends Controller
 
         $this->kotaService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Kota',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data kota baru: ' . $validated['nama_kota'] . ' (' . $validated['kode_kota'] . ')'
+        ]);
+
         return redirect()->route('data-kota.index')->with('success', 'Data kota berhasil ditambahkan');
     }
 
@@ -69,12 +78,31 @@ class KotaController extends Controller
 
         $this->kotaService->update($id, $validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Kota',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data kota: ' . $validated['nama_kota'] . ' (' . $validated['kode_kota'] . ')'
+        ]);
+
         return redirect()->route('data-kota.index')->with('success', 'Data kota berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $kota = $this->kotaService->getById($id);
+        $namaKota = $kota ? $kota->nama_kota : 'N/A';
+        $kodeKota = $kota ? $kota->kode_kota : 'N/A';
+
         $this->kotaService->delete($id);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Kota',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data kota: ' . $namaKota . ' (' . $kodeKota . ')'
+        ]);
+
         return response()->json(['success' => true]);
     }
 }

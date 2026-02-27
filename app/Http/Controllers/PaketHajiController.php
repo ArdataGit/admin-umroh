@@ -8,6 +8,8 @@ use App\Models\PaketHaji;
 use App\Models\Maskapai;
 use App\Models\Hotel;
 use App\Models\Kota;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PaketHajiController extends Controller
 {
@@ -90,6 +92,13 @@ class PaketHajiController extends Controller
 
         $this->paketHajiService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Haji',
+            'action' => 'Create',
+            'keterangan' => 'Menambah paket haji baru: ' . $validated['nama_paket'] . ' (' . $validated['kode_paket'] . ')'
+        ]);
+
         return redirect()->route('paket-haji')->with('success', 'Paket haji berhasil ditambahkan');
     }
 
@@ -156,18 +165,40 @@ class PaketHajiController extends Controller
             'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
         ]);
 
-        $this->paketHajiService->update($id, $validated);
+        $paket = $this->paketHajiService->update($id, $validated);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Haji',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui paket haji: ' . $paket->nama_paket . ' (' . $paket->kode_paket . ')'
+        ]);
 
         return redirect()->route('paket-haji')->with('success', 'Paket haji berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $paket = $this->paketHajiService->getById($id);
+        if (!$paket) {
+            return response()->json(['success' => false, 'message' => 'Paket haji tidak ditemukan'], 404);
+        }
+
+        $namaPaket = $paket->nama_paket;
+        $kodePaket = $paket->kode_paket;
+
         $deleted = $this->paketHajiService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Paket haji tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Paket Haji',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus paket haji: ' . $namaPaket . ' (' . $kodePaket . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Paket haji berhasil dihapus']);
     }

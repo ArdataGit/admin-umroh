@@ -6,6 +6,8 @@ use App\Models\PemasukanUmum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PemasukanUmumController extends Controller
 {
@@ -55,6 +57,13 @@ class PemasukanUmumController extends Controller
             'jumlah_pemasukan' => $validated['jumlah_pemasukan'],
             'catatan_pemasukan' => $validated['catatan_pemasukan'],
             'bukti_pemasukan' => $path
+        ]);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pemasukan Umum',
+            'action' => 'Create',
+            'keterangan' => 'Menambah pemasukan umum baru: ' . $validated['nama_pemasukan'] . ' (' . $validated['kode_pemasukan'] . ')'
         ]);
 
         return redirect()->route('pemasukan-umum.index')->with('success', 'Pemasukan berhasil ditambahkan');

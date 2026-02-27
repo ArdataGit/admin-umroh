@@ -7,6 +7,8 @@ use App\Models\KeberangkatanUmroh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PengeluaranUmrohController extends Controller
 {
@@ -62,6 +64,13 @@ class PengeluaranUmrohController extends Controller
             'bukti_pengeluaran' => $path
         ]);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umroh',
+            'action' => 'Create',
+            'keterangan' => 'Menambah pengeluaran umroh baru: ' . $validated['nama_pengeluaran'] . ' (' . $validated['kode_pengeluaran'] . ')'
+        ]);
+
         return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil ditambahkan');
     }
 
@@ -111,6 +120,13 @@ class PengeluaranUmrohController extends Controller
             // bukti_pengeluaran updated separately if exists
         ]);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umroh',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui pengeluaran umroh: ' . $pengeluaran->nama_pengeluaran . ' (' . $pengeluaran->kode_pengeluaran . ')'
+        ]);
+
         return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil diperbarui');
     }
 
@@ -118,11 +134,21 @@ class PengeluaranUmrohController extends Controller
     {
         $pengeluaran = PengeluaranUmroh::findOrFail($id);
         
+        $namaPengeluaran = $pengeluaran->nama_pengeluaran;
+        $kodePengeluaran = $pengeluaran->kode_pengeluaran;
+
         if ($pengeluaran->bukti_pengeluaran) {
             Storage::disk('public')->delete($pengeluaran->bukti_pengeluaran);
         }
 
         $pengeluaran->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Umroh',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus pengeluaran umroh: ' . $namaPengeluaran . ' (' . $kodePengeluaran . ')'
+        ]);
 
         return redirect()->route('pengeluaran-umroh.index')->with('success', 'Pengeluaran berhasil dihapus');
     }

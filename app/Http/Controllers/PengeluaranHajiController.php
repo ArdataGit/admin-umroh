@@ -7,6 +7,8 @@ use App\Models\KeberangkatanHaji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PengeluaranHajiController extends Controller
 {
@@ -60,6 +62,13 @@ class PengeluaranHajiController extends Controller
             'jumlah_pengeluaran' => $validated['jumlah_pengeluaran'],
             'catatan_pengeluaran' => $validated['catatan_pengeluaran'],
             'bukti_pengeluaran' => $path
+        ]);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pengeluaran Haji',
+            'action' => 'Create',
+            'keterangan' => 'Menambah pengeluaran haji baru: ' . $validated['nama_pengeluaran'] . ' (' . $validated['kode_pengeluaran'] . ')'
         ]);
 
         return redirect()->route('pengeluaran-haji.index')->with('success', 'Pengeluaran berhasil ditambahkan');

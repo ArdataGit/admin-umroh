@@ -6,6 +6,8 @@ use App\Models\KeberangkatanUmroh;
 use App\Models\PaketUmroh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class KeberangkatanUmrohController extends Controller
 {
@@ -54,6 +56,13 @@ class KeberangkatanUmrohController extends Controller
                 'kuota_jamaah' => $paket->kuota_jamaah,
                 'status_keberangkatan' => $validated['status_keberangkatan'],
                 'catatan' => $validated['catatan']
+            ]);
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Keberangkatan Umroh',
+                'action' => 'Create',
+                'keterangan' => 'Menambah keberangkatan umroh baru: ' . $paket->nama_paket . ' (' . $validated['kode_keberangkatan'] . ')'
             ]);
 
             return response()->json([
@@ -109,6 +118,13 @@ class KeberangkatanUmrohController extends Controller
                 'catatan' => $validated['catatan']
             ]);
 
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Keberangkatan Umroh',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui keberangkatan umroh: ' . $paket->nama_paket . ' (' . $keberangkatan->kode_keberangkatan . ')'
+            ]);
+
             return response()->json([
                 'success' => true, 
                 'message' => 'Keberangkatan berhasil diperbarui',
@@ -124,7 +140,18 @@ class KeberangkatanUmrohController extends Controller
     {
         try {
             $keberangkatan = KeberangkatanUmroh::findOrFail($id);
+            $namaKeberangkatan = $keberangkatan->nama_keberangkatan;
+            $kodeKeberangkatan = $keberangkatan->kode_keberangkatan;
+
             $keberangkatan->delete();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Keberangkatan Umroh',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus keberangkatan umroh: ' . $namaKeberangkatan . ' (' . $kodeKeberangkatan . ')'
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Keberangkatan berhasil dihapus']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);

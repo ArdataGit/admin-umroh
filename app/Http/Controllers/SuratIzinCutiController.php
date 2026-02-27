@@ -7,6 +7,8 @@ use App\Models\Jamaah;
 use App\Models\KeberangkatanUmroh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class SuratIzinCutiController extends Controller
 {
@@ -47,6 +49,14 @@ class SuratIzinCutiController extends Controller
 
         SuratIzinCuti::create($validated);
 
+        $jamaah = Jamaah::find($validated['jamaah_id']);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Izin Cuti',
+            'action' => 'Create',
+            'keterangan' => 'Membuat surat izin cuti untuk jamaah: ' . ($jamaah->nama_jamaah ?? 'N/A') . ' (' . $validated['nomor_dokumen'] . ')'
+        ]);
+
         return redirect()->route('surat-izin-cuti.index')->with('success', 'Surat izin cuti berhasil dibuat');
     }
 
@@ -82,13 +92,30 @@ class SuratIzinCutiController extends Controller
 
         $surat->update($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Izin Cuti',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui surat izin cuti untuk jamaah: ' . ($surat->jamaah->nama_jamaah ?? 'N/A') . ' (' . $surat->nomor_dokumen . ')'
+        ]);
+
         return redirect()->route('surat-izin-cuti.index')->with('success', 'Surat izin cuti berhasil diperbarui');
     }
 
     public function destroy($id)
     {
-        $surat = SuratIzinCuti::findOrFail($id);
+        $surat = SuratIzinCuti::with('jamaah')->findOrFail($id);
+        $namaJamaah = $surat->jamaah->nama_jamaah ?? 'N/A';
+        $nomorDokumen = $surat->nomor_dokumen;
+
         $surat->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Izin Cuti',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus surat izin cuti untuk jamaah: ' . $namaJamaah . ' (' . $nomorDokumen . ')'
+        ]);
 
         return redirect()->route('surat-izin-cuti.index')->with('success', 'Surat izin cuti berhasil dihapus');
     }

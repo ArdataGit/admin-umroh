@@ -6,6 +6,8 @@ use App\Models\SuratRekomendasi;
 use App\Models\Jamaah;
 use App\Models\KeberangkatanUmroh;
 use Illuminate\Http\Request;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class SuratRekomendasiController extends Controller
 {
@@ -43,6 +45,14 @@ class SuratRekomendasiController extends Controller
         ]);
 
         SuratRekomendasi::create($validated);
+
+        $jamaah = Jamaah::find($validated['jamaah_id']);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Rekomendasi',
+            'action' => 'Create',
+            'keterangan' => 'Membuat surat rekomendasi untuk jamaah: ' . ($jamaah->nama_jamaah ?? 'N/A') . ' (' . $validated['nomor_dokumen'] . ')'
+        ]);
 
         return redirect()->route('surat-rekomendasi.index')->with('success', 'Surat rekomendasi berhasil dibuat');
     }
@@ -86,6 +96,13 @@ class SuratRekomendasiController extends Controller
 
         $surat->update($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Rekomendasi',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui surat rekomendasi untuk jamaah: ' . ($surat->jamaah->nama_jamaah ?? 'N/A') . ' (' . $surat->nomor_dokumen . ')'
+        ]);
+
         return redirect()->route('surat-rekomendasi.index')->with('success', 'Surat rekomendasi berhasil diperbarui');
     }
     public function exportPdf($id)
@@ -112,8 +129,18 @@ class SuratRekomendasiController extends Controller
 
     public function destroy($id)
     {
-        $surat = SuratRekomendasi::findOrFail($id);
+        $surat = SuratRekomendasi::with('jamaah')->findOrFail($id);
+        $namaJamaah = $surat->jamaah->nama_jamaah ?? 'N/A';
+        $nomorDokumen = $surat->nomor_dokumen;
+        
         $surat->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Surat Rekomendasi',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus surat rekomendasi untuk jamaah: ' . $namaJamaah . ' (' . $nomorDokumen . ')'
+        ]);
 
         return redirect()->route('surat-rekomendasi.index')->with('success', 'Surat rekomendasi berhasil dihapus');
     }
