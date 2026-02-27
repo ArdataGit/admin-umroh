@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\TabunganHajiService;
 use App\Models\TabunganHaji;
 use App\Models\Jamaah;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class TabunganHajiController extends Controller
 {
@@ -55,6 +57,14 @@ class TabunganHajiController extends Controller
 
         $this->tabunganHajiService->create($validated);
 
+        $jamaah = Jamaah::find($validated['jamaah_id']);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Haji',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan tabungan haji baru: ' . $validated['kode_tabungan'] . ' untuk jamaah: ' . ($jamaah ? $jamaah->nama_jamaah : 'ID ' . $validated['jamaah_id'])
+        ]);
+
         return redirect()->route('tabungan-haji')->with('success', 'Tabungan haji berhasil ditambahkan');
     }
 
@@ -89,16 +99,34 @@ class TabunganHajiController extends Controller
 
         $this->tabunganHajiService->update($id, $validated);
 
+        $tabungan = $this->tabunganHajiService->getById($id);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Haji',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui tabungan haji: ' . ($tabungan ? $tabungan->kode_tabungan : 'ID ' . $id)
+        ]);
+
         return redirect()->route('tabungan-haji')->with('success', 'Tabungan haji berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $tabungan = $this->tabunganHajiService->getById($id);
+        $kodeTabungan = $tabungan ? $tabungan->kode_tabungan : 'N/A';
+
         $deleted = $this->tabunganHajiService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Tabungan haji tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Haji',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus tabungan haji: ' . $kodeTabungan
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Tabungan haji berhasil dihapus']);
     }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TabunganUmroh;
 use Carbon\Carbon;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class SetoranUmrohController extends Controller
 {
@@ -92,6 +94,13 @@ class SetoranUmrohController extends Controller
         // Update Tabungan Balance
         $tabungan->increment('setoran_tabungan', $validated['nominal']);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Umroh',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan transaksi ' . $data['jenis_transaksi'] . ' umroh: ' . $validated['kode_transaksi'] . ' untuk jamaah: ' . ($tabungan->jamaah->nama_jamaah ?? 'N/A') . ' sebesar ' . number_format($validated['nominal'], 0, ',', '.')
+        ]);
+
         return redirect()->route('setoran-umroh.index', $id)->with('success', 'Setoran berhasil ditambahkan');
     }
 
@@ -112,10 +121,20 @@ class SetoranUmrohController extends Controller
         if ($transaksi->bukti_transaksi && \Illuminate\Support\Facades\Storage::exists('public/' . $transaksi->bukti_transaksi)) {
             \Illuminate\Support\Facades\Storage::delete('public/' . $transaksi->bukti_transaksi);
         }
+        
+        $kodeTransaksi = $transaksi->kode_transaksi;
+        $jenisTransaksi = $transaksi->jenis_transaksi;
 
         $transaksi->delete();
 
-        return response()->json(['success' => true, 'message' => 'Transaksi berhasil dihapus']);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Umroh',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus transaksi ' . $jenisTransaksi . ' umroh: ' . $kodeTransaksi
+        ]);
+
+        return response()->json(['success' => true, message' => 'Transaksi berhasil dihapus']);
     }
 
     public function edit($id)
@@ -185,6 +204,13 @@ class SetoranUmrohController extends Controller
                 $tabungan->increment('setoran_tabungan', abs($diff));
             }
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Umroh',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui transaksi ' . $transaksi->jenis_transaksi . ' umroh: ' . $transaksi->kode_transaksi . ' (Nominal baru: ' . number_format($validated['nominal'], 0, ',', '.') . ')'
+        ]);
 
         return redirect()->route('setoran-umroh.index', $tabungan->id)->with('success', 'Transaksi berhasil diperbarui');
     }

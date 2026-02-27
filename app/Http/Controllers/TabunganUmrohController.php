@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\TabunganUmrohService;
 use App\Models\TabunganUmroh;
 use App\Models\Jamaah;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class TabunganUmrohController extends Controller
 {
@@ -55,6 +57,14 @@ class TabunganUmrohController extends Controller
 
         $this->tabunganUmrohService->create($validated);
 
+        $jamaah = Jamaah::find($validated['jamaah_id']);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Umroh',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan tabungan umroh baru: ' . $validated['kode_tabungan'] . ' untuk jamaah: ' . ($jamaah ? $jamaah->nama_jamaah : 'ID ' . $validated['jamaah_id'])
+        ]);
+
         return redirect()->route('tabungan-umroh')->with('success', 'Tabungan umroh berhasil ditambahkan');
     }
 
@@ -89,16 +99,34 @@ class TabunganUmrohController extends Controller
 
         $this->tabunganUmrohService->update($id, $validated);
 
+        $tabungan = $this->tabunganUmrohService->getById($id);
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Umroh',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui tabungan umroh: ' . ($tabungan ? $tabungan->kode_tabungan : 'ID ' . $id)
+        ]);
+
         return redirect()->route('tabungan-umroh')->with('success', 'Tabungan umroh berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $tabungan = $this->tabunganUmrohService->getById($id);
+        $kodeTabungan = $tabungan ? $tabungan->kode_tabungan : 'N/A';
+
         $deleted = $this->tabunganUmrohService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Tabungan umroh tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Tabungan Umroh',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus tabungan umroh: ' . $kodeTabungan
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Tabungan umroh berhasil dihapus']);
     }

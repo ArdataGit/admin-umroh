@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PembayaranLayanan;
 use Illuminate\Http\Request;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranLayananController extends Controller
 {
@@ -68,9 +70,12 @@ class PembayaranLayananController extends Controller
             'kode_referensi' => $validated['kode_referensi']
         ]);
 
-        // NOTE: We do not update total_bayar in TransaksiLayanan table directly as it doesn't seem to have that column 
-        // based on previous file views (checked TransaksiLayanan model fillable). 
-        // The total paid is calculated on the fly in the view.
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Layanan',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan pembayaran layanan: ' . $kodePembayaran . ' untuk transaksi: ' . ($transaksi->kode_transaksi)
+        ]);
 
         return redirect()->route('pembayaran-layanan.show', $transaksi->id)->with('success', 'Pembayaran berhasil ditambahkan');
     }
@@ -105,13 +110,28 @@ class PembayaranLayananController extends Controller
             'kode_referensi' => $validated['kode_referensi']
         ]);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Layanan',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui pembayaran layanan: ' . $pembayaran->kode_transaksi
+        ]);
+
         return redirect()->route('pembayaran-layanan.index')->with('success', 'Pembayaran berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $pembayaran = PembayaranLayanan::findOrFail($id);
+        $kodePembayaran = $pembayaran->kode_transaksi;
         $pembayaran->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Pembayaran Layanan',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus pembayaran layanan: ' . $kodePembayaran
+        ]);
 
         return redirect()->route('pembayaran-layanan.index')->with('success', 'Pembayaran berhasil dihapus');
     }

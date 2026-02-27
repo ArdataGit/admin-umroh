@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\LayananService;
 use App\Models\SystemSetting;
 use App\Services\ExchangeRateService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class LayananController extends Controller
 {
@@ -91,6 +93,13 @@ class LayananController extends Controller
 
         $this->layananService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Layanan',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data layanan baru: ' . $validated['nama_layanan'] . ' (' . $validated['kode_layanan'] . ')'
+        ]);
+
         return redirect()->route('data-layanan')->with('success', 'Data layanan berhasil ditambahkan');
     }
 
@@ -174,16 +183,34 @@ class LayananController extends Controller
             return redirect()->route('data-layanan')->with('error', 'Data layanan tidak ditemukan');
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Layanan',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data layanan: ' . $validated['nama_layanan'] . ' (' . $layanan->kode_layanan . ')'
+        ]);
+
         return redirect()->route('data-layanan')->with('success', 'Data layanan berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $layanan = $this->layananService->getById($id);
+        $namaLayanan = $layanan ? $layanan->nama_layanan : 'N/A';
+        $kodeLayanan = $layanan ? $layanan->kode_layanan : 'N/A';
+
         $deleted = $this->layananService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data layanan tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Layanan',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data layanan: ' . $namaLayanan . ' (' . $kodeLayanan . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data layanan berhasil dihapus']);
     }

@@ -8,6 +8,8 @@ use App\Models\TransaksiLayanan;
 use App\Models\TransaksiLayananDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class TransaksiLayananController extends Controller
 {
@@ -111,6 +113,13 @@ class TransaksiLayananController extends Controller
                 'kode_referensi' => null
             ]);
 
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Layanan',
+                'action' => 'Create',
+                'keterangan' => 'Membuat transaksi layanan baru: ' . $transaksi->kode_transaksi . ' untuk pelanggan: ' . ($transaksi->pelanggan->nama_pelanggan ?? 'Umum')
+            ]);
+
             DB::commit();
 
             return response()->json([
@@ -207,6 +216,13 @@ class TransaksiLayananController extends Controller
                 ]);
             }
 
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Layanan',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui transaksi layanan: ' . $transaksi->kode_transaksi
+            ]);
+
             DB::commit();
 
             return response()->json([
@@ -225,7 +241,16 @@ class TransaksiLayananController extends Controller
     {
         try {
             $transaksi = TransaksiLayanan::findOrFail($id);
+            $kodeTransaksi = $transaksi->kode_transaksi;
             $transaksi->delete();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Transaksi Layanan',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus transaksi layanan: ' . $kodeTransaksi
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Transaksi berhasil dihapus']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);

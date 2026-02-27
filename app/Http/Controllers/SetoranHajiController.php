@@ -6,6 +6,8 @@ use App\Models\TabunganHaji;
 use App\Models\TransaksiTabunganHaji;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class SetoranHajiController extends Controller
 {
@@ -93,6 +95,13 @@ class SetoranHajiController extends Controller
         // Update Tabungan Balance
         $tabungan->increment('setoran_tabungan', $validated['nominal']);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Haji',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan transaksi ' . $data['jenis_transaksi'] . ' haji: ' . $validated['kode_transaksi'] . ' untuk jamaah: ' . ($tabungan->jamaah->nama_jamaah ?? 'N/A') . ' sebesar ' . number_format($validated['nominal'], 0, ',', '.')
+        ]);
+
         return redirect()->route('setoran-haji.index', $id)->with('success', 'Setoran berhasil ditambahkan');
     }
 
@@ -163,6 +172,13 @@ class SetoranHajiController extends Controller
             }
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Haji',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui transaksi ' . $transaksi->jenis_transaksi . ' haji: ' . $transaksi->kode_transaksi . ' (Nominal baru: ' . number_format($validated['nominal'], 0, ',', '.') . ')'
+        ]);
+
         return redirect()->route('setoran-haji.index', $tabungan->id)->with('success', 'Transaksi berhasil diperbarui');
     }
 
@@ -178,11 +194,20 @@ class SetoranHajiController extends Controller
             $tabungan->increment('setoran_tabungan', $transaksi->nominal);
         }
 
-        if ($transaksi->bukti_transaksi && \Illuminate\Support\Facades\Storage::exists('public/' . $transaksi->bukti_transaksi)) {
             \Illuminate\Support\Facades\Storage::delete('public/' . $transaksi->bukti_transaksi);
         }
 
+        $kodeTransaksi = $transaksi->kode_transaksi;
+        $jenisTransaksi = $transaksi->jenis_transaksi;
+
         $transaksi->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Setoran Haji',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus transaksi ' . $jenisTransaksi . ' haji: ' . $kodeTransaksi
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Transaksi berhasil dihapus']);
     }

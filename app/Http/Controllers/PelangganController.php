@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PelangganService;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PelangganController extends Controller
 {
@@ -51,6 +53,13 @@ class PelangganController extends Controller
 
         $this->pelangganService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Pelanggan',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan data pelanggan baru: ' . $validated['nama_pelanggan'] . ' (' . $validated['kode_pelanggan'] . ')'
+        ]);
+
         return redirect()->route('data-pelanggan')->with('success', 'Data pelanggan berhasil ditambahkan');
     }
 
@@ -88,16 +97,34 @@ class PelangganController extends Controller
             return redirect()->route('data-pelanggan')->with('error', 'Data pelanggan tidak ditemukan');
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Pelanggan',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data pelanggan: ' . $validated['nama_pelanggan'] . ' (' . $pelanggan->kode_pelanggan . ')'
+        ]);
+
         return redirect()->route('data-pelanggan')->with('success', 'Data pelanggan berhasil diperbarui');
     }
 
     public function destroy($id)
     {
+        $pelanggan = $this->pelangganService->getById($id);
+        $namaPelanggan = $pelanggan ? $pelanggan->nama_pelanggan : 'N/A';
+        $kodePelanggan = $pelanggan ? $pelanggan->kode_pelanggan : 'N/A';
+
         $deleted = $this->pelangganService->delete($id);
 
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data pelanggan tidak ditemukan'], 404);
         }
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Pelanggan',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data pelanggan: ' . $namaPelanggan . ' (' . $kodePelanggan . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data pelanggan berhasil dihapus']);
     }
