@@ -15,15 +15,27 @@ class PembelianProdukController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/pembelian-produk.create', $permissions);
+        $canEdit = $isAdmin || in_array('/pembelian-produk.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/pembelian-produk.delete', $permissions);
+
         $pembelians = PembelianProduk::with(['supplier', 'details'])->latest()->get();
         return view('pages.pembelian-produk.index', [
             'title' => 'Pembelian Produk',
-            'pembelians' => $pembelians
+            'pembelians' => $pembelians,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         $suppliers = Supplier::all();
         $produks = Produk::all();
         
@@ -42,6 +54,7 @@ class PembelianProdukController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_pembelian' => 'required|string|unique:pembelian_produks,kode_pembelian',
             'supplier_id' => 'required|exists:suppliers,id',
@@ -122,6 +135,7 @@ class PembelianProdukController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $pembelian = PembelianProduk::with('details.produk')->findOrFail($id);
         $suppliers = Supplier::all();
         $produks = Produk::all();
@@ -150,6 +164,7 @@ class PembelianProdukController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'tanggal_pembelian' => 'required|date',
@@ -234,6 +249,7 @@ class PembelianProdukController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         try {
             DB::beginTransaction();
             $pembelian = PembelianProduk::with('details')->findOrFail($id);
@@ -263,6 +279,22 @@ class PembelianProdukController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/pembelian-produk.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
         }
     }
 }

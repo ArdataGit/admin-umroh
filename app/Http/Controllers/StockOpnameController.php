@@ -13,15 +13,27 @@ class StockOpnameController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/stock-opname.create', $permissions);
+        $canEdit = $isAdmin || in_array('/stock-opname.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/stock-opname.delete', $permissions);
+
         $stockOpnames = StockOpname::with('produk')->orderBy('tanggal_adjustment', 'desc')->get();
         return view('pages.stock-opname.index', [
             'title' => 'Stock Opname',
-            'stockOpnames' => $stockOpnames
+            'stockOpnames' => $stockOpnames,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         $produks = Produk::all();
         
         // Generate AD Check Code
@@ -39,6 +51,7 @@ class StockOpnameController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_adjustment' => 'required|string|unique:stock_opnames,kode_adjustment',
             'tanggal_adjustment' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
@@ -88,6 +101,7 @@ class StockOpnameController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $stockOpname = StockOpname::findOrFail($id);
         $produks = Produk::all();
 
@@ -100,6 +114,7 @@ class StockOpnameController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $stockOpname = StockOpname::findOrFail($id);
         $produk = Produk::findOrFail($stockOpname->produk_id);
 
@@ -144,6 +159,7 @@ class StockOpnameController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $stockOpname = StockOpname::findOrFail($id);
         $produk = Produk::findOrFail($stockOpname->produk_id);
 
@@ -167,5 +183,21 @@ class StockOpnameController extends Controller
         ]);
 
         return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/stock-opname.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
 }

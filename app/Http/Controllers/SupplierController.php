@@ -19,12 +19,27 @@ class SupplierController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-supplier.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-supplier.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-supplier.delete', $permissions);
+
         $dataSupplier = $this->supplierService->getAll();
-        return view('pages.data-supplier.index', ['title' => 'Data Supplier', 'dataSupplier' => $dataSupplier]);
+        return view('pages.data-supplier.index', [
+            'title' => 'Data Supplier', 
+            'dataSupplier' => $dataSupplier,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         // Auto-generate kode_supplier: S-001, S-002, etc.
         $lastSupplier = Supplier::orderBy('id', 'desc')->first();
         $lastNumber = $lastSupplier ? intval(substr($lastSupplier->kode_supplier, 2)) : 0;
@@ -39,6 +54,7 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_supplier' => 'required|string|unique:suppliers,kode_supplier',
             'nama_supplier' => 'required|string|max:255',
@@ -63,6 +79,7 @@ class SupplierController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $supplier = $this->supplierService->getById($id);
 
         if (!$supplier) {
@@ -77,6 +94,7 @@ class SupplierController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $validated = $request->validate([
             'nama_supplier' => 'required|string|max:255',
             'kontak_supplier' => 'nullable|string|max:255',
@@ -104,6 +122,7 @@ class SupplierController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $deleted = $this->supplierService->delete($id);
 
         if (!$deleted) {
@@ -138,10 +157,27 @@ class SupplierController extends Controller
 
     public function printData()
     {
+        $this->checkPermission('index');
         $suppliers = $this->supplierService->getAll();
         return view('pages.data-supplier.print', [
             'suppliers' => $suppliers,
             'title' => 'Laporan Data Supplier'
         ]);
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-supplier.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
 }

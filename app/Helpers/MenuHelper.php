@@ -183,35 +183,35 @@ class MenuHelper
                 'icon' => 'package',
                 'name' => 'Data Produk',
                 'subItems' => [
-                    ['name' => 'Data Produk', 'path' => '/data-produk'],
+                    ['name' => 'Data Produk', 'path' => '/data-produk', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'tables',
                 'name' => 'Stock Opname',
                 'subItems' => [
-                    ['name' => 'Stock Opname', 'path' => '/stock-opname'],
+                    ['name' => 'Stock Opname', 'path' => '/stock-opname', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Pembelian Produk',
                 'subItems' => [
-                    ['name' => 'Pembelian Produk', 'path' => '/pembelian-produk'],
+                    ['name' => 'Pembelian Produk', 'path' => '/pembelian-produk', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'money-out',
                 'name' => 'Pengeluaran Produk',
                 'subItems' => [
-                    ['name' => 'Pengeluaran Produk', 'path' => '/pengeluaran-produk'],
+                    ['name' => 'Pengeluaran Produk', 'path' => '/pengeluaran-produk', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'truck',
                 'name' => 'Data Supplier',
                 'subItems' => [
-                    ['name' => 'Data Supplier', 'path' => '/data-supplier'],
+                    ['name' => 'Data Supplier', 'path' => '/data-supplier', 'crud' => true],
                 ]
             ],
 

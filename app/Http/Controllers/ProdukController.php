@@ -19,12 +19,27 @@ class ProdukController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-produk.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-produk.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-produk.delete', $permissions);
+
         $dataProduk = $this->produkService->getAll();
-        return view('pages.data-produk.index', ['title' => 'Data Produk', 'dataProduk' => $dataProduk]);
+        return view('pages.data-produk.index', [
+            'title' => 'Data Produk', 
+            'dataProduk' => $dataProduk,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         // Auto-generate kode_produk: PR-001, PR-002, etc.
         $lastProduk = \App\Models\Produk::orderBy('id', 'desc')->first();
         $lastNumber = $lastProduk ? intval(substr($lastProduk->kode_produk, 3)) : 0;
@@ -39,6 +54,7 @@ class ProdukController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_produk' => 'required|string|unique:produks,kode_produk',
             'nama_produk' => 'required|string|max:255',
@@ -81,6 +97,7 @@ class ProdukController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $produk = $this->produkService->getById($id);
 
         if (!$produk) {
@@ -95,6 +112,7 @@ class ProdukController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $validated = $request->validate([
             'nama_produk' => 'required|string|max:255',
             'standar_stok' => 'required|integer|min:0',
@@ -132,6 +150,7 @@ class ProdukController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $produk = $this->produkService->getById($id);
 
         if (!$produk) {
@@ -170,10 +189,27 @@ class ProdukController extends Controller
 
     public function printData()
     {
+        $this->checkPermission('index'); // Assuming printing needs index access
         $produks = $this->produkService->getAll();
         return view('pages.data-produk.print', [
             'produks' => $produks,
             'title' => 'Laporan Data Produk'
         ]);
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-produk.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
 }
