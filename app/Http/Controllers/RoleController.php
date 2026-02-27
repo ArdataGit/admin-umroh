@@ -6,6 +6,8 @@ use App\Models\Role;
 use App\Models\RolePermission;
 use Illuminate\Http\Request;
 use App\Helpers\MenuHelper;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -16,6 +18,13 @@ class RoleController extends Controller
         ]);
 
         Role::create(['name' => strtolower($request->name)]);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Permission Management',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan role baru: ' . strtolower($request->name)
+        ]);
 
         return redirect()->back()->with('success', 'Role berhasil ditambahkan');
     }
@@ -60,6 +69,13 @@ class RoleController extends Controller
             RolePermission::insert($permissionsData);
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Permission Management',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui role dan permission untuk: ' . $role->name
+        ]);
+
         return redirect()->route('permission.index')->with('success', 'Role dan permission berhasil diperbarui');
     }
 
@@ -71,7 +87,15 @@ class RoleController extends Controller
             return redirect()->back()->with('error', 'Role tidak dapat dihapus karena masih digunakan oleh pengguna.');
         }
 
+        $roleName = $role->name;
         $role->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Permission Management',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus role: ' . $roleName
+        ]);
 
         return redirect()->back()->with('success', 'Role berhasil dihapus');
     }

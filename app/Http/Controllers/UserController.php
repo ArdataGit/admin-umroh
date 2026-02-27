@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -55,6 +57,13 @@ class UserController extends Controller
             'role_id' => $validated['role_id'],
             'status' => $validated['status'],
             'avatar' => $avatarName,
+        ]);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'User Management',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan user baru: ' . $validated['name'] . ' (' . $validated['email'] . ')'
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan');
@@ -107,6 +116,13 @@ class UserController extends Controller
 
         $user->save();
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'User Management',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data user: ' . $user->name . ' (' . $user->email . ')'
+        ]);
+
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui');
     }
 
@@ -118,7 +134,17 @@ class UserController extends Controller
             unlink(public_path('avatars/' . $user->avatar));
         }
 
+        $userName = $user->name;
+        $userEmail = $user->email;
+
         $user->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'User Management',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus user: ' . $userName . ' (' . $userEmail . ')'
+        ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil dihapus');
     }
