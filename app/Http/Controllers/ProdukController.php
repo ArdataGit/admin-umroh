@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\ProdukService;
 use Illuminate\Support\Facades\Storage;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class ProdukController extends Controller
 {
@@ -67,6 +69,13 @@ class ProdukController extends Controller
 
         $this->produkService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Produk',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan produk baru: ' . $validated['nama_produk'] . ' (' . $validated['kode_produk'] . ')'
+        ]);
+
         return redirect()->route('data-produk')->with('success', 'Data produk berhasil ditambahkan');
     }
 
@@ -107,6 +116,13 @@ class ProdukController extends Controller
                 $validated['foto_produk'] = $request->file('foto_produk')->store('produk', 'public');
             }
             $this->produkService->update($id, $validated);
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Data Produk',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui data produk: ' . $produk->nama_produk . ' (' . $produk->kode_produk . ')'
+            ]);
         } else {
              return redirect()->route('data-produk')->with('error', 'Data produk tidak ditemukan');
         }
@@ -127,6 +143,13 @@ class ProdukController extends Controller
         }
 
         $this->produkService->delete($id);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Produk',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data produk: ' . $produk->nama_produk . ' (' . $produk->kode_produk . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data produk berhasil dihapus']);
     }

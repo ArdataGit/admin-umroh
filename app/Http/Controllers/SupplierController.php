@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\SupplierService;
 use App\Models\Supplier;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class SupplierController extends Controller
 {
@@ -49,6 +51,13 @@ class SupplierController extends Controller
 
         $this->supplierService->create($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Supplier',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan supplier baru: ' . $validated['nama_supplier'] . ' (' . $validated['kode_supplier'] . ')'
+        ]);
+
         return redirect()->route('data-supplier')->with('success', 'Data supplier berhasil ditambahkan');
     }
 
@@ -83,6 +92,13 @@ class SupplierController extends Controller
             return redirect()->route('data-supplier')->with('error', 'Data supplier tidak ditemukan');
         }
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Supplier',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui data supplier: ' . $supplier->nama_supplier . ' (' . $supplier->kode_supplier . ')'
+        ]);
+
         return redirect()->route('data-supplier')->with('success', 'Data supplier berhasil diperbarui');
     }
 
@@ -93,6 +109,15 @@ class SupplierController extends Controller
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Data supplier tidak ditemukan'], 404);
         }
+
+        $supplier = Supplier::withTrashed()->find($id); // Get name for log even if soft deleted or if service just deleted it
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Data Supplier',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus data supplier: ' . ($supplier->nama_supplier ?? 'ID: ' . $id) . ' (' . ($supplier->kode_supplier ?? 'N/A') . ')'
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data supplier berhasil dihapus']);
     }

@@ -134,7 +134,7 @@ class SetoranUmrohController extends Controller
             'keterangan' => 'Menghapus transaksi ' . $jenisTransaksi . ' umroh: ' . $kodeTransaksi
         ]);
 
-        return response()->json(['success' => true, message' => 'Transaksi berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => 'Transaksi berhasil dihapus']);
     }
 
     public function edit($id)

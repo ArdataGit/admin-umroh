@@ -194,6 +194,7 @@ class SetoranHajiController extends Controller
             $tabungan->increment('setoran_tabungan', $transaksi->nominal);
         }
 
+        if ($transaksi->bukti_transaksi && \Illuminate\Support\Facades\Storage::exists('public/' . $transaksi->bukti_transaksi)) {
             \Illuminate\Support\Facades\Storage::delete('public/' . $transaksi->bukti_transaksi);
         }
 

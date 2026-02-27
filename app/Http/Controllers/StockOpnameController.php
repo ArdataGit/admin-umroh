@@ -6,6 +6,8 @@ use App\Models\Produk;
 use App\Models\StockOpname;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class StockOpnameController extends Controller
 {
@@ -63,6 +65,13 @@ class StockOpnameController extends Controller
         }
         
         $stockOpname = StockOpname::create($validated);
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Stock Opname',
+            'action' => 'Create',
+            'keterangan' => 'Menambahkan penyesuaian stok (' . $validated['tipe_adjustment'] . ') untuk produk: ' . $produk->nama_produk . ' | Kode: ' . $validated['kode_adjustment']
+        ]);
 
         return redirect()->route('stock-opname.index')->with('success', 'Stock Adjustment berhasil disimpan');
     }
@@ -123,6 +132,13 @@ class StockOpnameController extends Controller
 
         $stockOpname->update($validated);
 
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Stock Opname',
+            'action' => 'Update',
+            'keterangan' => 'Memperbarui penyesuaian stok: ' . $stockOpname->kode_adjustment . ' | Produk: ' . $produk->nama_produk
+        ]);
+
         return redirect()->route('stock-opname.index')->with('success', 'Stock Adjustment berhasil diperbarui');
     }
 
@@ -138,7 +154,17 @@ class StockOpnameController extends Controller
             $produk->increment('aktual_stok', $stockOpname->koreksi_stock);
         }
 
+        $kodeAdjustment = $stockOpname->kode_adjustment;
+        $namaProduk = $produk->nama_produk;
+
         $stockOpname->delete();
+
+        HistoryAction::create([
+            'user_id' => Auth::id(),
+            'menu' => 'Stock Opname',
+            'action' => 'Delete',
+            'keterangan' => 'Menghapus penyesuaian stok: ' . $kodeAdjustment . ' | Produk: ' . $namaProduk
+        ]);
 
         return response()->json(['success' => true, 'message' => 'Data berhasil dihapus']);
     }

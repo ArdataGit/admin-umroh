@@ -8,6 +8,8 @@ use App\Models\PengeluaranProdukDetail;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PengeluaranProdukController extends Controller
 {
@@ -94,6 +96,13 @@ class PengeluaranProdukController extends Controller
             }
 
             DB::commit();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pengeluaran Produk',
+                'action' => 'Create',
+                'keterangan' => 'Membuat pengeluaran produk: ' . $validated['kode_pengeluaran'] . ' untuk jamaah: ' . (Jamaah::find($validated['jamaah_id'])->nama_jamaah ?? 'N/A') . ' senilai ' . number_format($validated['total_nominal'], 0, ',', '.')
+            ]);
 
             return response()->json([
                 'success' => true, 
@@ -216,6 +225,13 @@ class PengeluaranProdukController extends Controller
 
             DB::commit();
 
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pengeluaran Produk',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui pengeluaran produk: ' . $pengeluaran->kode_pengeluaran . ' untuk jamaah: ' . ($pengeluaran->jamaah->nama_jamaah ?? 'N/A')
+            ]);
+
             return response()->json([
                 'success' => true, 
                 'message' => 'Pengeluaran berhasil diperbarui',
@@ -242,8 +258,18 @@ class PengeluaranProdukController extends Controller
                 }
             }
 
+            $kodePengeluaran = $pengeluaran->kode_pengeluaran;
+            $namaJamaah = $pengeluaran->jamaah->nama_jamaah ?? 'N/A';
+
             $pengeluaran->delete();
             DB::commit();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pengeluaran Produk',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus pengeluaran produk: ' . $kodePengeluaran . ' untuk jamaah: ' . $namaJamaah
+            ]);
 
             return response()->json(['success' => true, 'message' => 'Pengeluaran berhasil dihapus']);
         } catch (\Exception $e) {

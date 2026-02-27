@@ -8,6 +8,8 @@ use App\Models\Produk;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\HistoryAction;
+use Illuminate\Support\Facades\Auth;
 
 class PembelianProdukController extends Controller
 {
@@ -93,6 +95,14 @@ class PembelianProdukController extends Controller
             }
 
             DB::commit();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pembelian Produk',
+                'action' => 'Create',
+                'keterangan' => 'Membuat pembelian produk: ' . $validated['kode_pembelian'] . ' dari supplier: ' . (Supplier::find($validated['supplier_id'])->nama_supplier ?? 'N/A') . ' senilai ' . number_format($validated['total_pembayaran'], 0, ',', '.')
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Pembelian berhasil disimpan', 'redirect' => route('pembelian-produk.index')]);
 
         } catch (\Exception $e) {
@@ -206,6 +216,14 @@ class PembelianProdukController extends Controller
             }
 
             DB::commit();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pembelian Produk',
+                'action' => 'Update',
+                'keterangan' => 'Memperbarui pembelian produk: ' . $pembelian->kode_pembelian . ' dari supplier: ' . ($pembelian->supplier->nama_supplier ?? 'N/A')
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Pembelian berhasil diperbarui', 'redirect' => route('pembelian-produk.index')]);
 
         } catch (\Exception $e) {
@@ -228,8 +246,18 @@ class PembelianProdukController extends Controller
                 }
             }
 
+            $kodePembelian = $pembelian->kode_pembelian;
+            $namaSupplier = $pembelian->supplier->nama_supplier ?? 'N/A';
+
             $pembelian->delete();
             DB::commit();
+
+            HistoryAction::create([
+                'user_id' => Auth::id(),
+                'menu' => 'Pembelian Produk',
+                'action' => 'Delete',
+                'keterangan' => 'Menghapus pembelian produk: ' . $kodePembelian . ' dari supplier: ' . $namaSupplier
+            ]);
 
             return response()->json(['success' => true, 'message' => 'Pembelian berhasil dihapus']);
         } catch (\Exception $e) {
