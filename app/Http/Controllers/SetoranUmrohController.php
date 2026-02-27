@@ -17,9 +17,20 @@ class SetoranUmrohController extends Controller
             ->orderBy('tanggal_transaksi', 'desc')
             ->get();
 
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/setoran-umroh.create', $permissions);
+        $canEdit = $isAdmin || in_array('/setoran-umroh.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/setoran-umroh.delete', $permissions);
+
         return view('pages.setoran-umroh.general-index', [
             'title' => 'Data Setoran Umroh',
-            'transaksis' => $transaksis
+            'transaksis' => $transaksis,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
@@ -32,16 +43,28 @@ class SetoranUmrohController extends Controller
         $umur = Carbon::parse($tabungan->jamaah->tanggal_lahir)->age;
         $total_penarikan = $tabungan->transaksiTabunganUmrohs()->where('jenis_transaksi', 'penarikan')->sum('nominal');
 
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/setoran-umroh.create', $permissions);
+        $canEdit = $isAdmin || in_array('/setoran-umroh.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/setoran-umroh.delete', $permissions);
+
         return view('pages.setoran-umroh.index', [
             'title' => 'Setoran Umroh',
             'tabungan' => $tabungan,
             'umur' => $umur,
-            'total_penarikan' => $total_penarikan
+            'total_penarikan' => $total_penarikan,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
         ]);
     }
 
     public function create($id)
     {
+        $this->checkPermission('create');
         $tabungan = TabunganUmroh::with('jamaah')->findOrFail($id);
         
         // Generate Transaction Code
@@ -61,6 +84,7 @@ class SetoranUmrohController extends Controller
 
     public function store(Request $request, $id)
     {
+        $this->checkPermission('create');
         $tabungan = TabunganUmroh::findOrFail($id);
 
         $validated = $request->validate([
@@ -106,6 +130,7 @@ class SetoranUmrohController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $transaksi = \App\Models\TransaksiTabunganUmroh::findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 
@@ -139,6 +164,7 @@ class SetoranUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $transaksi = \App\Models\TransaksiTabunganUmroh::with(['tabunganUmroh.jamaah'])->findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 
@@ -151,6 +177,7 @@ class SetoranUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $transaksi = \App\Models\TransaksiTabunganUmroh::findOrFail($id);
         $tabungan = $transaksi->tabunganUmroh;
 
@@ -213,5 +240,21 @@ class SetoranUmrohController extends Controller
         ]);
 
         return redirect()->route('setoran-umroh.index', $tabungan->id)->with('success', 'Transaksi berhasil diperbarui');
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/setoran-umroh.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
 }

@@ -125,21 +125,21 @@ class MenuHelper
                 'icon' => 'users-group',
                 'name' => 'Data Pelanggan',
                 'subItems' => [
-                    ['name' => 'Data Pelanggan', 'path' => '/data-pelanggan'],
+                    ['name' => 'Data Pelanggan', 'path' => '/data-pelanggan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'grid-layers',
                 'name' => 'Data Layanan',
                 'subItems' => [
-                    ['name' => 'Data Layanan', 'path' => '/data-layanan'],
+                    ['name' => 'Data Layanan', 'path' => '/data-layanan', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Transaksi Layanan',
                 'subItems' => [
-                    ['name' => 'Transaksi Layanan', 'path' => '/transaksi-layanan'],
+                    ['name' => 'Transaksi Layanan', 'path' => '/transaksi-layanan', 'crud' => true],
                     ['name' => 'Pembayaran Layanan', 'path' => '/pembayaran-layanan'],
                 ]
             ],
@@ -147,14 +147,14 @@ class MenuHelper
                 'icon' => 'ticket',
                 'name' => 'Data Tiket',
                 'subItems' => [
-                    ['name' => 'Data Tiket', 'path' => '/data-tiket'],
+                    ['name' => 'Data Tiket', 'path' => '/data-tiket', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'shopping-cart',
                 'name' => 'Transaksi Tiket',
                 'subItems' => [
-                    ['name' => 'Transaksi Tiket', 'path' => '/transaksi-tiket'],
+                    ['name' => 'Transaksi Tiket', 'path' => '/transaksi-tiket', 'crud' => true],
                     ['name' => 'Pembayaran Tiket', 'path' => '/pembayaran-tiket'],
                 ]
             ],
@@ -162,16 +162,16 @@ class MenuHelper
                 'icon' => 'piggy-bank',
                 'name' => 'Data Tabungan',
                 'subItems' => [
-                    ['name' => 'Tabungan Umroh', 'path' => '/tabungan-umroh'],
-                    ['name' => 'Tabungan Haji', 'path' => '/tabungan-haji'],
+                    ['name' => 'Tabungan Umroh', 'path' => '/tabungan-umroh', 'crud' => true],
+                    ['name' => 'Tabungan Haji', 'path' => '/tabungan-haji', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'wallet',
                 'name' => 'Data Setoran',
                 'subItems' => [
-                    ['name' => 'Setoran Umroh', 'path' => '/setoran-umroh'],
-                    ['name' => 'Setoran Haji', 'path' => '/setoran-haji'],
+                    ['name' => 'Setoran Umroh', 'path' => '/setoran-umroh', 'crud' => true],
+                    ['name' => 'Setoran Haji', 'path' => '/setoran-haji', 'crud' => true],
                 ]
             ],
         ];

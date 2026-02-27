@@ -21,11 +21,27 @@ class TabunganUmrohController extends Controller
     public function index()
     {
         $tabunganUmrohs = $this->tabunganUmrohService->getAll();
-        return view('pages.tabungan-umroh.index', ['title' => 'Data Tabungan Umroh', 'tabunganUmrohs' => $tabunganUmrohs]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/tabungan-umroh.create', $permissions);
+        $canEdit = $isAdmin || in_array('/tabungan-umroh.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/tabungan-umroh.delete', $permissions);
+
+        return view('pages.tabungan-umroh.index', [
+            'title' => 'Data Tabungan Umroh',
+            'tabunganUmrohs' => $tabunganUmrohs,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         // Auto-generate kode_tabungan: TU-001, TU-002, etc.
         $lastTabungan = TabunganUmroh::orderBy('id', 'desc')->first();
         $lastNumber = $lastTabungan ? intval(substr($lastTabungan->kode_tabungan, 3)) : 0;
@@ -43,6 +59,7 @@ class TabunganUmrohController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_tabungan' => 'required|string|unique:tabungan_umrohs,kode_tabungan',
             'jamaah_id' => 'required|exists:jamaahs,id',
@@ -70,6 +87,7 @@ class TabunganUmrohController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $tabungan = $this->tabunganUmrohService->getById($id);
         if (!$tabungan) {
             return redirect()->route('tabungan-umroh')->with('error', 'Tabungan umroh tidak ditemukan');
@@ -86,6 +104,7 @@ class TabunganUmrohController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $validated = $request->validate([
             'jamaah_id' => 'required|exists:jamaahs,id',
             'tanggal_pendaftaran' => 'required|date|date_format:Y-m-d|after_or_equal:1900-01-01|before_or_equal:9999-12-31',
@@ -112,6 +131,7 @@ class TabunganUmrohController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $tabungan = $this->tabunganUmrohService->getById($id);
         $kodeTabungan = $tabungan ? $tabungan->kode_tabungan : 'N/A';
 
@@ -142,5 +162,21 @@ class TabunganUmrohController extends Controller
             'title' => 'Detail Tabungan Umroh',
             'tabungan' => $tabungan
         ]);
+    }
+
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/tabungan-umroh.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
     }
 }
