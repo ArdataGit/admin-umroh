@@ -98,21 +98,21 @@ class MenuHelper
                 'icon' => 'plane',
                 'name' => 'Data Maskapai',
                 'subItems' => [
-                    ['name' => 'Data Maskapai', 'path' => '/data-maskapai'],
+                    ['name' => 'Data Maskapai', 'path' => '/data-maskapai', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'building',
                 'name' => 'Data Hotel',
                 'subItems' => [
-                    ['name' => 'Data Hotel', 'path' => '/data-hotel'],
+                    ['name' => 'Data Hotel', 'path' => '/data-hotel', 'crud' => true],
                 ]
             ],
             [
                 'icon' => 'map-pin',
                 'name' => 'Data Kota',
                 'subItems' => [
-                    ['name' => 'Data Kota', 'path' => '/data-kota'],
+                    ['name' => 'Data Kota', 'path' => '/data-kota', 'crud' => true],
                 ]
             ],
 

@@ -11,6 +11,21 @@ use Illuminate\Support\Facades\Auth;
 
 class HotelController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-hotel.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
     //
     protected $hotelService;
     public function __construct(HotelService $hotelService){
@@ -18,10 +33,26 @@ class HotelController extends Controller
     }
     public function index(){
         $dataHotel = $this->hotelService->getAll();
-        return view('pages.data-hotel.index', ['title' => 'Data Hotel', 'dataHotel' => $dataHotel]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-hotel.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-hotel.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-hotel.delete', $permissions);
+
+        return view('pages.data-hotel.index', [
+            'title' => 'Data Hotel',
+            'dataHotel' => $dataHotel,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create(){
+        $this->checkPermission('create');
         ExchangeRateService::updateRates();
 
         $kursUsd = SystemSetting::where('key', 'kurs_usd')->first()->value ?? 0;
@@ -37,6 +68,7 @@ class HotelController extends Controller
     }
 
     public function store(Request $request){
+        $this->checkPermission('create');
         // Validation
         $validated = $request->validate([
             'nama_hotel' => 'required|string|max:255',
@@ -89,6 +121,7 @@ class HotelController extends Controller
     }
 
     public function edit($id){
+        $this->checkPermission('edit');
         $hotel = $this->hotelService->getById($id);
         
         if (!$hotel) {
@@ -111,6 +144,7 @@ class HotelController extends Controller
     }
 
     public function update(Request $request, $id){
+        $this->checkPermission('edit');
         // Validation
         $validated = $request->validate([
             'nama_hotel' => 'required|string|max:255',
@@ -161,6 +195,7 @@ class HotelController extends Controller
     }
 
     public function destroy($id){
+        $this->checkPermission('delete');
         $hotel = $this->hotelService->getById($id);
         $deleted = $this->hotelService->delete($id);
 

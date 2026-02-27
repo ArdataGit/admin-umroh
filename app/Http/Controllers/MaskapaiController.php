@@ -12,6 +12,21 @@ use Illuminate\Support\Facades\Auth;
 
 class MaskapaiController extends Controller
 {
+    private function checkPermission($action)
+    {
+        $user = auth()->user();
+        if ($user && $user->role && $user->role->name === 'super-admin') {
+            return;
+        }
+
+        $permissions = $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        if (!in_array('/data-maskapai.' . $action, $permissions)) {
+            if (request()->wantsJson()) {
+                abort(403, 'Unauthorized action.');
+            }
+            abort(403, 'Anda tidak memiliki hak akses untuk melakukan aksi ini.');
+        }
+    }
     protected $maskapaiService;
 
     public function __construct(MaskapaiService $maskapaiService)
@@ -22,11 +37,27 @@ class MaskapaiController extends Controller
     public function index()
     {
         $dataMaskapai = $this->maskapaiService->getAll();
-        return view('pages.data-maskapai.index', ['title' => 'Data Maskapai', 'dataMaskapai' => $dataMaskapai]);
+
+        $user = auth()->user();
+        $isAdmin = $user && $user->role && $user->role->name === 'super-admin';
+        $permissions = $user && $user->role ? $user->role->permissions->pluck('menu_path')->toArray() : [];
+        
+        $canCreate = $isAdmin || in_array('/data-maskapai.create', $permissions);
+        $canEdit = $isAdmin || in_array('/data-maskapai.edit', $permissions);
+        $canDelete = $isAdmin || in_array('/data-maskapai.delete', $permissions);
+
+        return view('pages.data-maskapai.index', [
+            'title' => 'Data Maskapai',
+            'dataMaskapai' => $dataMaskapai,
+            'canCreate' => $canCreate,
+            'canEdit' => $canEdit,
+            'canDelete' => $canDelete
+        ]);
     }
 
     public function create()
     {
+        $this->checkPermission('create');
         ExchangeRateService::updateRates();
 
         // Auto-generate kode_maskapai: MK-001, MK-002, etc based on next ID
@@ -50,6 +81,7 @@ class MaskapaiController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkPermission('create');
         $validated = $request->validate([
             'kode_maskapai' => 'required|string|unique:maskapais,kode_maskapai',
             'nama_maskapai' => 'required|string|max:255',
@@ -107,6 +139,7 @@ class MaskapaiController extends Controller
 
     public function edit($id)
     {
+        $this->checkPermission('edit');
         $maskapai = $this->maskapaiService->getById($id);
 
         if (!$maskapai) {
@@ -130,6 +163,7 @@ class MaskapaiController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkPermission('edit');
         $validated = $request->validate([
             'nama_maskapai' => 'required|string|max:255',
             'rute_penerbangan' => 'required|in:Direct,Transit',
@@ -195,6 +229,7 @@ class MaskapaiController extends Controller
 
     public function destroy($id)
     {
+        $this->checkPermission('delete');
         $maskapai = $this->maskapaiService->getById($id);
         if (!$maskapai) {
             return response()->json(['success' => false, 'message' => 'Data maskapai tidak ditemukan'], 404);
