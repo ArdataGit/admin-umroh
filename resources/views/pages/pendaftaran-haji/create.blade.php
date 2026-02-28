@@ -21,14 +21,26 @@
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kode Jamaah (Auto)</label>
                                 <input type="text" x-model="form.kode_jamaah" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 font-bold" />
                             </div>
-                            <div>
+                            <div class="relative" @click.away="showAgentDropdown = false">
                                 <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Agent</label>
-                                <select x-model="form.agent_id" class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-                                    <option value="">-- Pilih Agent --</option>
-                                    @foreach($agents as $agent)
-                                        <option value="{{ $agent->id }}">{{ $agent->nama_agent }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="relative">
+                                    <input type="text" x-model="searchAgent" @focus="showAgentDropdown = true" @input="showAgentDropdown = true; form.agent_id = ''" placeholder="Cari atau pilih agent..." class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                                <div x-show="showAgentDropdown" style="display: none;" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 max-h-60 overflow-y-auto">
+                                    <ul>
+                                        <template x-for="agent in filteredAgents" :key="agent.id">
+                                            <li @click="selectAgent(agent)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 border-b dark:border-gray-700 last:border-0">
+                                                <span x-text="agent.nama_agent"></span>
+                                            </li>
+                                        </template>
+                                        <li x-show="filteredAgents.length === 0" class="px-4 py-2 text-sm text-gray-500">
+                                            Agent tidak ditemukan.
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
@@ -322,6 +334,21 @@
                 catatan_pendaftaran: ''
             },
             files: {},
+            agents: @json($agents),
+            searchAgent: '',
+            showAgentDropdown: false,
+            get filteredAgents() {
+                if (this.searchAgent === '') {
+                    return this.agents;
+                }
+                const query = this.searchAgent.toLowerCase();
+                return this.agents.filter(a => a.nama_agent.toLowerCase().includes(query));
+            },
+            selectAgent(agent) {
+                this.form.agent_id = agent.id;
+                this.searchAgent = agent.nama_agent;
+                this.showAgentDropdown = false;
+            },
             selectedPaketDetails: null, // Temporary storage for pricing logic
             
             onPaketChange(e) {
@@ -364,6 +391,10 @@
 
             submitForm() {
                 // Pre-submission validation
+                if (!this.form.agent_id) {
+                    alert('Gagal: Silakan pilih Agent dari daftar.');
+                    return;
+                }
                 if (!this.form.total_bayar || this.form.total_bayar < 1) {
                     alert('Gagal: Pembayaran DP harus diisi dan minimal Rp 1.');
                     return;
