@@ -8,7 +8,12 @@
 
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12" x-data="{
-        jenisPengeluaran: ['visa_haji', 'siskopatuh', 'tiket_pesawat', 'bayar_hotel', 'transportasi', 'pembimbing', 'kereta_cepat', 'logistik', 'handling', 'lainya']
+        jenisPengeluaran: ['visa_haji', 'siskopatuh', 'tiket_pesawat', 'bayar_hotel', 'transportasi', 'pembimbing', 'kereta_cepat', 'logistik', 'handling', 'lainya'],
+        jumlahPengeluaran: '',
+        formatNumber(num) {
+            if (!num && num !== 0) return '';
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
     }">
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
             <h3 class="mb-6 text-xl font-semibold text-gray-800 dark:text-white">Form Pengeluaran Haji</h3>
@@ -67,7 +72,8 @@
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Jumlah Pengeluaran</label>
                         <div class="relative">
                             <span class="absolute left-4 top-2.5 text-gray-500">Rp</span>
-                            <input type="number" name="jumlah_pengeluaran" class="w-full pl-10 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                            <input type="text" :value="formatNumber(jumlahPengeluaran)" @input="$el.value = $el.value.replace(/\D/g, ''); jumlahPengeluaran = $el.value === '' ? '' : parseInt($el.value); $el.value = formatNumber(jumlahPengeluaran)" class="w-full pl-10 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required placeholder="0" />
+                            <input type="hidden" name="jumlah_pengeluaran" :value="jumlahPengeluaran" />
                         </div>
                         @error('jumlah_pengeluaran') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
