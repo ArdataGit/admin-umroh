@@ -38,6 +38,21 @@ class PaketUmrohService
             }
 
             $paket->update($data);
+
+            // Sync dates to KeberangkatanUmroh
+            if (isset($data['tanggal_keberangkatan']) || isset($data['jumlah_hari'])) {
+                $updateKeberangkatan = [];
+                if (isset($data['tanggal_keberangkatan'])) {
+                    $updateKeberangkatan['tanggal_keberangkatan'] = $data['tanggal_keberangkatan'];
+                }
+                if (isset($data['jumlah_hari'])) {
+                    $updateKeberangkatan['jumlah_hari'] = $data['jumlah_hari'];
+                }
+                
+                \App\Models\KeberangkatanUmroh::where('paket_umroh_id', $paket->id)
+                    ->update($updateKeberangkatan);
+            }
+
             return $paket;
         }
         return null;
