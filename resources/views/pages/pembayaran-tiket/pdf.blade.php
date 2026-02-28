@@ -348,7 +348,7 @@
                         </div>
                         <div class="signature-name" style="position: relative; z-index: 1;">ANJELIA RAHMAH</div>
                         <br>
-                        <div class="signature-name" style="position: relative; z-index: 1;">ADMINISTRATOR</div>
+                        <div class="signature-name" style="position: relative; z-index: 1; margin-top: -10px;">ADMINISTRATOR</div>
                     </div>
                 </td>
             </tr>
