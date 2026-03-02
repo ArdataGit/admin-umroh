@@ -83,13 +83,31 @@
                                     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="item.nama_layanan"></td>
                                     <td class="px-4 py-3">
                                         <template x-if="item.kurs && item.kurs !== 'IDR'">
-                                            <div class="flex flex-col">
-                                                <span class="font-medium text-blue-600 dark:text-blue-400" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs) + ' ' + formatNumberDecimal(item.harga_jual_asing)"></span>
-                                                <span class="text-xs text-gray-500" x-text="'(Rp ' + formatNumber(item.harga_satuan) + ')'"></span>
+                                            <div class="flex flex-col gap-2">
+                                                <!-- Harga Jual Asing -->
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs font-medium text-blue-600 dark:text-blue-400 w-8" x-text="(item.kurs === 'MYR' ? 'RM' : item.kurs)"></span>
+                                                    <input type="number" step="0.01" x-model.number="item.harga_jual_asing" @input="item.harga_satuan = Math.round(item.harga_jual_asing * item.rate); calculateLineTotal(index)" class="w-full rounded border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                                                </div>
+                                                
+                                                <!-- Editable Rate (Kurs) -->
+                                                <div class="flex items-center gap-2 bg-blue-50/50 dark:bg-blue-900/10 p-1.5 rounded border border-blue-100 dark:border-blue-900/30">
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 w-8">Kurs</span>
+                                                    <input type="number" step="0.01" x-model.number="item.rate" @input="item.harga_satuan = Math.round(item.harga_jual_asing * item.rate); calculateLineTotal(index)" class="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white" title="Edit nilai kurs for this transaction" placeholder="Nilai tukar" />
+                                                </div>
+
+                                                <!-- Harga Satuan IDR -->
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 w-8">Rp</span>
+                                                    <input type="text" :value="formatNumber(item.harga_satuan)" @input="$el.value = $el.value.replace(/\D/g, ''); item.harga_satuan = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(item.harga_satuan); calculateLineTotal(index)" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm font-medium focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+                                                </div>
                                             </div>
                                         </template>
                                         <template x-if="!item.kurs || item.kurs === 'IDR'">
-                                            <span>Rp <span x-text="formatNumber(item.harga_satuan)"></span></span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-sm text-gray-500">Rp</span>
+                                                <input type="text" :value="formatNumber(item.harga_satuan)" @input="$el.value = $el.value.replace(/\D/g, ''); item.harga_satuan = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(item.harga_satuan); calculateLineTotal(index)" class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800" />
+                                            </div>
                                         </template>
                                     </td>
                                     <td class="px-4 py-3">
@@ -217,6 +235,11 @@
                     this.searchPelanggan = existingPelanggan.nama_pelanggan;
                 }
 
+                // Calculate rate for initial details
+                this.form.details.forEach(item => {
+                    item.rate = (parseFloat(item.harga_jual_asing) || 0) > 0 ? (parseFloat(item.harga_satuan) / parseFloat(item.harga_jual_asing)) : 0;
+                });
+
                 this.calculateGrandTotal();
             },
             filterLayanans() {
@@ -243,9 +266,10 @@
                         nama_layanan: layanan.nama_layanan,
                         kurs: layanan.kurs,
                         harga_jual_asing: parseFloat(layanan.harga_jual_asing) || 0,
-                        harga_satuan: layanan.harga_jual,
+                        harga_satuan: parseFloat(layanan.harga_jual) || 0,
+                        rate: (parseFloat(layanan.harga_jual_asing) || 0) > 0 ? (parseFloat(layanan.harga_jual) / parseFloat(layanan.harga_jual_asing)) : 0,
                         quantity: 1,
-                        total_harga: layanan.harga_jual
+                        total_harga: parseFloat(layanan.harga_jual) || 0
                     });
                 }
                 this.searchQuery = '';
@@ -258,7 +282,7 @@
             },
             calculateLineTotal(index) {
                 const item = this.form.details[index];
-                item.total_harga = item.quantity * item.harga_satuan;
+                item.total_harga = (item.quantity || 0) * (item.harga_satuan || 0);
                 this.calculateGrandTotal();
             },
             calculateGrandTotal() {
@@ -271,6 +295,7 @@
                 this.form.total_transaksi = this.subtotal + this.taxAmount - this.discountAmount + shipping;
             },
             formatNumber(num) {
+                if (!num && num !== 0) return '';
                 return new Intl.NumberFormat('id-ID').format(Math.round(num));
             },
             formatNumberDecimal(num) {
