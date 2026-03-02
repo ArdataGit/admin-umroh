@@ -81,12 +81,19 @@ class LayananController extends Controller
     public function store(Request $request)
     {
         $this->checkPermission('create');
+
+        // Strip dot separators before validation
+        if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'kode_layanan' => 'required|string|unique:layanans,kode_layanan',
             'jenis_layanan' => 'required|in:Pesawat,Hotel,Visa,Transport,Handling,Tour,Layanan,Lainnya',
             'nama_layanan' => 'required|string|max:255',
             'satuan_unit' => 'required|in:Pcs,Set,Pack,Dus,Lot,Pax,Room,Seat',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|numeric',
             'harga_modal' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'status_layanan' => 'required|in:Active,Non Active',
@@ -104,15 +111,19 @@ class LayananController extends Controller
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['harga_modal_asing'] = $validated['harga_modal'];
             $validated['harga_jual_asing'] = $validated['harga_jual'];
@@ -162,11 +173,18 @@ class LayananController extends Controller
     public function update(Request $request, $id)
     {
         $this->checkPermission('edit');
+
+        // Strip dot separators before validation
+        if ($request->has('harga_modal')) $request->merge(['harga_modal' => str_replace('.', '', $request->harga_modal)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'jenis_layanan' => 'required|in:Pesawat,Hotel,Visa,Transport,Handling,Tour,Layanan,Lainnya',
             'nama_layanan' => 'required|string|max:255',
             'satuan_unit' => 'required|in:Pcs,Set,Pack,Dus,Lot,Pax,Room,Seat',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|numeric',
             'harga_modal' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'status_layanan' => 'required|in:Active,Non Active',
@@ -192,15 +210,19 @@ class LayananController extends Controller
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['harga_modal_asing'] = $validated['harga_modal'];
             $validated['harga_jual_asing'] = $validated['harga_jual'];

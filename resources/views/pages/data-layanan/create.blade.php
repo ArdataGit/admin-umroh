@@ -13,14 +13,25 @@
                 kurs: 'IDR',
                 harga_modal: '',
                 harga_jual: '',
+                custom_kurs: null,
+                kursUsd: {{ $kursUsd ?? 0 }},
+                kursSar: {{ $kursSar ?? 0 }},
+                kursMyr: {{ $kursMyr ?? 0 }},
+                updateCustomKurs() {
+                    if (this.kurs === 'USD') this.custom_kurs = this.kursUsd;
+                    else if (this.kurs === 'SAR') this.custom_kurs = this.kursSar;
+                    else if (this.kurs === 'MYR') this.custom_kurs = this.kursMyr;
+                    else this.custom_kurs = null;
+                },
+                init() {
+                    this.updateCustomKurs();
+                    this.$watch('kurs', () => this.updateCustomKurs());
+                },
                 get currencySymbol() {
                     return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
                 },
                 get exchangeRate() {
-                    if (this.kurs === 'USD') return {{ $kursUsd ?? 0 }};
-                    if (this.kurs === 'SAR') return {{ $kursSar ?? 0 }};
-                    if (this.kurs === 'MYR') return {{ $kursMyr ?? 0 }};
-                    return 1;
+                    return parseFloat(this.custom_kurs) || 1;
                 },
                 get convertedModal() {
                     if (this.kurs === 'IDR' || !this.harga_modal) return null;
@@ -32,6 +43,10 @@
                 },
                 formatRupiah(number) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                },
+                formatNumber(num) {
+                    if (!num && num !== 0) return '';
+                    return new Intl.NumberFormat('id-ID').format(Math.round(num));
                 }
             }">
                 @csrf
@@ -95,34 +110,27 @@
                         </select>
                     </div>
 
+                    <!-- Custom Kurs -->
+                    <div x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kurs <span x-text="kurs"></span> Hari Ini</label>
+                        <div class="relative">
+                            <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                            <input type="text" name="custom_kurs" :value="formatNumber(custom_kurs)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                        </div>
+                    </div>
+
                     <!-- Harga Modal -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Modal</label>
                         <div class="relative">
                             <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">Rp</span>
-                            <input type="number" name="harga_modal" x-model="harga_modal" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            <input type="text" name="harga_modal" :value="formatNumber(harga_modal)" @input="$el.value = $el.value.replace(/\D/g, ''); harga_modal = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(harga_modal)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         </div>
                         <div x-show="convertedModal" class="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                             <span class="opacity-70">Estimasi:</span>
                             <span x-text="formatRupiah(convertedModal)"></span>
                         </div>
                         @error('harga_modal') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-
-                        <!-- Kurs Info Compact -->
-                        <div class="mt-2 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30 w-fit" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
-                                <span class="opacity-70">Kurs USD Hari Ini:</span>
-                                <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
-                                <span class="opacity-70">Kurs SAR Hari Ini:</span>
-                                <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
-                                <span class="opacity-70">Kurs RM Hari Ini:</span>
-                                <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Harga Jual -->
@@ -130,29 +138,13 @@
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
                         <div class="relative">
                             <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">Rp</span>
-                            <input type="number" name="harga_jual" x-model="harga_jual" min="0" step="0.01" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            <input type="text" name="harga_jual" :value="formatNumber(harga_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); harga_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(harga_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         </div>
                         <div x-show="convertedJual" class="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
                             <span class="opacity-70">Estimasi:</span>
                             <span x-text="formatRupiah(convertedJual)"></span>
                         </div>
                         @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-
-                        <!-- Kurs Info Compact -->
-                        <div class="mt-2 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30 w-fit" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
-                                <span class="opacity-70">Kurs USD Hari Ini:</span>
-                                <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
-                                <span class="opacity-70">Kurs SAR Hari Ini:</span>
-                                <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
-                                <span class="opacity-70">Kurs RM Hari Ini:</span>
-                                <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Status Layanan -->
