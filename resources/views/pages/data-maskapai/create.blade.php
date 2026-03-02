@@ -11,7 +11,7 @@
                 <form action="{{ route('data-maskapai.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{
                     kurs: '{{ old('kurs', 'IDR') }}',
                     custom_kurs: {{ old('custom_kurs', 'null') }},
-                    harga_tiket: '{{ old('harga_tiket') }}',
+                    harga_tiket: {{ old('harga_tiket', 0) }},
                     kursUsd: {{ $kursUsd ?? 0 }},
                     kursSar: {{ $kursSar ?? 0 }},
                     kursMyr: {{ $kursMyr ?? 0 }},
@@ -40,6 +40,10 @@
                     },
                     formatRupiah(number) {
                         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                    },
+                    formatNumber(num) {
+                        if (!num && num !== 0) return '';
+                        return new Intl.NumberFormat('id-ID').format(Math.round(num));
                     }
                 }">
                     @csrf
@@ -185,7 +189,8 @@
                                 <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
                                     Rp
                                 </span>
-                                <input type="number" name="harga_tiket" x-model="harga_tiket" placeholder="15000000" required min="0" step="0.01"
+                                <input type="hidden" name="harga_tiket" :value="harga_tiket">
+                                <input type="text" :value="formatNumber(harga_tiket)" @input="$el.value = $el.value.replace(/\D/g, ''); harga_tiket = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(harga_tiket)" placeholder="15.000.000" required
                                     class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                             </div>
                             <div x-show="convertedHarga" class="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">

@@ -224,7 +224,7 @@
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-500">Diskon (Nominal)</label>
-                                    <input type="number" x-model="form.diskon" class="w-full rounded border-gray-200 px-2 py-1 text-sm focus:border-blue-500" placeholder="0" />
+                                    <input type="text" :value="formatNumber(form.diskon)" @input="$el.value = $el.value.replace(/\D/g, ''); form.diskon = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(form.diskon)" class="w-full rounded border-gray-200 px-2 py-1 text-sm focus:border-blue-500" placeholder="0" />
                                 </div>
                                 <div class="border-t border-gray-200 pt-2">
                                      <label class="text-xs text-gray-500 font-bold">Total Harga (Setelah Diskon)</label>
@@ -233,9 +233,9 @@
                                 
                                 <div class="mt-4">
                                      <label class="mb-1 block text-sm font-medium text-gray-700">Pembayaran DP <span class="text-red-500">*</span></label>
-                                    <input type="number" x-model="form.total_bayar" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 dark:bg-gray-900" 
+                                    <input type="text" :value="formatNumber(form.total_bayar)" @input="$el.value = $el.value.replace(/\D/g, ''); form.total_bayar = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(form.total_bayar)" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 dark:bg-gray-900" 
                                         :class="{'border-red-500': form.total_bayar < 1}" 
-                                        required min="1" />
+                                        required />
                                     <p x-show="form.total_bayar < 1" class="mt-1 text-xs text-red-500">Pembayaran DP wajib diisi minimal Rp 1</p>
                                 </div>
                                 
@@ -380,6 +380,16 @@
 
             formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+            },
+
+            formatNumber(num) {
+                if (!num && num !== 0) return '';
+                return new Intl.NumberFormat('id-ID').format(Math.round(num));
+            },
+
+            parseFormattedNumber(value) {
+                if (!value) return 0;
+                return parseFloat(value.replace(/\./g, '').replace(/,/g, '')) || 0;
             },
 
             handleFile(e, key) {

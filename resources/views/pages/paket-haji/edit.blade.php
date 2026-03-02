@@ -118,25 +118,40 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP</label>
-                    <input type="number" name="harga_hpp_1" value="{{ old('harga_hpp_1', $paketHaji->harga_hpp_1) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
-                    @error('harga_hpp_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Quad</label>
-                    <input type="number" name="harga_quad_1" value="{{ old('harga_quad_1', $paketHaji->harga_quad_1) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
-                    @error('harga_quad_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Triple</label>
-                    <input type="number" name="harga_triple_1" value="{{ old('harga_triple_1', $paketHaji->harga_triple_1) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
-                    @error('harga_triple_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double</label>
-                    <input type="number" name="harga_double_1" value="{{ old('harga_double_1', $paketHaji->harga_double_1) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
-                    @error('harga_double_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" x-data="{ 
+                    hpp_1: {{ old('harga_hpp_1', $paketHaji->harga_hpp_1) }},
+                    quad_1: {{ old('harga_quad_1', $paketHaji->harga_quad_1) }},
+                    triple_1: {{ old('harga_triple_1', $paketHaji->harga_triple_1) }},
+                    double_1: {{ old('harga_double_1', $paketHaji->harga_double_1) }},
+                    formatNumber(num) {
+                        if (!num && num !== 0) return '';
+                        return new Intl.NumberFormat('id-ID').format(Math.round(num));
+                    }
+                }">
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP</label>
+                        <input type="hidden" name="harga_hpp_1" :value="hpp_1">
+                        <input type="text" :value="formatNumber(hpp_1)" @input="$el.value = $el.value.replace(/\D/g, ''); hpp_1 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(hpp_1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
+                        @error('harga_hpp_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Quad</label>
+                        <input type="hidden" name="harga_quad_1" :value="quad_1">
+                        <input type="text" :value="formatNumber(quad_1)" @input="$el.value = $el.value.replace(/\D/g, ''); quad_1 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(quad_1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
+                        @error('harga_quad_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Triple</label>
+                        <input type="hidden" name="harga_triple_1" :value="triple_1">
+                        <input type="text" :value="formatNumber(triple_1)" @input="$el.value = $el.value.replace(/\D/g, ''); triple_1 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(triple_1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
+                        @error('harga_triple_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double</label>
+                        <input type="hidden" name="harga_double_1" :value="double_1">
+                        <input type="text" :value="formatNumber(double_1)" @input="$el.value = $el.value.replace(/\D/g, ''); double_1 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(double_1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" required />
+                        @error('harga_double_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
         </div>
@@ -176,25 +191,40 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP</label>
-                    <input type="number" name="harga_hpp_2" value="{{ old('harga_hpp_2', $paketHaji->harga_hpp_2) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
-                    @error('harga_hpp_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Quad</label>
-                    <input type="number" name="harga_quad_2" value="{{ old('harga_quad_2', $paketHaji->harga_quad_2) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
-                    @error('harga_quad_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Triple</label>
-                    <input type="number" name="harga_triple_2" value="{{ old('harga_triple_2', $paketHaji->harga_triple_2) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
-                    @error('harga_triple_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double</label>
-                    <input type="number" name="harga_double_2" value="{{ old('harga_double_2', $paketHaji->harga_double_2) }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
-                    @error('harga_double_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" x-data="{ 
+                    hpp_2: {{ old('harga_hpp_2', $paketHaji->harga_hpp_2 ?? 0) }},
+                    quad_2: {{ old('harga_quad_2', $paketHaji->harga_quad_2 ?? 0) }},
+                    triple_2: {{ old('harga_triple_2', $paketHaji->harga_triple_2 ?? 0) }},
+                    double_2: {{ old('harga_double_2', $paketHaji->harga_double_2 ?? 0) }},
+                    formatNumber(num) {
+                        if (!num && num !== 0) return '';
+                        return new Intl.NumberFormat('id-ID').format(Math.round(num));
+                    }
+                }">
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP</label>
+                        <input type="hidden" name="harga_hpp_2" :value="hpp_2">
+                        <input type="text" :value="formatNumber(hpp_2)" @input="$el.value = $el.value.replace(/\D/g, ''); hpp_2 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(hpp_2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
+                        @error('harga_hpp_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Quad</label>
+                        <input type="hidden" name="harga_quad_2" :value="quad_2">
+                        <input type="text" :value="formatNumber(quad_2)" @input="$el.value = $el.value.replace(/\D/g, ''); quad_2 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(quad_2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
+                        @error('harga_quad_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Triple</label>
+                        <input type="hidden" name="harga_triple_2" :value="triple_2">
+                        <input type="text" :value="formatNumber(triple_2)" @input="$el.value = $el.value.replace(/\D/g, ''); triple_2 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(triple_2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
+                        @error('harga_triple_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double</label>
+                        <input type="hidden" name="harga_double_2" :value="double_2">
+                        <input type="text" :value="formatNumber(double_2)" @input="$el.value = $el.value.replace(/\D/g, ''); double_2 = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(double_2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm dark:border-gray-700 dark:text-white" />
+                        @error('harga_double_2') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
             </div>
         </div>

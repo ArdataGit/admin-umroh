@@ -97,18 +97,29 @@
                         @error('status_agent') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
-                    <!-- Komisi Paket Umroh -->
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Komisi Paket Umroh</label>
-                        <input type="number" name="komisi_paket_umroh" value="{{ old('komisi_paket_umroh', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
-                        @error('komisi_paket_umroh') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
-                    </div>
+                    <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6" x-data="{ 
+                        komisi_umroh: {{ old('komisi_paket_umroh', 0) }}, 
+                        komisi_haji: {{ old('komisi_paket_haji', 0) }},
+                        formatNumber(num) {
+                            if (!num && num !== 0) return '';
+                            return new Intl.NumberFormat('id-ID').format(Math.round(num));
+                        }
+                    }">
+                        <!-- Komisi Paket Umroh -->
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Komisi Paket Umroh</label>
+                            <input type="hidden" name="komisi_paket_umroh" :value="komisi_umroh">
+                            <input type="text" :value="formatNumber(komisi_umroh)" @input="$el.value = $el.value.replace(/\D/g, ''); komisi_umroh = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(komisi_umroh)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            @error('komisi_paket_umroh') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                        </div>
 
-                     <!-- Komisi Paket Haji -->
-                    <div>
-                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Komisi Paket Haji</label>
-                        <input type="number" name="komisi_paket_haji" value="{{ old('komisi_paket_haji', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
-                        @error('komisi_paket_haji') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                        <!-- Komisi Paket Haji -->
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Komisi Paket Haji</label>
+                            <input type="hidden" name="komisi_paket_haji" :value="komisi_haji">
+                            <input type="text" :value="formatNumber(komisi_haji)" @input="$el.value = $el.value.replace(/\D/g, ''); komisi_haji = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(komisi_haji)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            @error('komisi_paket_haji') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                        </div>
                     </div>
 
                     <!-- Alamat Agent -->

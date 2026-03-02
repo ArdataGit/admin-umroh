@@ -134,13 +134,20 @@
                         </div>
 
                          <!-- Gaji -->
-                        <div>
+                        <div x-data="{ 
+                            gaji: {{ old('gaji', 0) }},
+                            formatNumber(num) {
+                                if (!num && num !== 0) return '';
+                                return new Intl.NumberFormat('id-ID').format(Math.round(num));
+                            }
+                        }">
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Gaji <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">Rp</span>
-                                <input type="number" name="gaji" value="{{ old('gaji') }}" placeholder="0" required min="0" step="0.01"
+                                <input type="hidden" name="gaji" :value="gaji">
+                                <input type="text" :value="formatNumber(gaji)" @input="$el.value = $el.value.replace(/\D/g, ''); gaji = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(gaji)" placeholder="0" required
                                     class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent pl-11 pr-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('gaji') border-red-500 @enderror" />
                             </div>
                              @error('gaji')
