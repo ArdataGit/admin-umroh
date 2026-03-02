@@ -179,11 +179,22 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                                 Harga Hotel (per malam) <span class="text-red-500">*</span>
                             </label>
-                            <div class="relative">
+                            <div class="relative" x-data="{ 
+                                displayHarga: '',
+                                formatDisplay() {
+                                    let val = this.harga.toString().split('.')[0].replace(/\D/g, '');
+                                    this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                                },
+                                updateRaw(val) {
+                                    this.harga = val.replace(/\D/g, '');
+                                    this.formatDisplay();
+                                }
+                            }" x-init="formatDisplay()">
                                 <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
                                     Rp
                                 </span>
-                                <input type="number" name="harga_hotel" x-model="harga" placeholder="2500000" required min="0" step="0.01"
+                                <input type="hidden" name="harga_hotel" x-model="harga">
+                                <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" placeholder="2.500.000" required
                                     class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('harga_hotel') border-red-500 @enderror" />
                             </div>
                             @error('harga_hotel')

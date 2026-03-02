@@ -169,7 +169,19 @@
                     </div>
                      <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                         <span>Biaya Tambahan (Shipping)</span>
-                        <input type="number" x-model.number="form.shipping_cost" @input="calculateGrandTotal" min="0" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                        <div class="relative w-32" x-data="{
+                            displayVal: '',
+                            formatDisplay() {
+                                this.displayVal = form.shipping_cost ? new Intl.NumberFormat('id-ID').format(form.shipping_cost) : '';
+                            },
+                            updateRaw(val) {
+                                form.shipping_cost = val.replace(/\D/g, '') === '' ? 0 : parseInt(val.replace(/\D/g, ''));
+                                this.formatDisplay();
+                                calculateGrandTotal();
+                            }
+                        }" x-init="formatDisplay(); $watch('form.shipping_cost', value => formatDisplay())">
+                            <input type="text" x-model="displayVal" @input="updateRaw($event.target.value)" class="w-full text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                        </div>
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between text-lg font-bold text-gray-800 dark:text-white">
                         <span>Total Transaksi</span>

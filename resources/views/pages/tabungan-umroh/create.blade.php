@@ -59,9 +59,21 @@
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nomor Rekening</label>
                     <input type="text" name="rekening_tabungan" value="{{ old('rekening_tabungan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" required />
                 </div>
-                 <div>
+                 <div x-data="{ 
+                    setoran: '{{ old('setoran_tabungan', 0) }}',
+                    displaySetoran: '',
+                    formatDisplay() {
+                        let val = this.setoran.toString().replace(/\D/g, '');
+                        this.displaySetoran = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                    },
+                    updateRaw(val) {
+                        this.setoran = val.replace(/\D/g, '');
+                        this.formatDisplay();
+                    }
+                }" x-init="formatDisplay()">
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Setoran Tabungan (IDR)</label>
-                    <input type="number" name="setoran_tabungan" value="{{ old('setoran_tabungan') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" required />
+                    <input type="hidden" name="setoran_tabungan" x-model="setoran">
+                    <input type="text" x-model="displaySetoran" @input="updateRaw($event.target.value)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-white/30" placeholder="Contoh: 1.000.000" required />
                 </div>
                  <div>
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Metode Pembayaran</label>

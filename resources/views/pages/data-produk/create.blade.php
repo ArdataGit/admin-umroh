@@ -53,21 +53,45 @@
                     </div>
 
                     <!-- Harga Beli -->
-                    <div>
+                    <div x-data="{ 
+                        harga: '{{ old('harga_beli', 0) }}',
+                        displayHarga: '',
+                        formatDisplay() {
+                            let val = this.harga.toString().replace(/\D/g, '');
+                            this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                        },
+                        updateRaw(val) {
+                            this.harga = val.replace(/\D/g, '');
+                            this.formatDisplay();
+                        }
+                    }" x-init="formatDisplay()">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Beli</label>
                          <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">Rp</span>
-                            <input type="number" name="harga_beli" value="{{ old('harga_beli', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                            <input type="hidden" name="harga_beli" x-model="harga">
+                            <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         </div>
                         @error('harga_beli') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Harga Jual -->
-                    <div>
+                    <div x-data="{ 
+                        harga: '{{ old('harga_jual', 0) }}',
+                        displayHarga: '',
+                        formatDisplay() {
+                            let val = this.harga.toString().replace(/\D/g, '');
+                            this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                        },
+                        updateRaw(val) {
+                            this.harga = val.replace(/\D/g, '');
+                            this.formatDisplay();
+                        }
+                    }" x-init="formatDisplay()">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
                          <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">Rp</span>
-                            <input type="number" name="harga_jual" value="{{ old('harga_jual', 0) }}" min="0" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                            <input type="hidden" name="harga_jual" x-model="harga">
+                            <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" required />
                         </div>
                         @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
