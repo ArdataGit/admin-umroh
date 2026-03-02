@@ -69,7 +69,13 @@
                                 <tr class="border-b dark:border-gray-700">
                                     <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="item.nama_produk"></td>
                                     <td class="px-4 py-3">
-                                        Rp <span x-text="formatNumber(item.harga_satuan)"></span>
+                                        <div class="flex items-center">
+                                            <span class="mr-1 text-gray-500">Rp</span>
+                                            <input type="text" 
+                                                   :value="formatNumber(item.harga_satuan)" 
+                                                   @input="let val = $el.value.replace(/\D/g, ''); item.harga_satuan = val === '' ? 0 : parseInt(val); $el.value = formatNumber(item.harga_satuan); calculateLineTotal(index)" 
+                                                   class="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200" />
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <span x-text="item.standar_stok"></span> / <span x-text="item.aktual_stok"></span>
@@ -142,7 +148,10 @@
                     </div>
                      <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
                         <span>Shipping Cost</span>
-                        <input type="number" x-model.number="form.shipping_cost" @input="calculateGrandTotal" min="0" class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                        <input type="text" 
+                               :value="formatNumber(form.shipping_cost)" 
+                               @input="let val = $el.value.replace(/\D/g, ''); form.shipping_cost = val === '' ? 0 : parseInt(val); $el.value = formatNumber(form.shipping_cost); calculateGrandTotal()" 
+                               class="w-32 text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="0" />
                     </div>
                     <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between text-lg font-bold text-gray-800 dark:text-white">
                         <span>Total Nominal</span>
