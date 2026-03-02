@@ -46,15 +46,29 @@ class ProdukController extends Controller
         $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
         $kodeProduk = 'PR-' . $newNumber;
 
+        $rateService = new \App\Services\ExchangeRateService();
+        $kursUsd = $rateService->getRate('USD');
+        $kursSar = $rateService->getRate('SAR');
+        $kursMyr = $rateService->getRate('MYR');
+
         return view('pages.data-produk.create', [
             'title' => 'Tambah Data Produk',
-            'kodeProduk' => $kodeProduk
+            'kodeProduk' => $kodeProduk,
+            'kursUsd' => $kursUsd,
+            'kursSar' => $kursSar,
+            'kursMyr' => $kursMyr,
         ]);
     }
 
     public function store(Request $request)
     {
         $this->checkPermission('create');
+        
+        // Strip dot separators before validation
+        if ($request->has('harga_beli')) $request->merge(['harga_beli' => str_replace('.', '', $request->harga_beli)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'kode_produk' => 'required|string|unique:produks,kode_produk',
             'nama_produk' => 'required|string|max:255',
@@ -63,9 +77,32 @@ class ProdukController extends Controller
             'satuan_unit' => 'required|in:Pcs,Set,Pack,Dus,Lot,Pax,Room,Seat',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
+            'kurs' => 'required|string|in:IDR,USD,SAR,MYR',
+            'custom_kurs' => 'nullable|numeric',
             'catatan_produk' => 'nullable|string',
             'foto_produk' => 'nullable|image',
         ]);
+
+        // Handle currency conversion
+        $kurs = $validated['kurs'] ?? 'IDR';
+        if ($kurs !== 'IDR') {
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateService = new \App\Services\ExchangeRateService();
+                $rate = $rateService->getRate($kurs);
+            }
+            
+            $validated['harga_beli_asing'] = $validated['harga_beli'];
+            $validated['harga_jual_asing'] = $validated['harga_jual'];
+            
+            // Konversi ke Rupiah
+            $validated['harga_beli'] = $validated['harga_beli'] * $rate;
+            $validated['harga_jual'] = $validated['harga_jual'] * $rate;
+        } else {
+            $validated['harga_beli_asing'] = 0;
+            $validated['harga_jual_asing'] = 0;
+        }
 
         \Illuminate\Support\Facades\Log::info('Store Produk Request', [
             'has_file' => $request->hasFile('foto_produk'),
@@ -104,15 +141,29 @@ class ProdukController extends Controller
             return redirect()->route('data-produk')->with('error', 'Data produk tidak ditemukan');
         }
 
+        $rateService = new \App\Services\ExchangeRateService();
+        $kursUsd = $rateService->getRate('USD');
+        $kursSar = $rateService->getRate('SAR');
+        $kursMyr = $rateService->getRate('MYR');
+
         return view('pages.data-produk.edit', [
             'title' => 'Edit Data Produk',
-            'produk' => $produk
+            'produk' => $produk,
+            'kursUsd' => $kursUsd,
+            'kursSar' => $kursSar,
+            'kursMyr' => $kursMyr,
         ]);
     }
 
     public function update(Request $request, $id)
     {
         $this->checkPermission('edit');
+
+        // Strip dot separators before validation
+        if ($request->has('harga_beli')) $request->merge(['harga_beli' => str_replace('.', '', $request->harga_beli)]);
+        if ($request->has('harga_jual')) $request->merge(['harga_jual' => str_replace('.', '', $request->harga_jual)]);
+        if ($request->has('custom_kurs')) $request->merge(['custom_kurs' => str_replace('.', '', $request->custom_kurs)]);
+
         $validated = $request->validate([
             'nama_produk' => 'required|string|max:255',
             'standar_stok' => 'required|integer|min:0',
@@ -120,6 +171,8 @@ class ProdukController extends Controller
             'satuan_unit' => 'required|in:Pcs,Set,Pack,Dus,Lot,Pax,Room,Seat',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
+            'kurs' => 'required|string|in:IDR,USD,SAR,MYR',
+            'custom_kurs' => 'nullable|numeric',
             'catatan_produk' => 'nullable|string',
             'foto_produk' => 'nullable|image',
         ]);
@@ -127,6 +180,26 @@ class ProdukController extends Controller
         $produk = $this->produkService->getById($id);
         
         if ($produk) {
+            // Handle currency conversion
+            $kurs = $validated['kurs'] ?? 'IDR';
+            if ($kurs !== 'IDR') {
+                if (!empty($validated['custom_kurs'])) {
+                    $rate = $validated['custom_kurs'];
+                } else {
+                    $rateService = new \App\Services\ExchangeRateService();
+                    $rate = $rateService->getRate($kurs);
+                }
+                
+                $validated['harga_beli_asing'] = $validated['harga_beli'];
+                $validated['harga_jual_asing'] = $validated['harga_jual'];
+                
+                // Konversi ke Rupiah
+                $validated['harga_beli'] = $validated['harga_beli'] * $rate;
+                $validated['harga_jual'] = $validated['harga_jual'] * $rate;
+            } else {
+                $validated['harga_beli_asing'] = 0;
+                $validated['harga_jual_asing'] = 0;
+            }
             if ($request->hasFile('foto_produk')) {
                 if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
                     Storage::disk('public')->delete($produk->foto_produk);

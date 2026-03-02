@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('produks', function (Blueprint $table) {
-            //
+            $table->string('kurs')->default('IDR')->after('satuan_unit');
+            $table->decimal('harga_beli_asing', 15, 2)->default(0)->after('kurs');
+            $table->decimal('harga_jual_asing', 15, 2)->default(0)->after('harga_beli_asing');
         });
     }
 
@@ -22,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('produks', function (Blueprint $table) {
-            //
+            $table->dropColumn(['kurs', 'harga_beli_asing', 'harga_jual_asing']);
         });
     }
 };

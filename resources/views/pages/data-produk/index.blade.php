@@ -222,8 +222,22 @@
                             </td>
                             <td class="px-4 py-4 text-sm font-medium text-gray-800 dark:text-white" x-text="produk.kode_produk"></td>
                             <td class="px-4 py-4 text-sm text-gray-800 dark:text-gray-300" x-text="produk.nama_produk"></td>
-                            <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(produk.harga_beli)"></td>
-                            <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(produk.harga_jual)"></td>
+                            <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col">
+                                    <span x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(produk.harga_beli)"></span>
+                                    <template x-if="produk.kurs && produk.kurs !== 'IDR'">
+                                        <span class="text-xs opacity-70" x-text="'(' + (produk.kurs === 'MYR' ? 'RM' : produk.kurs) + ' ' + new Intl.NumberFormat('id-ID').format(produk.harga_beli_asing) + ')'"></span>
+                                    </template>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-col">
+                                    <span x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(produk.harga_jual)"></span>
+                                    <template x-if="produk.kurs && produk.kurs !== 'IDR'">
+                                        <span class="text-xs opacity-70" x-text="'(' + (produk.kurs === 'MYR' ? 'RM' : produk.kurs) + ' ' + new Intl.NumberFormat('id-ID').format(produk.harga_jual_asing) + ')'"></span>
+                                    </template>
+                                </div>
+                            </td>
                             <td class="px-4 py-4 text-sm text-gray-500 dark:text-gray-400" x-text="produk.standar_stok"></td>
                             <td class="px-4 py-4 text-sm font-bold text-gray-800 dark:text-white" x-text="produk.aktual_stok"></td>
                             <td class="px-4 py-4">

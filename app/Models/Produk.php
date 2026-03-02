@@ -14,6 +14,9 @@ class Produk extends Model
         'satuan_unit',
         'harga_beli',
         'harga_jual',
+        'kurs',
+        'harga_beli_asing',
+        'harga_jual_asing',
         'catatan_produk',
         'foto_produk'
     ];

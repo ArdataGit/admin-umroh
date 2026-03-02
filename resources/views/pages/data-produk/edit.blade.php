@@ -9,7 +9,52 @@
 <div class="grid grid-cols-12 gap-4 md:gap-6">
     <div class="col-span-12">
         <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900">
-            <form action="{{ route('data-produk.update', $produk->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('data-produk.update', $produk->id) }}" method="POST" enctype="multipart/form-data" x-data="{
+                kurs: '{{ old('kurs', $produk->kurs) }}',
+                harga_beli: '{{ old('kurs', $produk->kurs) === 'IDR' ? old('harga_beli', $produk->harga_beli) : old('harga_beli', $produk->harga_beli_asing) }}',
+                harga_jual: '{{ old('kurs', $produk->kurs) === 'IDR' ? old('harga_jual', $produk->harga_jual) : old('harga_jual', $produk->harga_jual_asing) }}',
+                custom_kurs: null,
+                kursUsd: {{ $kursUsd ?? 0 }},
+                kursSar: {{ $kursSar ?? 0 }},
+                kursMyr: {{ $kursMyr ?? 0 }},
+                updateCustomKurs() {
+                    if (this.kurs === 'USD') this.custom_kurs = this.kursUsd;
+                    else if (this.kurs === 'SAR') this.custom_kurs = this.kursSar;
+                    else if (this.kurs === 'MYR') this.custom_kurs = this.kursMyr;
+                    else this.custom_kurs = null;
+                },
+                init() {
+                    this.updateCustomKurs();
+                    this.$watch('kurs', (newKurs, oldKurs) => {
+                        this.updateCustomKurs();
+                        // Reset pricing if switching to IDR
+                        if (newKurs === 'IDR') {
+                            // Logic depends on how you want to handle existing values
+                        }
+                    });
+                },
+                get currencySymbol() {
+                    return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
+                },
+                get exchangeRate() {
+                    return parseFloat(this.custom_kurs) || 1;
+                },
+                get convertedBeli() {
+                    if (this.kurs === 'IDR' || !this.harga_beli) return null;
+                    return this.harga_beli * this.exchangeRate;
+                },
+                get convertedJual() {
+                    if (this.kurs === 'IDR' || !this.harga_jual) return null;
+                    return this.harga_jual * this.exchangeRate;
+                },
+                formatRupiah(number) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                },
+                formatNumber(num) {
+                    if (!num && num !== 0) return '';
+                    return new Intl.NumberFormat('id-ID').format(Math.round(num));
+                }
+            }">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -53,46 +98,50 @@
                          @error('satuan_unit') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Mata Uang -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Mata Uang</label>
+                        <select name="kurs" x-model="kurs" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90" required>
+                            <option value="IDR">IDR (Rupiah)</option>
+                            <option value="USD">USD (Dollar AS)</option>
+                            <option value="SAR">SAR (Riyal)</option>
+                            <option value="MYR">RM (Ringgit)</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Kurs -->
+                    <div class="col-span-1 md:col-span-2" x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
+                        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kurs <span x-text="kurs"></span> Hari Ini</label>
+                        <div class="relative">
+                            <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                            <input type="text" name="custom_kurs" :value="formatNumber(custom_kurs)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                        </div>
+                    </div>
+
                     <!-- Harga Beli -->
-                    <div x-data="{ 
-                        harga: '{{ old('harga_beli', $produk->harga_beli) }}',
-                        displayHarga: '',
-                        formatDisplay() {
-                            let val = this.harga.toString().split('.')[0].replace(/\D/g, '');
-                            this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
-                        },
-                        updateRaw(val) {
-                            this.harga = val.replace(/\D/g, '');
-                            this.formatDisplay();
-                        }
-                    }" x-init="formatDisplay()">
+                    <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Beli</label>
                          <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">Rp</span>
-                            <input type="hidden" name="harga_beli" x-model="harga">
-                            <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">Rp</span>
+                            <input type="text" name="harga_beli" :value="formatNumber(harga_beli)" @input="$el.value = $el.value.replace(/\D/g, ''); harga_beli = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(harga_beli)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-12 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                        </div>
+                        <div x-show="convertedBeli" class="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                            <span class="opacity-70">Estimasi:</span>
+                            <span x-text="formatRupiah(convertedBeli)"></span>
                         </div>
                         @error('harga_beli') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Harga Jual -->
-                    <div x-data="{ 
-                        harga: '{{ old('harga_jual', $produk->harga_jual) }}',
-                        displayHarga: '',
-                        formatDisplay() {
-                            let val = this.harga.toString().split('.')[0].replace(/\D/g, '');
-                            this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
-                        },
-                        updateRaw(val) {
-                            this.harga = val.replace(/\D/g, '');
-                            this.formatDisplay();
-                        }
-                    }" x-init="formatDisplay()">
+                    <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Jual</label>
                          <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">Rp</span>
-                            <input type="hidden" name="harga_jual" x-model="harga">
-                            <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-10 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">Rp</span>
+                            <input type="text" name="harga_jual" :value="formatNumber(harga_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); harga_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(harga_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent pl-12 px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
+                        </div>
+                        <div x-show="convertedJual" class="mt-1 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                            <span class="opacity-70">Estimasi:</span>
+                            <span x-text="formatRupiah(convertedJual)"></span>
                         </div>
                         @error('harga_jual') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                     </div>

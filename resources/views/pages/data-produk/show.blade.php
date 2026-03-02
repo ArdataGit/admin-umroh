@@ -50,16 +50,36 @@
             <p class="mt-1 text-base font-semibold text-gray-800 dark:text-white">{{ $produk->satuan_unit }}</p>
         </div>
         
+        <!-- Mata Uang -->
+        <div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mata Uang</p>
+            <p class="mt-1 text-base font-semibold text-gray-800 dark:text-white">{{ $produk->kurs ?? 'IDR' }}</p>
+        </div>
+
         <!-- Harga Beli -->
         <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Harga Beli</p>
-            <p class="mt-1 text-base font-semibold text-gray-800 dark:text-white">Rp {{ number_format($produk->harga_beli, 0, ',', '.') }}</p>
+            <div class="mt-1 flex flex-col">
+                <p class="text-base font-semibold text-gray-800 dark:text-white">Rp {{ number_format($produk->harga_beli, 0, ',', '.') }}</p>
+                @if(($produk->kurs ?? 'IDR') !== 'IDR')
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        ({{ $produk->kurs === 'MYR' ? 'RM' : $produk->kurs }} {{ number_format($produk->harga_beli_asing, 2, ',', '.') }})
+                    </p>
+                @endif
+            </div>
         </div>
 
         <!-- Harga Jual -->
         <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Harga Jual</p>
-            <p class="mt-1 text-base font-semibold text-gray-800 dark:text-white">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</p>
+            <div class="mt-1 flex flex-col">
+                <p class="text-base font-semibold text-gray-800 dark:text-white">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</p>
+                @if(($produk->kurs ?? 'IDR') !== 'IDR')
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        ({{ $produk->kurs === 'MYR' ? 'RM' : $produk->kurs }} {{ number_format($produk->harga_jual_asing, 2, ',', '.') }})
+                    </p>
+                @endif
+            </div>
         </div>
 
         <!-- Catatan Produk -->
