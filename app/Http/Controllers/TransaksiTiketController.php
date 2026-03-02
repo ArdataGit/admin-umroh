@@ -377,7 +377,7 @@ class TransaksiTiketController extends Controller
             'pembayaranTikets'
         ])->findOrFail($id);
 
-        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $totalBayar = $transaksi->pembayaranTikets->sum('jumlah_pembayaran');
         $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
         
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.pembayaran-tiket.pdf', [
@@ -404,7 +404,7 @@ class TransaksiTiketController extends Controller
             'pembayaranTikets'
         ])->findOrFail($id);
 
-        $totalBayar = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid')->sum('jumlah_pembayaran');
+        $totalBayar = $transaksi->pembayaranTikets->sum('jumlah_pembayaran');
         $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
         
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.pembayaran-tiket.pdf', [

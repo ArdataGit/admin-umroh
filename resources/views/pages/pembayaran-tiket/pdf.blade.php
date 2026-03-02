@@ -264,7 +264,7 @@
 
     <div class="clearfix">
         <div style="float: left; width: 50%;">
-            @php $paidPayments = $transaksi->pembayaranTikets->where('status_pembayaran', 'paid'); @endphp
+            @php $paidPayments = $transaksi->pembayaranTikets; @endphp
             @if($paidPayments->count() > 0)
                 <div class="section-title" style="margin-top: 5px;">Histori Pembayaran :</div>
                 <table class="summary-table" style="width: 90%;">
