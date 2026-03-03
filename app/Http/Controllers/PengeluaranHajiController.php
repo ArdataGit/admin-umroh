@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\CodeGenerator;
 
 class PengeluaranHajiController extends Controller
 {
@@ -24,9 +25,7 @@ class PengeluaranHajiController extends Controller
     public function create()
     {
         $keberangkatans = KeberangkatanHaji::with('paketHaji')->where('status_keberangkatan', 'active')->get();
-        // Generate Auto Code CH-XXX
-        $count = PengeluaranHaji::count() + 1;
-        $kodePengeluaran = 'CH-' . str_pad($count, 6, '0', STR_PAD_LEFT);
+        $kodePengeluaran = CodeGenerator::generate(PengeluaranHaji::class, 'kode_pengeluaran', 'CH-', 6);
 
         return view('pages.pengeluaran-haji.create', [
             'title' => 'Tambah Pengeluaran Haji',

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\CodeGenerator;
 
 class TransaksiLayananController extends Controller
 {
@@ -53,10 +54,7 @@ class TransaksiLayananController extends Controller
     public function create()
     {
         $this->checkPermission('create');
-        $lastTransaction = TransaksiLayanan::latest()->first();
-        $nextId = $lastTransaction ? ($lastTransaction->id + 1) : 1;
-        // Format SO-XXX
-        $kodeTransaksi = 'SO-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+        $kodeTransaksi = CodeGenerator::generate(TransaksiLayanan::class, 'kode_transaksi', 'SO-', 3);
 
         return view('pages.transaksi-layanan.create', [
             'title' => 'Tambah Transaksi Layanan',
@@ -128,9 +126,8 @@ class TransaksiLayananController extends Controller
             $statusBayar = ($jumlahBayar > 0) ? 'paid' : 'pending';
             $metodeBayar = $metodeBayar ?? '-'; // Default if pending
 
-            // Generate Code for Payment: PS-ID-XXX (Payment Service)
-            $countPayment = \App\Models\PembayaranLayanan::count() + 1;
-            $kodePembayaran = 'PS-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+            // Generate Code for Payment: PS-XXXXX (Payment Service)
+            $kodePembayaran = CodeGenerator::generate(\App\Models\PembayaranLayanan::class, 'kode_transaksi', 'PS-', 5);
 
             \App\Models\PembayaranLayanan::create([
                 'transaksi_layanan_id' => $transaksi->id,

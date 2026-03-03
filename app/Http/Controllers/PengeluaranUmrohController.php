@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\CodeGenerator;
 
 class PengeluaranUmrohController extends Controller
 {
@@ -24,9 +25,7 @@ class PengeluaranUmrohController extends Controller
     public function create()
     {
         $keberangkatans = KeberangkatanUmroh::with('paketUmroh')->where('status_keberangkatan', 'active')->get();
-        // Generate Auto Code CU-XXX
-        $count = PengeluaranUmroh::count() + 1;
-        $kodePengeluaran = 'CU-' . str_pad($count, 6, '0', STR_PAD_LEFT);
+        $kodePengeluaran = CodeGenerator::generate(PengeluaranUmroh::class, 'kode_pengeluaran', 'CU-', 6);
 
         return view('pages.pengeluaran-umroh.create', [
             'title' => 'Tambah Pengeluaran Umroh',

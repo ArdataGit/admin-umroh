@@ -6,6 +6,7 @@ use App\Models\PembayaranLayanan;
 use Illuminate\Http\Request;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\CodeGenerator;
 
 class PembayaranLayananController extends Controller
 {
@@ -55,9 +56,8 @@ class PembayaranLayananController extends Controller
             'kode_referensi' => 'nullable|string',
         ]);
 
-        // Generate Code for Payment: PS-ID-XXX (Payment Service)
-        $countPayment = PembayaranLayanan::count() + 1;
-        $kodePembayaran = 'PS-' . str_pad($countPayment, 5, '0', STR_PAD_LEFT);
+        // Generate Code for Payment: PS-XXXXX (Payment Service)
+        $kodePembayaran = CodeGenerator::generate(PembayaranLayanan::class, 'kode_transaksi', 'PS-', 5);
 
         PembayaranLayanan::create([
             'transaksi_layanan_id' => $transaksi->id,

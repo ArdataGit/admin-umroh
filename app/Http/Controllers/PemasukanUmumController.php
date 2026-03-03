@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\CodeGenerator;
 
 class PemasukanUmumController extends Controller
 {
@@ -22,9 +23,7 @@ class PemasukanUmumController extends Controller
 
     public function create()
     {
-        // Generate Auto Code IG-XXX
-        $count = PemasukanUmum::count() + 1;
-        $kodePemasukan = 'IG-' . str_pad($count, 6, '0', STR_PAD_LEFT);
+        $kodePemasukan = CodeGenerator::generate(PemasukanUmum::class, 'kode_pemasukan', 'IG-', 6);
 
         return view('pages.pemasukan-umum.create', [
             'title' => 'Tambah Pemasukan Umum',
