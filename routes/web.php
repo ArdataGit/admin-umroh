@@ -256,6 +256,8 @@ Route::get('/transaksi-layanan/{id}', [TransaksiLayananController::class, 'show'
 Route::get('/transaksi-layanan/{id}/edit', [TransaksiLayananController::class, 'edit'])->name('transaksi-layanan.edit');
 Route::put('/transaksi-layanan/{id}', [TransaksiLayananController::class, 'update'])->name('transaksi-layanan.update');
 Route::delete('/transaksi-layanan/{id}', [TransaksiLayananController::class, 'destroy'])->name('transaksi-layanan.destroy');
+Route::get('/transaksi-layanan/pdf/{id}', [TransaksiLayananController::class, 'exportPdf'])->name('transaksi-layanan.export-pdf');
+Route::get('/transaksi-layanan/print/{id}', [TransaksiLayananController::class, 'printPdf'])->name('transaksi-layanan.print-pdf');
 
 // Transaksi Tiket Routes
 
@@ -442,8 +444,11 @@ Route::post('/pembayaran-layanan/{id}/store-payment', [PembayaranLayananControll
     Route::get('/pembayaran-layanan/{id}/edit', [PembayaranLayananController::class, 'edit'])->name('pembayaran-layanan.edit');
     Route::put('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'update'])->name('pembayaran-layanan.update');
     Route::delete('/pembayaran-layanan/{id}', [PembayaranLayananController::class, 'destroy'])->name('pembayaran-layanan.destroy');
+    Route::get('/pembayaran-layanan/pdf/{id}', [PembayaranLayananController::class, 'exportPdf'])->name('pembayaran-layanan.export-pdf');
+    Route::get('/pembayaran-layanan/print/{id}', [PembayaranLayananController::class, 'printPdf'])->name('pembayaran-layanan.print-pdf');
 
-
+    // Transaksi Free
+    Route::get('/transaksi-free', [TransaksiFreeController::class, 'index'])->name('transaksi-free.index');
 
 
 // dashboard pages

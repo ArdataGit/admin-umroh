@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\CodeGenerator;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PembayaranLayananController extends Controller
 {
@@ -124,15 +126,63 @@ class PembayaranLayananController extends Controller
     {
         $pembayaran = PembayaranLayanan::findOrFail($id);
         $kodePembayaran = $pembayaran->kode_transaksi;
+        $transaksiId = $pembayaran->transaksi_layanan_id; // Get the transaction ID before deleting
         $pembayaran->delete();
 
+        // Pencatatan History Action
         HistoryAction::create([
             'user_id' => Auth::id(),
             'menu' => 'Pembayaran Layanan',
             'action' => 'Delete',
-            'keterangan' => 'Menghapus pembayaran layanan: ' . $kodePembayaran
+            'keterangan' => 'Menghapus pembayaran: ' . $kodePembayaran
         ]);
 
-        return redirect()->route('pembayaran-layanan.index')->with('success', 'Pembayaran berhasil dihapus');
+        return redirect()->route('pembayaran-layanan.show', $transaksiId)->with('success', 'Pembayaran berhasil dihapus');
+    }
+
+    public function exportPdf($id)
+    {
+        $pembayaran = PembayaranLayanan::with([
+            'transaksiLayanan.pelanggan',
+            'transaksiLayanan.details.layanan',
+            'transaksiLayanan.pembayaranLayanans'
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksiLayanan;
+        $totalBayar = $transaksi->pembayaranLayanans->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-layanan.pdf', [
+            'title' => 'Invoice Transaksi Layanan - ' . $transaksi->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
+    }
+
+    public function printPdf($id)
+    {
+        $pembayaran = PembayaranLayanan::with([
+            'transaksiLayanan.pelanggan',
+            'transaksiLayanan.details.layanan',
+            'transaksiLayanan.pembayaranLayanans'
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksiLayanan;
+        $totalBayar = $transaksi->pembayaranLayanans->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-layanan.pdf', [
+            'title' => 'Invoice Transaksi Layanan - ' . $transaksi->kode_transaksi,
+            'pembayaran' => $pembayaran,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->stream('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
     }
 }

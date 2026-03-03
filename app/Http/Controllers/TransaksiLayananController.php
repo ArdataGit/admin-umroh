@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\HistoryAction;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\CodeGenerator;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiLayananController extends Controller
 {
@@ -285,5 +287,47 @@ class TransaksiLayananController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal menghapus: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function exportPdf($id)
+    {
+        $transaksi = TransaksiLayanan::with([
+            'pelanggan',
+            'details.layanan',
+            'pembayaranLayanans'
+        ])->findOrFail($id);
+
+        $totalBayar = $transaksi->pembayaranLayanans->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-layanan.pdf', [
+            'title' => 'Invoice Transaksi Layanan - ' . $transaksi->kode_transaksi,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->download('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
+    }
+
+    public function printPdf($id)
+    {
+        $transaksi = TransaksiLayanan::with([
+            'pelanggan',
+            'details.layanan',
+            'pembayaranLayanans'
+        ])->findOrFail($id);
+
+        $totalBayar = $transaksi->pembayaranLayanans->sum('jumlah_pembayaran');
+        $sisaPembayaran = $transaksi->total_transaksi - $totalBayar;
+        
+        $pdf = Pdf::loadView('pages.pembayaran-layanan.pdf', [
+            'title' => 'Invoice Transaksi Layanan - ' . $transaksi->kode_transaksi,
+            'transaksi' => $transaksi,
+            'total_bayar' => $totalBayar,
+            'sisa_pembayaran' => $sisaPembayaran
+        ]);
+        
+        return $pdf->stream('Invoice_' . Str::slug($transaksi->kode_transaksi) . '.pdf');
     }
 }
