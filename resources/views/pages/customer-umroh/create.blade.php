@@ -20,26 +20,50 @@
                     <input type="text" value="{{ $keberangkatan->kode_keberangkatan }} - {{ $keberangkatan->nama_keberangkatan }}" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500" />
                 </div>
 
-                <!-- Jamaah Selection -->
-                 <div>
+                 <!-- Jamaah Selection -->
+                 <div class="relative" @click.away="showJamaahDropdown = false">
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pilih Jamaah</label>
-                    <select x-model="form.jamaah_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-                        <option value="">-- Pilih Jamaah --</option>
-                        @foreach($jamaahs as $j)
-                            <option value="{{ $j->id }}">{{ $j->kode_jamaah }} - {{ $j->nama_lengkap }}</option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <input type="text" x-model="searchJamaah" @focus="showJamaahDropdown = true" @input="showJamaahDropdown = true; form.jamaah_id = ''" placeholder="Cari Kode atau Nama Jamaah..." class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div x-show="showJamaahDropdown" style="display: none;" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 max-h-60 overflow-y-auto">
+                        <ul>
+                            <template x-for="jamaah in filteredJamaahs" :key="jamaah.id">
+                                <li @click="selectJamaah(jamaah)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 border-b dark:border-gray-700 last:border-0">
+                                    <span x-text="jamaah.kode_jamaah + ' - ' + jamaah.nama_lengkap"></span>
+                                </li>
+                            </template>
+                            <li x-show="filteredJamaahs.length === 0" class="px-4 py-2 text-sm text-gray-500">
+                                Jamaah tidak ditemukan.
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Agent Selection -->
-                 <div>
+                 <div class="relative" @click.away="showAgentDropdown = false">
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Pilih Agent</label>
-                    <select x-model="form.agent_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required>
-                        <option value="">-- Pilih Agent --</option>
-                        @foreach($agents as $a)
-                            <option value="{{ $a->id }}">{{ $a->kode_agent }} - {{ $a->nama_agent }}</option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <input type="text" x-model="searchAgent" @focus="showAgentDropdown = true" @input="showAgentDropdown = true; form.agent_id = ''" placeholder="Cari Kode atau Nama Agent..." class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" required />
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                    <div x-show="showAgentDropdown" style="display: none;" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 max-h-60 overflow-y-auto">
+                        <ul>
+                            <template x-for="agent in filteredAgents" :key="agent.id">
+                                <li @click="selectAgent(agent)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 border-b dark:border-gray-700 last:border-0">
+                                    <span x-text="agent.kode_agent + ' - ' + agent.nama_agent"></span>
+                                </li>
+                            </template>
+                            <li x-show="filteredAgents.length === 0" class="px-4 py-2 text-sm text-gray-500">
+                                Agent tidak ditemukan.
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Tipe Kamar -->
@@ -196,6 +220,44 @@
                     this.updateTotalPackagePrice();
                 });
             },
+            agents: @json($agents),
+            searchAgent: '',
+            showAgentDropdown: false,
+            get filteredAgents() {
+                if (this.searchAgent === '') {
+                    return this.agents;
+                }
+                const query = this.searchAgent.toLowerCase();
+                return this.agents.filter(a => 
+                    a.nama_agent.toLowerCase().includes(query) || 
+                    a.kode_agent.toLowerCase().includes(query)
+                );
+            },
+            selectAgent(agent) {
+                this.form.agent_id = agent.id;
+                this.searchAgent = agent.kode_agent + ' - ' + agent.nama_agent;
+                this.showAgentDropdown = false;
+            },
+
+            jamaahs: @json($jamaahs),
+            searchJamaah: '',
+            showJamaahDropdown: false,
+            get filteredJamaahs() {
+                if (this.searchJamaah === '') {
+                    return this.jamaahs;
+                }
+                const query = this.searchJamaah.toLowerCase();
+                return this.jamaahs.filter(j => 
+                    j.nama_lengkap.toLowerCase().includes(query) || 
+                    j.kode_jamaah.toLowerCase().includes(query)
+                );
+            },
+            selectJamaah(jamaah) {
+                this.form.jamaah_id = jamaah.id;
+                this.searchJamaah = jamaah.kode_jamaah + ' - ' + jamaah.nama_lengkap;
+                this.showJamaahDropdown = false;
+            },
+            
             updatePrice() {
                 if (this.form.tipe_kamar && this.prices[this.form.tipe_kamar]) {
                     this.form.harga_paket = this.prices[this.form.tipe_kamar];
@@ -225,6 +287,14 @@
             },
              submitForm() {
                 // Pre-submission validation
+                if (!this.form.jamaah_id) {
+                    alert('Gagal: Silakan pilih Jamaah dari daftar.');
+                    return;
+                }
+                if (!this.form.agent_id) {
+                    alert('Gagal: Silakan pilih Agent dari daftar.');
+                    return;
+                }
                 if (!this.form.total_bayar || this.form.total_bayar < 1) {
                     alert('Gagal: Pembayaran DP harus diisi dan minimal Rp 1.');
                     return;
