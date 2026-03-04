@@ -80,7 +80,10 @@
                         <tbody>
                             <template x-for="(item, index) in form.details" :key="index">
                                 <tr class="border-b dark:border-gray-700">
-                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white" x-text="item.nama_layanan"></td>
+                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                                        <div x-text="item.nama_layanan"></div>
+                                        <div class="text-xs text-gray-500" x-text="item.kode_layanan"></div>
+                                    </td>
                                     <td class="px-4 py-3">
                                         <template x-if="item.kurs && item.kurs !== 'IDR'">
                                             <div class="flex flex-col gap-2">
@@ -187,6 +190,42 @@
                         <span>Total Transaksi</span>
                         <span>Rp <span x-text="formatNumber(form.total_transaksi)"></span></span>
                     </div>
+
+                    <!-- Payment Section -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-3">
+                        <h4 class="font-medium text-gray-800 dark:text-white">Pembayaran Awal</h4>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-400">Metode Pembayaran</label>
+                            <select x-model="form.metode_pembayaran" class="w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                                <option value="">Pilih Metode</option>
+                                <option value="cash">Cash</option>
+                                <option value="transfer">Transfer Bank</option>
+                                <option value="debit">Debit Card</option>
+                                <option value="credit">Credit Card</option>
+                                <option value="qris">QRIS</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
+                             <span>Jumlah Bayar</span>
+                             <div class="relative w-32" x-data="{
+                                displayVal: '',
+                                formatDisplay() {
+                                    this.displayVal = form.jumlah_bayar ? new Intl.NumberFormat('id-ID').format(form.jumlah_bayar) : '';
+                                },
+                                updateRaw(val) {
+                                    form.jumlah_bayar = val.replace(/\D/g, '') === '' ? 0 : parseInt(val.replace(/\D/g, ''));
+                                    this.formatDisplay();
+                                    calculateSisa();
+                                }
+                            }" x-init="formatDisplay(); $watch('form.jumlah_bayar', value => formatDisplay())">
+                                <input type="text" x-model="displayVal" @input="updateRaw($event.target.value)" class="w-full text-right rounded border border-gray-300 px-2 py-1 text-sm bg-white" placeholder="0" />
+                             </div>
+                        </div>
+                        <div class="flex justify-between items-center text-sm font-bold text-gray-800 dark:text-white">
+                             <span>Sisa Tagihan</span>
+                             <span>Rp <span x-text="formatNumber(sisaTagihan)"></span></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -219,32 +258,38 @@
             selectPelanggan(pelanggan) {
                 this.form.pelanggan_id = pelanggan.id;
                 this.searchPelanggan = pelanggan.nama_pelanggan;
+                this.selectedPelanggan = pelanggan;
                 this.showPelangganDropdown = false;
             },
             form: {
-                kode_transaksi: '{{ $transaksi->kode_transaksi }}',
-                pelanggan_id: {{ $transaksi->pelanggan_id }},
-                tanggal_transaksi: '{{ $transaksi->tanggal_transaksi }}',
+                kode_transaksi: @json($transaksi->kode_transaksi),
+                pelanggan_id: @json($transaksi->pelanggan_id),
+                tanggal_transaksi: @json($transaksi->tanggal_transaksi),
                 details: @json($details),
-                tax_percentage: {{ $transaksi->tax_percentage }},
-                discount_percentage: {{ $transaksi->discount_percentage }},
-                shipping_cost: {{ $transaksi->shipping_cost }},
-                total_transaksi: {{ $transaksi->total_transaksi }},
-                status_transaksi: '{{ $transaksi->status_transaksi }}',
-                alamat_transaksi: '{{ $transaksi->alamat_transaksi }}',
-                catatan: '{{ $transaksi->catatan }}'
+                tax_percentage: @json((float)$transaksi->tax_percentage),
+                discount_percentage: @json((float)$transaksi->discount_percentage),
+                shipping_cost: @json((float)$transaksi->shipping_cost),
+                total_transaksi: @json((float)$transaksi->total_transaksi),
+                status_transaksi: @json($transaksi->status_transaksi),
+                alamat_transaksi: @json($transaksi->alamat_transaksi),
+                catatan: @json($transaksi->catatan),
+                jumlah_bayar: @json((float)($firstPayment->jumlah_pembayaran ?? 0)),
+                metode_pembayaran: @json($firstPayment->metode_pembayaran ?? '')
             },
             subtotal: 0,
             taxAmount: 0,
             discountAmount: 0,
+            sisaTagihan: 0,
+            selectedPelanggan: null,
             
             init() {
                 this.filteredLayanans = this.layanans;
                 
-                // Initialize searchPelanggan based on existing pelanggan_id
+                // Initialize searchPelanggan and selectedPelanggan based on existing pelanggan_id
                 const existingPelanggan = this.pelanggans.find(p => p.id == this.form.pelanggan_id);
                 if (existingPelanggan) {
                     this.searchPelanggan = existingPelanggan.nama_pelanggan;
+                    this.selectedPelanggan = existingPelanggan;
                 }
 
                 // Calculate rate for initial details
@@ -275,6 +320,7 @@
                 } else {
                     this.form.details.push({
                         layanan_id: layanan.id,
+                        kode_layanan: layanan.kode_layanan,
                         nama_layanan: layanan.nama_layanan,
                         kurs: layanan.kurs,
                         harga_jual_asing: parseFloat(layanan.harga_jual_asing) || 0,
@@ -305,6 +351,10 @@
                 const shipping = parseFloat(this.form.shipping_cost) || 0;
                 
                 this.form.total_transaksi = this.subtotal + this.taxAmount - this.discountAmount + shipping;
+                this.calculateSisa();
+            },
+            calculateSisa() {
+                this.sisaTagihan = this.form.total_transaksi - this.form.jumlah_bayar;
             },
             formatNumber(num) {
                 if (!num && num !== 0) return '';

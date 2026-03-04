@@ -175,11 +175,12 @@ class TransaksiLayananController extends Controller
     public function edit($id)
     {
         $this->checkPermission('edit');
-        $transaksi = TransaksiLayanan::with('details.layanan')->findOrFail($id);
+        $transaksi = TransaksiLayanan::with(['details.layanan', 'pembayaranLayanans'])->findOrFail($id);
         
         $details = $transaksi->details->map(function($detail) {
             return [
                 'layanan_id' => $detail->layanan_id,
+                'kode_layanan' => $detail->layanan->kode_layanan,
                 'nama_layanan' => $detail->layanan->nama_layanan,
                 'kurs' => $detail->layanan->kurs,
                 'harga_jual_asing' => $detail->layanan->harga_jual_asing,
@@ -189,10 +190,15 @@ class TransaksiLayananController extends Controller
             ];
         });
 
+        $totalBayar = $transaksi->pembayaranLayanans->sum('jumlah_pembayaran');
+        $firstPayment = $transaksi->pembayaranLayanans()->orderBy('created_at', 'asc')->first();
+
         return view('pages.transaksi-layanan.edit', [
             'title' => 'Edit Transaksi Layanan',
             'transaksi' => $transaksi,
             'details' => $details,
+            'totalBayar' => $totalBayar,
+            'firstPayment' => $firstPayment,
             'layanans' => Layanan::all(),
             'pelanggans' => Pelanggan::all()
         ]);
@@ -215,7 +221,10 @@ class TransaksiLayananController extends Controller
             'total_transaksi' => 'required|numeric|min:0',
             'status_transaksi' => 'required|in:process,completed,cancelled',
             'alamat_transaksi' => 'nullable|string',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
+            // Added for consistency with create
+            'jumlah_bayar' => 'nullable|numeric|min:0',
+            'metode_pembayaran' => 'nullable|string'
         ]);
 
         try {
@@ -244,6 +253,34 @@ class TransaksiLayananController extends Controller
                     'quantity' => $detail['quantity'],
                     'harga_satuan' => $detail['harga_satuan'],
                     'total_harga' => $detail['total_harga']
+                ]);
+            }
+
+            // Handle Payment Update (Initial Payment)
+            $jumlahBayar = $validated['jumlah_bayar'] ?? 0;
+            $metodeBayar = $validated['metode_pembayaran'];
+            
+            if ($jumlahBayar > 0 && empty($metodeBayar)) {
+                throw new \Exception("Metode pembayaran harus dipilih jika ada pembayaran.");
+            }
+
+            $firstPayment = $transaksi->pembayaranLayanans()->orderBy('created_at', 'asc')->first();
+            if ($firstPayment) {
+                $firstPayment->update([
+                    'jumlah_pembayaran' => $jumlahBayar,
+                    'metode_pembayaran' => $metodeBayar ?? '-',
+                    'status_pembayaran' => ($jumlahBayar > 0) ? 'paid' : 'pending'
+                ]);
+            } else {
+                $kodePembayaran = CodeGenerator::generate(\App\Models\PembayaranLayanan::class, 'kode_transaksi', 'PS-', 5);
+                \App\Models\PembayaranLayanan::create([
+                    'transaksi_layanan_id' => $transaksi->id,
+                    'kode_transaksi' => $kodePembayaran,
+                    'tanggal_pembayaran' => $transaksi->tanggal_transaksi,
+                    'jumlah_pembayaran' => $jumlahBayar,
+                    'metode_pembayaran' => $metodeBayar ?? '-',
+                    'status_pembayaran' => ($jumlahBayar > 0) ? 'paid' : 'pending',
+                    'catatan' => 'Pembayaran awal saat transaksi'
                 ]);
             }
 
