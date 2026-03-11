@@ -9,12 +9,12 @@ class PaketUmrohService
 {
     public function getAll()
     {
-        return PaketUmroh::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2'])->get();
+        return PaketUmroh::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2', 'layanans'])->get();
     }
 
     public function getById($id)
     {
-        return PaketUmroh::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2'])->find($id);
+        return PaketUmroh::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2', 'layanans'])->find($id);
     }
 
     public function create($data)
@@ -23,7 +23,11 @@ class PaketUmrohService
             $data['foto_brosur'] = $data['foto_brosur']->store('paket-umroh-brosur', 'public');
         }
 
-        return PaketUmroh::create($data);
+        $paket = PaketUmroh::create($data);
+
+        $paket->layanans()->sync($data['layanan_ids'] ?? []);
+
+        return $paket;
     }
 
     public function update($id, $data)
@@ -38,6 +42,8 @@ class PaketUmrohService
             }
 
             $paket->update($data);
+
+            $paket->layanans()->sync($data['layanan_ids'] ?? []);
 
             // Sync dates to KeberangkatanUmroh
             if (isset($data['tanggal_keberangkatan']) || isset($data['jumlah_hari'])) {

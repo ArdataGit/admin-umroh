@@ -70,15 +70,38 @@
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketUmroh->jenis_paket_1 }}</h4>
             <div class="space-y-2 text-sm">
-                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketUmroh->hotelMekkah1->nama_hotel }}</p>
-                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketUmroh->hotelMadinah1->nama_hotel }}</p>
+                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketUmroh->hotelMekkah1->nama_hotel }} ({{ $paketUmroh->hari_mekkah_1 }} Hari)</p>
+                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketUmroh->hotelMadinah1->nama_hotel }} ({{ $paketUmroh->hari_madinah_1 }} Hari)</p>
                 @if($paketUmroh->hotelTransit1)
-                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketUmroh->hotelTransit1->nama_hotel }}</p>
+                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketUmroh->hotelTransit1->nama_hotel }} ({{ $paketUmroh->hari_transit_1 }} Hari)</p>
                 @endif
-                <div class="mt-4 space-y-1 border-t border-gray-100 pt-2 dark:border-gray-800">
-                    <div class="flex justify-between"><span>Quad:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_quad_1, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Triple:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_triple_1, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Double:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_double_1, 0, ',', '.') }}</span></div>
+                <div class="mt-4 border-t border-gray-100 pt-2 dark:border-gray-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-gray-500">General HPP:</span>
+                        <span class="text-sm font-semibold">Rp {{ number_format($paketUmroh->harga_hpp_1, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                        <div class="text-[10px] uppercase text-gray-400 font-bold col-start-1">Tipe Kamar</div>
+                        <div class="text-[10px] uppercase text-gray-400 font-bold text-right">HPP / Harga Jual</div>
+                        
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Quad</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_quad1, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_quad_1, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Triple</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_triple1, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_triple_1, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Double</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_double1, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_double_1, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,15 +111,38 @@
         <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <h4 class="mb-3 text-lg font-semibold text-blue-600">{{ $paketUmroh->jenis_paket_2 }}</h4>
              <div class="space-y-2 text-sm">
-                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketUmroh->hotelMekkah2->nama_hotel ?? '-' }}</p>
-                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketUmroh->hotelMadinah2->nama_hotel ?? '-' }}</p>
+                <p><span class="text-gray-500">Hotel Mekkah:</span> {{ $paketUmroh->hotelMekkah2->nama_hotel ?? '-' }} @if($paketUmroh->hotel_mekkah_2) ({{ $paketUmroh->hari_mekkah_2 }} Hari) @endif</p>
+                <p><span class="text-gray-500">Hotel Madinah:</span> {{ $paketUmroh->hotelMadinah2->nama_hotel ?? '-' }} @if($paketUmroh->hotel_madinah_2) ({{ $paketUmroh->hari_madinah_2 }} Hari) @endif</p>
                 @if($paketUmroh->hotelTransit2)
-                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketUmroh->hotelTransit2->nama_hotel }}</p>
+                    <p><span class="text-gray-500">Hotel Transit:</span> {{ $paketUmroh->hotelTransit2->nama_hotel }} ({{ $paketUmroh->hari_transit_2 }} Hari)</p>
                 @endif
-                <div class="mt-4 space-y-1 border-t border-gray-100 pt-2 dark:border-gray-800">
-                    <div class="flex justify-between"><span>Quad:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_quad_2, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Triple:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_triple_2, 0, ',', '.') }}</span></div>
-                    <div class="flex justify-between"><span>Double:</span> <span class="font-semibold">Rp {{ number_format($paketUmroh->harga_double_2, 0, ',', '.') }}</span></div>
+                <div class="mt-4 border-t border-gray-100 pt-2 dark:border-gray-800">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs text-gray-500">General HPP:</span>
+                        <span class="text-sm font-semibold">Rp {{ number_format($paketUmroh->harga_hpp_2, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                        <div class="text-[10px] uppercase text-gray-400 font-bold col-start-1">Tipe Kamar</div>
+                        <div class="text-[10px] uppercase text-gray-400 font-bold text-right">HPP / Harga Jual</div>
+                        
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Quad</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_quad2, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_quad_2, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Triple</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_triple2, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_triple_2, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="text-xs text-gray-600 dark:text-gray-400">Double</div>
+                        <div class="text-xs text-right">
+                           <span class="text-gray-400 italic">Rp {{ number_format($paketUmroh->hpp_double2, 0, ',', '.') }}</span> / 
+                           <span class="font-semibold text-gray-800 dark:text-white">Rp {{ number_format($paketUmroh->harga_double_2, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,6 +151,20 @@
 
     <!-- Details Text -->
     <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+            <h4 class="mb-2 font-semibold text-gray-800 dark:text-white">Layanan Tambahan</h4>
+            <div class="rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                @if($paketUmroh->layanans->count() > 0)
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach($paketUmroh->layanans as $layanan)
+                            <li>{{ $layanan->nama_layanan }} ({{ $layanan->jenis_layanan }})</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="italic text-gray-500">Tidak ada layanan tambahan.</p>
+                @endif
+            </div>
+        </div>
         <div>
             <h4 class="mb-2 font-semibold text-gray-800 dark:text-white">Termasuk Paket</h4>
             <div class="rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300 whitespace-pre-line">{{ $paketUmroh->termasuk_paket }}</div>

@@ -18,17 +18,29 @@ class PaketHaji extends Model
         'lokasi_keberangkatan',
         'jenis_paket_1',
         'hotel_mekkah_1',
+        'hari_mekkah_1',
         'hotel_madinah_1',
+        'hari_madinah_1',
         'hotel_transit_1',
+        'hari_transit_1',
         'harga_hpp_1',
+        'hpp_quad1',
+        'hpp_triple1',
+        'hpp_double1',
         'harga_quad_1',
         'harga_triple_1',
         'harga_double_1',
         'jenis_paket_2',
         'hotel_mekkah_2',
+        'hari_mekkah_2',
         'hotel_madinah_2',
+        'hari_madinah_2',
         'hotel_transit_2',
+        'hari_transit_2',
         'harga_hpp_2',
+        'hpp_quad2',
+        'hpp_triple2',
+        'hpp_double2',
         'harga_quad_2',
         'harga_triple_2',
         'harga_double_2',
@@ -72,5 +84,10 @@ class PaketHaji extends Model
     public function hotelTransit2()
     {
         return $this->belongsTo(Hotel::class, 'hotel_transit_2');
+    }
+
+    public function layanans()
+    {
+        return $this->belongsToMany(Layanan::class, 'paket_haji_layanan', 'paket_haji_id', 'layanan_id');
     }
 }

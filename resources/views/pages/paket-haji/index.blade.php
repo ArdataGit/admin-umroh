@@ -87,6 +87,7 @@
       prevPage() { if (this.currentPage > 1) this.currentPage--; },
       nextPage() { if (this.currentPage < this.totalPages) this.currentPage++; },
       goToPage(page) { if (page !== "...") this.currentPage = page; },
+      formatPrice(price) { return "Rp " + (Number(price) || 0).toLocaleString("id-ID"); },
       openDeleteModal(id, name) { this.deleteTarget = { id, name }; this.showDeleteModal = true; },
       confirmDelete() {
         if (!this.deleteTarget) return;
@@ -193,6 +194,15 @@
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Lokasi Keberangkatan</p>
                         </th>
                         <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp1</p>
+                        </th>
+                        <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp2</p>
+                        </th>
+                        <th class="px-4 py-3 text-left">
+                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp3</p>
+                        </th>
+                        <th class="px-4 py-3 text-left">
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Harga Paket</p>
                         </th>
                         <th class="px-4 py-3 text-left">
@@ -242,7 +252,16 @@
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="paket.lokasi_keberangkatan"></p>
                             </td>
                              <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="'Rp ' + Number(paket.harga_quad_1).toLocaleString('id-ID')"></p>
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_quad1)"></p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_triple1)"></p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_double1)"></p>
+                            </td>
+                             <td class="px-4 py-4">
+                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.harga_quad_1)"></p>
                             </td>
                              <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="paket.kuota_jamaah"></p>

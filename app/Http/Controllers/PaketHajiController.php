@@ -71,6 +71,7 @@ class PaketHajiController extends Controller
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all(); 
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
+        $layanans = \App\Models\Layanan::where('status_layanan', 'active')->get();
 
         return view('pages.paket-haji.create', [
             'title' => 'Tambah Paket Haji',
@@ -79,7 +80,8 @@ class PaketHajiController extends Controller
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
-            'kotas' => $kotas
+            'kotas' => $kotas,
+            'layanans' => $layanans
         ]);
     }
 
@@ -122,7 +124,25 @@ class PaketHajiController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
+            'layanan_ids' => 'nullable|array',
+            'layanan_ids.*' => 'exists:layanans,id',
+
+            // Hotel Durations
+            'hari_mekkah_1' => 'required|integer',
+            'hari_madinah_1' => 'required|integer',
+            'hari_transit_1' => 'nullable|integer',
+            'hari_mekkah_2' => 'nullable|integer',
+            'hari_madinah_2' => 'nullable|integer',
+            'hari_transit_2' => 'nullable|integer',
+
+            // Detailed HPP
+            'hpp_quad1' => 'nullable|numeric',
+            'hpp_triple1' => 'nullable|numeric',
+            'hpp_double1' => 'nullable|numeric',
+            'hpp_quad2' => 'nullable|numeric',
+            'hpp_triple2' => 'nullable|numeric',
+            'hpp_double2' => 'nullable|numeric',
         ]);
 
         $this->paketHajiService->create($validated);
@@ -151,6 +171,7 @@ class PaketHajiController extends Controller
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all();
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
+        $layanans = \App\Models\Layanan::where('status_layanan', 'active')->get();
 
         return view('pages.paket-haji.edit', [
             'title' => 'Edit Paket Haji',
@@ -159,7 +180,8 @@ class PaketHajiController extends Controller
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
-            'kotas' => $kotas
+            'kotas' => $kotas,
+            'layanans' => $layanans
         ]);
     }
 
@@ -168,7 +190,7 @@ class PaketHajiController extends Controller
         $this->checkPermission('edit');
 
         $validated = $request->validate([
-             'nama_paket' => 'required|string|max:255',
+            'nama_paket' => 'required|string|max:255',
             'tanggal_keberangkatan' => 'required|date',
             'jumlah_hari' => 'required|integer',
             'status_paket' => 'required|in:active,completed',
@@ -201,7 +223,25 @@ class PaketHajiController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
+            'layanan_ids' => 'nullable|array',
+            'layanan_ids.*' => 'exists:layanans,id',
+
+            // Hotel Durations
+            'hari_mekkah_1' => 'required|integer',
+            'hari_madinah_1' => 'required|integer',
+            'hari_transit_1' => 'nullable|integer',
+            'hari_mekkah_2' => 'nullable|integer',
+            'hari_madinah_2' => 'nullable|integer',
+            'hari_transit_2' => 'nullable|integer',
+
+            // Detailed HPP
+            'hpp_quad1' => 'nullable|numeric',
+            'hpp_triple1' => 'nullable|numeric',
+            'hpp_double1' => 'nullable|numeric',
+            'hpp_quad2' => 'nullable|numeric',
+            'hpp_triple2' => 'nullable|numeric',
+            'hpp_double2' => 'nullable|numeric',
         ]);
 
         $paket = $this->paketHajiService->update($id, $validated);

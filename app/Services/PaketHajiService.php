@@ -9,12 +9,12 @@ class PaketHajiService
 {
     public function getAll()
     {
-        return PaketHaji::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2'])->get();
+        return PaketHaji::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2', 'layanans'])->get();
     }
 
     public function getById($id)
     {
-        return PaketHaji::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2'])->find($id);
+        return PaketHaji::with(['maskapai', 'hotelMekkah1', 'hotelMadinah1', 'hotelTransit1', 'hotelMekkah2', 'hotelMadinah2', 'hotelTransit2', 'layanans'])->find($id);
     }
 
     public function create($data)
@@ -23,7 +23,11 @@ class PaketHajiService
             $data['foto_brosur'] = $data['foto_brosur']->store('paket-haji-brosur', 'public');
         }
 
-        return PaketHaji::create($data);
+        $paket = PaketHaji::create($data);
+
+        $paket->layanans()->sync($data['layanan_ids'] ?? []);
+
+        return $paket;
     }
 
     public function update($id, $data)
@@ -38,6 +42,8 @@ class PaketHajiService
             }
 
             $paket->update($data);
+
+            $paket->layanans()->sync($data['layanan_ids'] ?? []);
 
             // Sync dates to KeberangkatanHaji
             if (isset($data['tanggal_keberangkatan']) || isset($data['jumlah_hari'])) {

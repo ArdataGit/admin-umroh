@@ -67,18 +67,11 @@ class PaketUmrohController extends Controller
         $kodePaket = 'PU-' . $nextId;
 
         $maskapais = Maskapai::all();
-        // Assuming Hotel model has 'lokasi_hotel' attribute or similar logic needed
-        // Since logic asked for "from data hotel yang lokasi hotel mekkah", 
-        // I'll assume Hotel model has a 'city' or 'location' field. I will check Hotel model first to be sure, but for now I will assume 'kota_hotel' based on previous context or common sense, or just fetch all and filter in view/controller.
-        // Actually, user said: "nama hotel mekkah(varian 1) diambil dari data hotel yang lokasi hotel mekkah"
-        // I will check the Hotel migration/model to see the column name for location.
-        // But for now, I'll fetch all hotels and filter them here.
-        // Wait, I should verify Hotel model first.
-        
         $hotelsMekkah = Hotel::where('lokasi_hotel', 'Makkah')->orWhere('lokasi_hotel', 'Mekkah')->get();
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
-        $hotelsTransit = Hotel::all(); // Transit can be anywhere
+        $hotelsTransit = Hotel::all();
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
+        $layanans = \App\Models\Layanan::where('status_layanan', 'Active')->get();
 
         return view('pages.paket-umroh.create', [
             'title' => 'Tambah Paket Umroh',
@@ -87,7 +80,8 @@ class PaketUmrohController extends Controller
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
-            'kotas' => $kotas
+            'kotas' => $kotas,
+            'layanans' => $layanans
         ]);
     }
 
@@ -114,9 +108,15 @@ class PaketUmrohController extends Controller
             // Variant 1 (Required)
             'jenis_paket_1' => 'required|string',
             'hotel_mekkah_1' => 'required|exists:hotels,id',
+            'hari_mekkah_1' => 'required|integer|min:0',
             'hotel_madinah_1' => 'required|exists:hotels,id',
+            'hari_madinah_1' => 'required|integer|min:0',
             'hotel_transit_1' => 'nullable|exists:hotels,id',
+            'hari_transit_1' => 'nullable|integer|min:0',
             'harga_hpp_1' => 'required|numeric|max:999999999999.99',
+            'hpp_quad1' => 'nullable|numeric|max:999999999999.99',
+            'hpp_triple1' => 'nullable|numeric|max:999999999999.99',
+            'hpp_double1' => 'nullable|numeric|max:999999999999.99',
             'harga_quad_1' => 'required|numeric|max:999999999999.99',
             'harga_triple_1' => 'required|numeric|max:999999999999.99',
             'harga_double_1' => 'required|numeric|max:999999999999.99',
@@ -124,9 +124,15 @@ class PaketUmrohController extends Controller
             // Variant 2 (Optional)
             'jenis_paket_2' => 'nullable|string',
             'hotel_mekkah_2' => 'nullable|required_with:jenis_paket_2|exists:hotels,id',
+            'hari_mekkah_2' => 'nullable|integer|min:0',
             'hotel_madinah_2' => 'nullable|required_with:jenis_paket_2|exists:hotels,id',
+            'hari_madinah_2' => 'nullable|integer|min:0',
             'hotel_transit_2' => 'nullable|exists:hotels,id',
+            'hari_transit_2' => 'nullable|integer|min:0',
             'harga_hpp_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
+            'hpp_quad2' => 'nullable|numeric|max:999999999999.99',
+            'hpp_triple2' => 'nullable|numeric|max:999999999999.99',
+            'hpp_double2' => 'nullable|numeric|max:999999999999.99',
             'harga_quad_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_triple_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_double_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
@@ -135,7 +141,9 @@ class PaketUmrohController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
+            'layanan_ids' => 'nullable|array',
+            'layanan_ids.*' => 'exists:layanans,id'
         ]);
 
         $this->paketUmrohService->create($validated);
@@ -164,6 +172,7 @@ class PaketUmrohController extends Controller
         $hotelsMadinah = Hotel::where('lokasi_hotel', 'Madinah')->get();
         $hotelsTransit = Hotel::all();
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
+        $layanans = \App\Models\Layanan::where('status_layanan', 'Active')->get();
 
         return view('pages.paket-umroh.edit', [
             'title' => 'Edit Paket Umroh',
@@ -172,7 +181,8 @@ class PaketUmrohController extends Controller
             'hotelsMekkah' => $hotelsMekkah,
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
-            'kotas' => $kotas
+            'kotas' => $kotas,
+            'layanans' => $layanans
         ]);
     }
 
@@ -193,9 +203,15 @@ class PaketUmrohController extends Controller
             // Variant 1 (Required)
             'jenis_paket_1' => 'required|string',
             'hotel_mekkah_1' => 'required|exists:hotels,id',
+            'hari_mekkah_1' => 'required|integer|min:0',
             'hotel_madinah_1' => 'required|exists:hotels,id',
+            'hari_madinah_1' => 'required|integer|min:0',
             'hotel_transit_1' => 'nullable|exists:hotels,id',
+            'hari_transit_1' => 'nullable|integer|min:0',
             'harga_hpp_1' => 'required|numeric|max:999999999999.99',
+            'hpp_quad1' => 'nullable|numeric|max:999999999999.99',
+            'hpp_triple1' => 'nullable|numeric|max:999999999999.99',
+            'hpp_double1' => 'nullable|numeric|max:999999999999.99',
             'harga_quad_1' => 'required|numeric|max:999999999999.99',
             'harga_triple_1' => 'required|numeric|max:999999999999.99',
             'harga_double_1' => 'required|numeric|max:999999999999.99',
@@ -205,7 +221,11 @@ class PaketUmrohController extends Controller
             'hotel_mekkah_2' => 'nullable|required_with:jenis_paket_2|exists:hotels,id',
             'hotel_madinah_2' => 'nullable|required_with:jenis_paket_2|exists:hotels,id',
             'hotel_transit_2' => 'nullable|exists:hotels,id',
+            'hari_transit_2' => 'nullable|integer|min:0',
             'harga_hpp_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
+            'hpp_quad2' => 'nullable|numeric|max:999999999999.99',
+            'hpp_triple2' => 'nullable|numeric|max:999999999999.99',
+            'hpp_double2' => 'nullable|numeric|max:999999999999.99',
             'harga_quad_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_triple_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_double_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
@@ -214,7 +234,9 @@ class PaketUmrohController extends Controller
             'tidak_termasuk_paket' => 'nullable|string',
             'syarat_ketentuan' => 'nullable|string',
             'catatan_paket' => 'nullable|string',
-            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg'
+            'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
+            'layanan_ids' => 'nullable|array',
+            'layanan_ids.*' => 'exists:layanans,id'
         ]);
 
         $paket = $this->paketUmrohService->update($id, $validated);
