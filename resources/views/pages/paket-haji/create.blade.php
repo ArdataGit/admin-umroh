@@ -211,13 +211,8 @@
                         <input type="number" name="hari_transit_1" x-model="v1.transit_d" @input="calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                     </div>
                 </div>
-                    <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="hidden">
-                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP (General)</label>
-                            <input type="hidden" name="harga_hpp_1" value="0">
-                            <input type="text" :value="formatNumber(v1.hpp_q)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
-                        </div>
-                        <div class="hidden md:block"></div> {{-- Spacer --}}
+                <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="hidden" name="harga_hpp_1" value="0">
 
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Quad</label>
@@ -314,12 +309,7 @@
                     </div>
                 </div>
                     <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="hidden">
-                            <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga HPP (General)</label>
-                            <input type="hidden" name="harga_hpp_2" value="0">
-                            <input type="text" :value="formatNumber(v2.hpp_q)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
-                        </div>
-                        <div class="hidden md:block"></div> {{-- Spacer --}}
+                    <input type="hidden" name="harga_hpp_2" value="0">
 
                         <div>
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Quad</label>
