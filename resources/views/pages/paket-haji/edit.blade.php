@@ -226,7 +226,7 @@
                 <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input type="hidden" name="harga_hpp_1" value="0">
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Quad</label>
                         <input type="hidden" name="hpp_quad1" :value="v1.hpp_q">
                         <input type="text" :value="formatNumber(v1.hpp_q)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
@@ -238,7 +238,7 @@
                         @error('harga_quad_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Triple</label>
                         <input type="hidden" name="hpp_triple1" :value="v1.hpp_t">
                         <input type="text" :value="formatNumber(v1.hpp_t)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
@@ -250,7 +250,7 @@
                         @error('harga_triple_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Double</label>
                         <input type="hidden" name="hpp_double1" :value="v1.hpp_d">
                         <input type="text" :value="formatNumber(v1.hpp_d)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
@@ -323,7 +323,7 @@
                 <div class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input type="hidden" name="harga_hpp_2" value="0">
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Quad</label>
                         <input type="hidden" name="hpp_quad2" :value="v2.hpp_q">
                         <input type="text" :value="formatNumber(v2.hpp_q)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
@@ -334,7 +334,7 @@
                         <input type="text" :value="formatNumber(v2.quad_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v2.quad_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v2.quad_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                     </div>
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Triple</label>
                         <input type="hidden" name="hpp_triple2" :value="v2.hpp_t">
                         <input type="text" :value="formatNumber(v2.hpp_t)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
@@ -345,7 +345,7 @@
                         <input type="text" :value="formatNumber(v2.triple_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v2.triple_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v2.triple_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                     </div>
 
-                    <div>
+                    <div class="hidden">
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">HPP Double</label>
                         <input type="hidden" name="hpp_double2" :value="v2.hpp_d">
                         <input type="text" :value="formatNumber(v2.hpp_d)" class="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400" readonly />
