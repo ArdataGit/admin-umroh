@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\TransaksiTiketDetail;
 use App\Models\TransaksiLayananDetail;
 use App\Models\PengeluaranProdukDetail;
+use App\Models\PengeluaranUmum;
+use App\Models\PemasukanUmum;
+use App\Models\CustomerUmroh;
+use App\Models\CustomerHaji;
 use Illuminate\Support\Collection;
 
 class RugiLabaPenjualanController extends Controller
@@ -89,6 +93,7 @@ class RugiLabaPenjualanController extends Controller
                 'date' => $detail->transaksiLayanan->tanggal_transaksi,
                 'no_transaksi' => $detail->transaksiLayanan->kode_transaksi,
                 'type' => 'Layanan',
+                'sub_type' => $detail->layanan->jenis_layanan ?? 'Lainnya',
                 'item_name' => $detail->layanan->nama_layanan ?? 'Unknown Service',
                 'quantity' => $qty,
                 'revenue' => $revenue,
@@ -125,20 +130,175 @@ class RugiLabaPenjualanController extends Controller
             ]);
         }
 
+        // 4. Pendaftaran Umroh
+        $umrohRegistrations = CustomerUmroh::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->with([
+                'keberangkatanUmroh.paketUmroh.maskapai',
+                'keberangkatanUmroh.paketUmroh.layanans',
+                'keberangkatanUmroh.paketUmroh.hotelMekkah1',
+                'keberangkatanUmroh.paketUmroh.hotelMadinah1',
+                'keberangkatanUmroh.paketUmroh.hotelTransit1',
+                'jamaah'
+            ])
+            ->get();
+
+        foreach ($umrohRegistrations as $reg) {
+            $qty = $reg->jumlah_jamaah;
+            $revenue = $reg->total_tagihan;
+            
+            $hppPerPax = 0;
+            $tipe = strtolower($reg->tipe_kamar);
+            $paket = $reg->keberangkatanUmroh->paketUmroh ?? null;
+            
+            if ($paket) {
+                $hppField = 'hpp_' . $tipe . '1';
+                $hppPerPax = $paket->$hppField ?? 0;
+
+                // Fallback: Calculate if 0 (for old data)
+                if ($hppPerPax <= 0) {
+                    $maskapaiPrice = $paket->maskapai->harga_tiket ?? 0;
+                    $serviceTotal = $paket->layanans->sum('harga_jual') ?? 0;
+                    $base = $maskapaiPrice + $serviceTotal;
+
+                    $h1_mekkah = ($paket->hotelMekkah1->harga_hotel ?? 0) * ($paket->hari_mekkah_1 ?? 0);
+                    $h1_madinah = ($paket->hotelMadinah1->harga_hotel ?? 0) * ($paket->hari_madinah_1 ?? 0);
+                    $h1_transit = ($paket->hotelTransit1->harga_hotel ?? 0) * ($paket->hari_transit_1 ?? 0);
+                    $hotelTotal = $h1_mekkah + $h1_madinah + $h1_transit;
+
+                    $divisor = ($tipe === 'double' ? 2 : ($tipe === 'triple' ? 3 : 4));
+                    $hppPerPax = $base + ($hotelTotal / $divisor);
+                }
+            }
+            
+            $totalCost = $hppPerPax * $qty;
+            $profit = $revenue - $totalCost;
+
+            $reportData->push([
+                'date' => $reg->created_at->format('Y-m-d'),
+                'no_transaksi' => $reg->keberangkatanUmroh->kode_keberangkatan ?? 'Pendaftaran',
+                'type' => 'Umroh',
+                'item_name' => ($paket->nama_paket ?? 'Paket Umroh') . ' - ' . ($reg->jamaah->nama_jamaah ?? 'Jamaah'),
+                'quantity' => $qty,
+                'revenue' => $revenue,
+                'cogs' => $totalCost,
+                'profit' => $profit,
+                'raw_date' => $reg->created_at
+            ]);
+        }
+
+        // 5. Pendaftaran Haji
+        $hajiRegistrations = CustomerHaji::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->with([
+                'keberangkatanHaji.paketHaji.maskapai',
+                'keberangkatanHaji.paketHaji.layanans',
+                'keberangkatanHaji.paketHaji.hotelMekkah1',
+                'keberangkatanHaji.paketHaji.hotelMadinah1',
+                'keberangkatanHaji.paketHaji.hotelTransit1',
+                'jamaah'
+            ])
+            ->get();
+
+        foreach ($hajiRegistrations as $reg) {
+            $qty = $reg->jumlah_jamaah;
+            $revenue = $reg->total_tagihan;
+            
+            $hppPerPax = 0;
+            $tipe = strtolower($reg->tipe_kamar);
+            $paket = $reg->keberangkatanHaji->paketHaji ?? null;
+            
+            if ($paket) {
+                $hppField = 'hpp_' . $tipe . '1';
+                $hppPerPax = $paket->$hppField ?? 0;
+
+                // Fallback: Calculate if 0 (for old data)
+                if ($hppPerPax <= 0) {
+                    $maskapaiPrice = $paket->maskapai->harga_tiket ?? 0;
+                    $serviceTotal = $paket->layanans->sum('harga_jual') ?? 0;
+                    $base = $maskapaiPrice + $serviceTotal;
+
+                    $h1_mekkah = ($paket->hotelMekkah1->harga_hotel ?? 0) * ($paket->hari_mekkah_1 ?? 0);
+                    $h1_madinah = ($paket->hotelMadinah1->harga_hotel ?? 0) * ($paket->hari_madinah_1 ?? 0);
+                    $h1_transit = ($paket->hotelTransit1->harga_hotel ?? 0) * ($paket->hari_transit_1 ?? 0);
+                    $hotelTotal = $h1_mekkah + $h1_madinah + $h1_transit;
+
+                    $divisor = ($tipe === 'double' ? 2 : ($tipe === 'triple' ? 3 : 4));
+                    $hppPerPax = $base + ($hotelTotal / $divisor);
+                }
+            }
+            
+            $totalCost = $hppPerPax * $qty;
+            $profit = $revenue - $totalCost;
+
+            $reportData->push([
+                'date' => $reg->created_at->format('Y-m-d'),
+                'no_transaksi' => $reg->keberangkatanHaji->kode_keberangkatan ?? 'Pendaftaran',
+                'type' => 'Haji',
+                'item_name' => ($paket->nama_paket ?? 'Paket Haji') . ' - ' . ($reg->jamaah->nama_jamaah ?? 'Jamaah'),
+                'quantity' => $qty,
+                'revenue' => $revenue,
+                'cogs' => $totalCost,
+                'profit' => $profit,
+                'raw_date' => $reg->created_at
+            ]);
+        }
+
         // Sort by Date Descending
         $sortedData = $reportData->sortByDesc('raw_date')->values();
 
         // Calculate Totals
         $totalRevenue = $sortedData->sum('revenue');
         $totalCOGS = $sortedData->sum('cogs');
-        $totalProfit = $sortedData->sum('profit');
+        $grossProfit = $totalRevenue - $totalCOGS;
+
+        // Sub Totals for Revenue
+        $revenueSubTotals = collect();
+        
+        // Add other types normally
+        foreach (['Tiket', 'Produk', 'Umroh', 'Haji'] as $type) {
+            $amount = $sortedData->where('type', $type)->sum('revenue');
+            if ($amount > 0) {
+                $revenueSubTotals->put($type, $amount);
+            }
+        }
+
+        // Add broken down Layanan
+        $layananItems = $sortedData->where('type', 'Layanan');
+        $layananGroups = $layananItems->groupBy('sub_type');
+        foreach($layananGroups as $subType => $items) {
+            $revenueSubTotals->put('Layanan (' . $subType . ')', $items->sum('revenue'));
+        }
+
+        // Sub Totals for COGS
+        $cogsSubTotals = collect();
+        foreach (['Tiket', 'Produk', 'Umroh', 'Haji'] as $type) {
+            $amount = $sortedData->where('type', $type)->sum('cogs');
+            if ($amount > 0) {
+                $cogsSubTotals->put($type, $amount);
+            }
+        }
+        foreach($layananGroups as $subType => $items) {
+            $cogsSubTotals->put('Layanan (' . $subType . ')', $items->sum('cogs'));
+        }
+
+        // 4. General Expenses
+        $totalPengeluaranUmum = PengeluaranUmum::whereBetween('tanggal_pengeluaran', [$startDate, $endDate])->sum('jumlah_pengeluaran');
+
+        // 5. General Income
+        $totalPemasukanUmum = PemasukanUmum::whereBetween('tanggal_pemasukan', [$startDate, $endDate])->sum('jumlah_pemasukan');
+
+        $netProfitBeforeTax = ($grossProfit + $totalPemasukanUmum) - $totalPengeluaranUmum;
 
         return view('pages.rugi-laba-penjualan.index', [
             'title' => 'Laporan Rugi Laba Penjualan',
             'reportData' => $sortedData,
             'totalRevenue' => $totalRevenue,
             'totalCOGS' => $totalCOGS,
-            'totalProfit' => $totalProfit,
+            'grossProfit' => $grossProfit,
+            'revenueSubTotals' => $revenueSubTotals,
+            'cogsSubTotals' => $cogsSubTotals,
+            'totalPengeluaranUmum' => $totalPengeluaranUmum,
+            'totalPemasukanUmum' => $totalPemasukanUmum,
+            'netProfitBeforeTax' => $netProfitBeforeTax,
             'currentPeriod' => $period,
             'periodLabel' => $periodLabel,
             'startDate' => $startDate,
