@@ -54,9 +54,8 @@
         </div>
 
         <!-- Summary Table Card -->
-        <div class="rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900" x-data="{ showRevenueDetail: false, showCOGSDetail: false }">
-            <div class="p-6">
-                <!-- Period Label -->
+        <div class="rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900" x-data="{ showRevenueDetail: false, showCOGSDetail: false, showGeneralIncomeDetail: false, showGeneralExpenseDetail: false }">
+            <div class="p-6">                <!-- Period Label -->
                 <div class="mb-4">
                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Periode</p>
                     <p class="text-xl font-bold text-gray-800 dark:text-white">{{ $periodLabel }}</p>
@@ -200,12 +199,12 @@
                             </tr>
 
                             <!-- Pemasukan Umum -->
-                            <tr>
+                            <tr class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50" @click="showGeneralIncomeDetail = !showGeneralIncomeDetail">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 transition-transform duration-200" :class="showGeneralIncomeDetail ? 'rotate-90' : ''">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                             </svg>
                                         </div>
                                         <span class="font-medium text-gray-700 dark:text-gray-200">Pemasukan Umum</span>
@@ -216,13 +215,44 @@
                                 </td>
                             </tr>
 
+                            <!-- General Income Breakdown -->
+                            <tr x-show="showGeneralIncomeDetail" 
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="bg-gray-50/50 dark:bg-gray-800/30"
+                                style="display: none;"
+                            >
+                                <td colspan="2" class="px-0 py-0">
+                                    <div class="border-l-4 border-green-500 ml-6 my-2">
+                                        <table class="w-full">
+                                            <tbody class="divide-y divide-gray-100/50 dark:divide-gray-800/50">
+                                                @foreach($generalIncomeSubTotals as $type => $amount)
+                                                <tr class="hover:bg-white/50 dark:hover:bg-gray-900/30 transition-colors">
+                                                    <td class="px-8 py-2.5">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="h-1.5 w-1.5 rounded-full shadow-sm bg-indigo-400"></div>
+                                                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $type }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-2.5 text-right">
+                                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ number_format($amount, 0, ',', '.') }}</span>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+
                             <!-- Pengeluaran Umum -->
-                            <tr>
+                            <tr class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50" @click="showGeneralExpenseDetail = !showGeneralExpenseDetail">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
+                                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400 transition-transform duration-200" :class="showGeneralExpenseDetail ? 'rotate-90' : ''">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                             </svg>
                                         </div>
                                         <span class="font-medium text-gray-700 dark:text-gray-200">Pengeluaran Umum</span>
@@ -230,6 +260,37 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <span class="text-lg font-bold text-pink-600">Rp {{ number_format($totalPengeluaranUmum, 0, ',', '.') }}</span>
+                                </td>
+                            </tr>
+
+                            <!-- General Expense Breakdown -->
+                            <tr x-show="showGeneralExpenseDetail" 
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="bg-gray-50/50 dark:bg-gray-800/30"
+                                style="display: none;"
+                            >
+                                <td colspan="2" class="px-0 py-0">
+                                    <div class="border-l-4 border-pink-500 ml-6 my-2">
+                                        <table class="w-full">
+                                            <tbody class="divide-y divide-gray-100/50 dark:divide-gray-800/50">
+                                                @foreach($generalExpenseSubTotals as $type => $amount)
+                                                <tr class="hover:bg-white/50 dark:hover:bg-gray-900/30 transition-colors">
+                                                    <td class="px-8 py-2.5">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="h-1.5 w-1.5 rounded-full shadow-sm bg-pink-400"></div>
+                                                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ $type }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-2.5 text-right">
+                                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">{{ number_format($amount, 0, ',', '.') }}</span>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </td>
                             </tr>
 
@@ -331,7 +392,9 @@
                                                 'bg-purple-100 text-purple-800': item.type === 'Layanan',
                                                 'bg-orange-100 text-orange-800': item.type === 'Produk',
                                                 'bg-green-100 text-green-800': item.type === 'Umroh',
-                                                'bg-emerald-100 text-emerald-800': item.type === 'Haji'
+                                                'bg-emerald-100 text-emerald-800': item.type === 'Haji',
+                                                'bg-pink-100 text-pink-800': item.type === 'Pengeluaran Umum',
+                                                'bg-indigo-100 text-indigo-800': item.type === 'Pemasukan Umum'
                                             }" 
                                             x-text="item.type">
                                         </span>

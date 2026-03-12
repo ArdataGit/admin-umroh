@@ -242,6 +242,38 @@ class RugiLabaPenjualanController extends Controller
             ]);
         }
 
+        // 6. Pengeluaran Umum
+        $pengeluaranUmums = PengeluaranUmum::whereBetween('tanggal_pengeluaran', [$startDate, $endDate])->get();
+        foreach ($pengeluaranUmums as $item) {
+            $reportData->push([
+                'date' => $item->tanggal_pengeluaran->format('Y-m-d'),
+                'no_transaksi' => $item->kode_pengeluaran,
+                'type' => 'Pengeluaran Umum',
+                'item_name' => $item->nama_pengeluaran,
+                'quantity' => 1,
+                'revenue' => 0,
+                'cogs' => $item->jumlah_pengeluaran,
+                'profit' => -$item->jumlah_pengeluaran,
+                'raw_date' => $item->tanggal_pengeluaran
+            ]);
+        }
+
+        // 7. Pemasukan Umum
+        $pemasukanUmums = PemasukanUmum::whereBetween('tanggal_pemasukan', [$startDate, $endDate])->get();
+        foreach ($pemasukanUmums as $item) {
+            $reportData->push([
+                'date' => $item->tanggal_pemasukan->format('Y-m-d'),
+                'no_transaksi' => $item->kode_pemasukan,
+                'type' => 'Pemasukan Umum',
+                'item_name' => $item->nama_pemasukan,
+                'quantity' => 1,
+                'revenue' => $item->jumlah_pemasukan,
+                'cogs' => 0,
+                'profit' => $item->jumlah_pemasukan,
+                'raw_date' => $item->tanggal_pemasukan
+            ]);
+        }
+
         // Sort by Date Descending
         $sortedData = $reportData->sortByDesc('raw_date')->values();
 
@@ -281,10 +313,14 @@ class RugiLabaPenjualanController extends Controller
         }
 
         // 4. General Expenses
-        $totalPengeluaranUmum = PengeluaranUmum::whereBetween('tanggal_pengeluaran', [$startDate, $endDate])->sum('jumlah_pengeluaran');
+        $pengeluaranUmumItems = PengeluaranUmum::whereBetween('tanggal_pengeluaran', [$startDate, $endDate])->get();
+        $totalPengeluaranUmum = $pengeluaranUmumItems->sum('jumlah_pengeluaran');
+        $generalExpenseSubTotals = $pengeluaranUmumItems->groupBy('jenis_pengeluaran')->map(fn($group) => $group->sum('jumlah_pengeluaran'));
 
         // 5. General Income
-        $totalPemasukanUmum = PemasukanUmum::whereBetween('tanggal_pemasukan', [$startDate, $endDate])->sum('jumlah_pemasukan');
+        $pemasukanUmumItems = PemasukanUmum::whereBetween('tanggal_pemasukan', [$startDate, $endDate])->get();
+        $totalPemasukanUmum = $pemasukanUmumItems->sum('jumlah_pemasukan');
+        $generalIncomeSubTotals = $pemasukanUmumItems->groupBy('jenis_pemasukan')->map(fn($group) => $group->sum('jumlah_pemasukan'));
 
         $netProfitBeforeTax = ($grossProfit + $totalPemasukanUmum) - $totalPengeluaranUmum;
 
@@ -297,7 +333,9 @@ class RugiLabaPenjualanController extends Controller
             'revenueSubTotals' => $revenueSubTotals,
             'cogsSubTotals' => $cogsSubTotals,
             'totalPengeluaranUmum' => $totalPengeluaranUmum,
+            'generalExpenseSubTotals' => $generalExpenseSubTotals,
             'totalPemasukanUmum' => $totalPemasukanUmum,
+            'generalIncomeSubTotals' => $generalIncomeSubTotals,
             'netProfitBeforeTax' => $netProfitBeforeTax,
             'currentPeriod' => $period,
             'periodLabel' => $periodLabel,
