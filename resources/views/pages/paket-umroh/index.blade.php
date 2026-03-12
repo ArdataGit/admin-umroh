@@ -27,7 +27,45 @@
       sortDirection: "asc",
       searchQuery: "",
       showDeleteModal: false,
+      showHppModal: false,
+      hppTarget: null,
+      hppType: null,
       deleteTarget: null,
+      openHppModal(paket, type) {
+        this.hppTarget = paket;
+        this.hppType = type;
+        this.showHppModal = true;
+      },
+      get hppBreakdown() {
+        if (!this.hppTarget) return null;
+        const p = this.hppTarget;
+        const maskapaiPrice = parseFloat(p.maskapai?.harga_tiket) || 0;
+        const serviceTotal = p.layanans.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
+        
+        const h1_mekkah = (parseFloat(p.hotel_mekkah1?.harga_hotel) || 0) * (parseInt(p.hari_mekkah_1) || 0);
+        const h1_madinah = (parseFloat(p.hotel_madinah1?.harga_hotel) || 0) * (parseInt(p.hari_madinah_1) || 0);
+        const h1_transit = (parseFloat(p.hotel_transit1?.harga_hotel) || 0) * (parseInt(p.hari_transit_1) || 0);
+        const hotelTotal1 = h1_mekkah + h1_madinah + h1_transit;
+        
+        const base = maskapaiPrice + serviceTotal;
+        
+        return {
+            maskapai: p.maskapai?.nama_maskapai || "-",
+            maskapaiPrice,
+            layanans: p.layanans,
+            serviceTotal,
+            hotels: [
+                { name: p.hotel_mekkah1?.nama_hotel, nights: p.hari_mekkah_1, price: p.hotel_mekkah1?.harga_hotel, total: h1_mekkah },
+                { name: p.hotel_madinah1?.nama_hotel, nights: p.hari_madinah_1, price: p.hotel_madinah1?.harga_hotel, total: h1_madinah },
+                { name: p.hotel_transit1?.nama_hotel, nights: p.hari_transit_1, price: p.hotel_transit1?.harga_hotel, total: h1_transit }
+            ].filter(h => h.name),
+            hotelTotal: hotelTotal1,
+            base,
+            quad: base + (hotelTotal1 / 4),
+            triple: base + (hotelTotal1 / 3),
+            double: base + (hotelTotal1 / 2)
+        };
+      },
       get filteredPakets() {
         if (!this.searchQuery) return this.pakets;
         return this.pakets.filter(paket => {
@@ -255,13 +293,13 @@
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.harga_quad_1)"></p>
                             </td>
                              <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_double1)"></p>
+                                <button @click="openHppModal(paket, 'double')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_double1)"></button>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_triple1)"></p>
+                                <button @click="openHppModal(paket, 'triple')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_triple1)"></button>
                             </td>
                             <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.hpp_quad1)"></p>
+                                <button @click="openHppModal(paket, 'quad')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_quad1)"></button>
                             </td>
                              <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="paket.kuota_jamaah"></p>
@@ -337,12 +375,94 @@
 
     <!-- Delete Modal -->
     <div x-show="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" x-cloak>
-        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 class="text-lg font-bold">Hapus Paket?</h3>
-            <p>Hapus paket <span x-text="deleteTarget?.name" class="font-bold"></span>?</p>
-            <div class="flex justify-end gap-2 mt-4">
-                <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-200 rounded">Batal</button>
-                <button @click="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded">Hapus</button>
+        <div class="bg-white p-6 rounded-xl shadow-lg w-96 dark:bg-gray-900 border dark:border-gray-800">
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Hapus Paket?</h3>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Hapus paket <span x-text="deleteTarget?.name" class="font-bold"></span>?</p>
+            <div class="flex justify-end gap-2 mt-6">
+                <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">Batal</button>
+                <button @click="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HPP Breakdown Modal -->
+    <div x-show="showHppModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" x-cloak x-transition>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:bg-gray-900 border dark:border-gray-800 max-h-[90vh] overflow-y-auto" @click.away="showHppModal = false">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-900 z-10">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">Breakdown HPP</h3>
+                <button @click="showHppModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-5">
+                <template x-if="hppBreakdown">
+                    <div class="space-y-5">
+                        <div class="text-center mb-2">
+                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="hppTarget?.nama_paket"></p>
+                        </div>
+
+                        <!-- Flight & Services -->
+                        <div class="bg-gray-50 dark:bg-white/[0.03] p-3.5 rounded-xl space-y-2.5">
+                            <h4 class="font-bold text-gray-800 dark:text-white border-b pb-1.5 dark:border-gray-800 text-[11px] uppercase tracking-wider">Biaya Dasar (Tiket & Layanan)</h4>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-500 dark:text-gray-400" x-text="'Tiket: ' + hppBreakdown.maskapai"></span>
+                                <span class="font-medium dark:text-white" x-text="formatPrice(hppBreakdown.maskapaiPrice)"></span>
+                            </div>
+                            <template x-for="layanan in hppBreakdown.layanans" :key="layanan.id">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500 dark:text-gray-400" x-text="'Layanan: ' + layanan.nama_layanan"></span>
+                                    <span class="font-medium dark:text-white" x-text="formatPrice(layanan.harga_jual)"></span>
+                                </div>
+                            </template>
+                            <div class="flex justify-between text-xs font-bold pt-1.5 border-t dark:border-gray-800">
+                                <span class="text-gray-800 dark:text-white">Subtotal</span>
+                                <span class="text-blue-600 dark:text-blue-400" x-text="formatPrice(hppBreakdown.base)"></span>
+                            </div>
+                        </div>
+
+                        <!-- Hotels -->
+                        <div class="bg-gray-50 dark:bg-white/[0.03] p-3.5 rounded-xl space-y-2.5">
+                            <h4 class="font-bold text-gray-800 dark:text-white border-b pb-1.5 dark:border-gray-800 text-[11px] uppercase tracking-wider" x-text="'Biaya Hotel (' + hppType.charAt(0).toUpperCase() + hppType.slice(1) + ')'"></h4>
+                            <template x-for="hotel in hppBreakdown.hotels">
+                                <div class="flex justify-between text-xs">
+                                    <div class="flex flex-col">
+                                        <span class="text-gray-500 dark:text-gray-400 line-clamp-1" x-text="hotel.name"></span>
+                                        <span class="text-[10px] text-gray-400" x-text="'(' + formatPrice(hotel.price) + ' / ' + (hppType === 'double' ? '2' : hppType === 'triple' ? '3' : '4') + ') x ' + hotel.nights + ' hari'"></span>
+                                    </div>
+                                    <span class="font-medium dark:text-white" x-text="formatPrice((hotel.price / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4)) * hotel.nights)"></span>
+                                </div>
+                            </template>
+                            <div class="flex justify-between text-xs font-bold pt-1.5 border-t dark:border-gray-800">
+                                <span class="text-gray-800 dark:text-white">Porsi Hotel per Pax</span>
+                                <span class="text-blue-600 dark:text-blue-400" x-text="formatPrice(hppBreakdown.hotelTotal / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4))"></span>
+                            </div>
+                        </div>
+
+                        <!-- HPP Summary -->
+                        <div class="flex justify-center">
+                            <div x-show="hppType === 'double'" class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-center w-full">
+                                <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase mb-1">Total HPP Double</p>
+                                <p class="text-lg font-bold text-blue-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.double)"></p>
+                                <p class="text-[10px] text-blue-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                            </div>
+                            <div x-show="hppType === 'triple'" class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl text-center w-full">
+                                <p class="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">Total HPP Triple</p>
+                                <p class="text-lg font-bold text-purple-900 dark:text-purple-100" x-text="formatPrice(hppBreakdown.triple)"></p>
+                                <p class="text-[10px] text-purple-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                            </div>
+                            <div x-show="hppType === 'quad'" class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-center w-full">
+                                <p class="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase mb-1">Total HPP Quad</p>
+                                <p class="text-lg font-bold text-indigo-900 dark:text-indigo-100" x-text="formatPrice(hppBreakdown.quad)"></p>
+                                <p class="text-[10px] text-indigo-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+                <button @click="showHppModal = false" class="w-full py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium text-sm transition-colors">Tutup</button>
             </div>
         </div>
     </div>
