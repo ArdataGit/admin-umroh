@@ -11,14 +11,25 @@
                 <form action="{{ route('data-hotel.store') }}" method="POST" class="space-y-6" x-data="{
                     kurs: 'IDR',
                     harga: '',
+                    custom_kurs: null,
+                    kursUsd: {{ $kursUsd ?? 0 }},
+                    kursSar: {{ $kursSar ?? 0 }},
+                    kursMyr: {{ $kursMyr ?? 0 }},
+                    updateCustomKurs() {
+                        if (this.kurs === 'USD') this.custom_kurs = this.kursUsd;
+                        else if (this.kurs === 'SAR') this.custom_kurs = this.kursSar;
+                        else if (this.kurs === 'MYR') this.custom_kurs = this.kursMyr;
+                        else this.custom_kurs = null;
+                    },
+                    init() {
+                        this.updateCustomKurs();
+                        this.$watch('kurs', () => this.updateCustomKurs());
+                    },
                     get currencySymbol() {
                         return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
                     },
                     get exchangeRate() {
-                        if (this.kurs === 'USD') return {{ $kursUsd ?? 0 }};
-                        if (this.kurs === 'SAR') return {{ $kursSar ?? 0 }};
-                        if (this.kurs === 'MYR') return {{ $kursMyr ?? 0 }};
-                        return 1;
+                        return parseFloat(this.custom_kurs) || 1;
                     },
                     get convertedPrice() {
                         if (this.kurs === 'IDR' || !this.harga) return null;
@@ -26,6 +37,10 @@
                     },
                     formatRupiah(number) {
                         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+                    },
+                    formatNumber(num) {
+                        if (!num && num !== 0) return '';
+                        return new Intl.NumberFormat('id-ID').format(Math.round(num));
                     }
                 }">
                     @csrf
@@ -161,6 +176,18 @@
                             </div>
                         </div>
 
+                        <!-- Custom Kurs -->
+                        <div x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Kurs <span x-text="kurs"></span> Hari Ini <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                                <input type="text" name="custom_kurs" :value="formatNumber(custom_kurs)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs)" 
+                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                            </div>
+                        </div>
+
                         <!-- Harga Hotel -->
                         <div>
                             <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -186,23 +213,9 @@
                             </div>
 
                             <!-- Kurs Info Compact -->
-                            <div class="mt-3 flex items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
+                            <div class="mt-3 flex flex-wrap items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
                                 x-show="kurs !== 'IDR' && kurs !== ''"
                                 x-transition>
-                                <div class="flex items-center gap-1.5" x-show="kurs === 'USD'">
-                                    <span class="opacity-70">USD:</span>
-                                    <span>Rp {{ number_format($kursUsd ?? 0, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex items-center gap-1.5" x-show="kurs === 'SAR'">
-                                    <span class="opacity-70">SAR:</span>
-                                    <span>Rp {{ number_format($kursSar ?? 0, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex items-center gap-1.5" x-show="kurs === 'MYR'">
-                                    <span class="opacity-70">RM:</span>
-                                    <span>Rp {{ number_format($kursMyr ?? 0, 0, ',', '.') }}</span>
-                                </div>
-                                
-                                <div class="h-3 w-px bg-blue-200 dark:bg-blue-800" x-show="convertPrice"></div>
                                 
                                 <div x-show="convertedPrice" class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                                     <span class="opacity-70">Estimasi:</span>

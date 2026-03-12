@@ -77,9 +77,15 @@ class HotelController extends Controller
             'email_hotel' => 'required|email|max:255',
             'rating_hotel' => 'required|integer|min:1|max:5',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|string',
             'harga_hotel' => 'required|numeric|min:0',
             'catatan_hotel' => 'nullable|string',
         ]);
+
+        // Strip dots from custom_kurs if present
+        if (!empty($validated['custom_kurs'])) {
+            $validated['custom_kurs'] = str_replace('.', '', $validated['custom_kurs']);
+        }
 
         // Auto-generate kode_hotel
         $lastHotel = \App\Models\Hotel::orderBy('id', 'desc')->first();
@@ -90,15 +96,19 @@ class HotelController extends Controller
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['kurs_asing'] = $validated['harga_hotel'];
             $validated['harga_hotel'] = $validated['harga_hotel'] * $rate;
@@ -153,22 +163,32 @@ class HotelController extends Controller
             'email_hotel' => 'required|email|max:255',
             'rating_hotel' => 'required|integer|min:1|max:5',
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
+            'custom_kurs' => 'nullable|string',
             'harga_hotel' => 'required|numeric|min:0',
             'catatan_hotel' => 'nullable|string',
         ]);
 
+        // Strip dots from custom_kurs if present
+        if (!empty($validated['custom_kurs'])) {
+            $validated['custom_kurs'] = str_replace('.', '', $validated['custom_kurs']);
+        }
+
         // Handle Currency Conversion
         $kurs = $validated['kurs'] ?? 'IDR';
         if ($kurs !== 'IDR') {
-            $rateKey = match($kurs) {
-                'USD' => 'kurs_usd',
-                'SAR' => 'kurs_sar',
-                'MYR' => 'kurs_myr',
-                default => null,
-            };
+            if (!empty($validated['custom_kurs'])) {
+                $rate = $validated['custom_kurs'];
+            } else {
+                $rateKey = match($kurs) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
 
-            $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
-            $rate = $rateValue / 100;
+                $rateValue = $rateKey ? (SystemSetting::where('key', $rateKey)->first()->value ?? 0) : 0;
+                $rate = $rateValue / 100;
+            }
 
             $validated['kurs_asing'] = $validated['harga_hotel'];
             $validated['harga_hotel'] = $validated['harga_hotel'] * $rate;
