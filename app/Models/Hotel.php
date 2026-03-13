@@ -16,6 +16,9 @@ class Hotel extends Model
         'kurs',
         'kurs_asing',
         'harga_hotel',
+        'biaya_makan',
+        'biaya_makan_asing',
+        'kurs_biaya_makan',
         'catatan_hotel'
     ];
 

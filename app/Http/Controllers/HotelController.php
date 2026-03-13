@@ -79,8 +79,17 @@ class HotelController extends Controller
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'custom_kurs' => 'nullable|string',
             'harga_hotel' => 'required|numeric|min:0',
+            'has_biaya_makan' => 'nullable|boolean',
+            'kurs_biaya_makan' => 'nullable|in:USD,SAR,MYR,IDR',
+            'custom_kurs_biaya_makan' => 'nullable|string',
+            'biaya_makan' => 'nullable|string',
             'catatan_hotel' => 'nullable|string',
         ]);
+
+        // Strip dots from biaya_makan if present
+        if (!empty($validated['biaya_makan'])) {
+            $validated['biaya_makan'] = str_replace('.', '', $validated['biaya_makan']);
+        }
 
         // Strip dots from custom_kurs if present
         if (!empty($validated['custom_kurs'])) {
@@ -114,6 +123,29 @@ class HotelController extends Controller
             $validated['harga_hotel'] = $validated['harga_hotel'] * $rate;
         } else {
             $validated['kurs_asing'] = 0;
+        }
+
+        // Handle Biaya Makan Conversion
+        $kursMakan = $validated['kurs_biaya_makan'] ?? 'IDR';
+        if ($kursMakan !== 'IDR' && !empty($validated['biaya_makan'])) {
+            if (!empty($validated['custom_kurs_biaya_makan'])) {
+                $rateMakan = str_replace('.', '', $validated['custom_kurs_biaya_makan']);
+            } else {
+                $rateMakanKey = match($kursMakan) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
+
+                $rateMakanValue = $rateMakanKey ? (SystemSetting::where('key', $rateMakanKey)->first()->value ?? 0) : 0;
+                $rateMakan = $rateMakanValue / 100;
+            }
+
+            $validated['biaya_makan_asing'] = $validated['biaya_makan'];
+            $validated['biaya_makan'] = $validated['biaya_makan'] * $rateMakan;
+        } else {
+            $validated['biaya_makan_asing'] = 0;
         }
 
         // Create hotel
@@ -165,8 +197,14 @@ class HotelController extends Controller
             'kurs' => 'required|in:USD,SAR,MYR,IDR',
             'custom_kurs' => 'nullable|string',
             'harga_hotel' => 'required|numeric|min:0',
+            'biaya_makan' => 'nullable|string',
             'catatan_hotel' => 'nullable|string',
         ]);
+
+        // Strip dots from biaya_makan if present
+        if (!empty($validated['biaya_makan'])) {
+            $validated['biaya_makan'] = str_replace('.', '', $validated['biaya_makan']);
+        }
 
         // Strip dots from custom_kurs if present
         if (!empty($validated['custom_kurs'])) {
@@ -194,6 +232,29 @@ class HotelController extends Controller
             $validated['harga_hotel'] = $validated['harga_hotel'] * $rate;
         } else {
             $validated['kurs_asing'] = 0;
+        }
+
+        // Handle Biaya Makan Conversion
+        $kursMakan = $validated['kurs_biaya_makan'] ?? 'IDR';
+        if ($kursMakan !== 'IDR' && !empty($validated['biaya_makan'])) {
+            if (!empty($validated['custom_kurs_biaya_makan'])) {
+                $rateMakan = str_replace('.', '', $validated['custom_kurs_biaya_makan']);
+            } else {
+                $rateMakanKey = match($kursMakan) {
+                    'USD' => 'kurs_usd',
+                    'SAR' => 'kurs_sar',
+                    'MYR' => 'kurs_myr',
+                    default => null,
+                };
+
+                $rateMakanValue = $rateMakanKey ? (SystemSetting::where('key', $rateMakanKey)->first()->value ?? 0) : 0;
+                $rateMakan = $rateMakanValue / 100;
+            }
+
+            $validated['biaya_makan_asing'] = $validated['biaya_makan'];
+            $validated['biaya_makan'] = $validated['biaya_makan'] * $rateMakan;
+        } else {
+            $validated['biaya_makan_asing'] = 0;
         }
 
         // Update hotel

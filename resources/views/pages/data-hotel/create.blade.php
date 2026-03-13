@@ -11,7 +11,11 @@
                 <form action="{{ route('data-hotel.store') }}" method="POST" class="space-y-6" x-data="{
                     kurs: 'IDR',
                     harga: '',
+                    biayaMakan: '{{ old('biaya_makan', '0') }}',
+                    kursMakan: 'IDR',
                     custom_kurs: null,
+                    custom_kurs_makan: null,
+                    hasBiayaMakan: false,
                     kursUsd: {{ $kursUsd ?? 0 }},
                     kursSar: {{ $kursSar ?? 0 }},
                     kursMyr: {{ $kursMyr ?? 0 }},
@@ -21,15 +25,29 @@
                         else if (this.kurs === 'MYR') this.custom_kurs = this.kursMyr;
                         else this.custom_kurs = null;
                     },
+                    updateCustomKursMakan() {
+                        if (this.kursMakan === 'USD') this.custom_kurs_makan = this.kursUsd;
+                        else if (this.kursMakan === 'SAR') this.custom_kurs_makan = this.kursSar;
+                        else if (this.kursMakan === 'MYR') this.custom_kurs_makan = this.kursMyr;
+                        else this.custom_kurs_makan = null;
+                    },
                     init() {
                         this.updateCustomKurs();
+                        this.updateCustomKursMakan();
                         this.$watch('kurs', () => this.updateCustomKurs());
+                        this.$watch('kursMakan', () => this.updateCustomKursMakan());
                     },
                     get currencySymbol() {
                         return this.kurs === 'IDR' ? 'Rp' : (this.kurs === 'MYR' ? 'RM' : this.kurs);
                     },
+                    get currencySymbolMakan() {
+                        return this.kursMakan === 'IDR' ? 'Rp' : (this.kursMakan === 'MYR' ? 'RM' : this.kursMakan);
+                    },
                     get exchangeRate() {
                         return parseFloat(this.custom_kurs) || 1;
+                    },
+                    get exchangeRateMakan() {
+                        return parseFloat(this.custom_kurs_makan) || 1;
                     },
                     get convertedPrice() {
                         if (this.kurs === 'IDR' || !this.harga) return null;
@@ -155,71 +173,158 @@
                             </div>
                         </div>
 
-                        <!-- Kurs -->
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                Mata Uang <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative z-20 bg-transparent">
-                                <select name="kurs" x-model="kurs" required
-                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
-                                    <option value="IDR">IDR (Rupiah)</option>
-                                    <option value="USD">USD (Dollar AS)</option>
-                                    <option value="SAR">SAR (Riyal)</option>
-                                    <option value="MYR">RM (Ringgit)</option>
-                                </select>
-                                <span class="pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                                    <svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </div>
-                        </div>
+                        <!-- Hotel Cost Details (Currency, Price & Meal) -->
+                        <div class="col-span-full space-y-6">
+                            <!-- Currency & Exchange Rate -->
+                            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-2xl">
+                                <!-- Mata Uang -->
+                                <div>
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Mata Uang <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative z-20 bg-transparent">
+                                        <select name="kurs" x-model="kurs" required
+                                            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                                            <option value="IDR">IDR (Rupiah)</option>
+                                            <option value="USD">USD (Dollar AS)</option>
+                                            <option value="SAR">SAR (Riyal)</option>
+                                            <option value="MYR">RM (Ringgit)</option>
+                                        </select>
+                                        <span class="pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                                            <svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
 
-                        <!-- Custom Kurs -->
-                        <div x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                Kurs <span x-text="kurs"></span> Hari Ini <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
-                                <input type="text" name="custom_kurs" :value="formatNumber(custom_kurs)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs)" 
-                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
-                            </div>
-                        </div>
-
-                        <!-- Harga Hotel -->
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                Harga Hotel (per malam) <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative" x-data="{ 
-                                displayHarga: '',
-                                formatDisplay() {
-                                    let val = this.harga.toString().replace(/\D/g, '');
-                                    this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
-                                },
-                                updateRaw(val) {
-                                    this.harga = val.replace(/\D/g, '');
-                                    this.formatDisplay();
-                                }
-                            }" x-init="formatDisplay()">
-                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
-                                    Rp
-                                </span>
-                                <input type="hidden" name="harga_hotel" x-model="harga">
-                                <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" placeholder="2.500.000" required
-                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                                <!-- Custom Kurs -->
+                                <div x-show="['USD', 'SAR', 'MYR'].includes(kurs)" x-cloak x-transition>
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                        Kurs <span x-text="kurs"></span> Hari Ini <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">Rp</span>
+                                        <input type="text" name="custom_kurs" :value="formatNumber(custom_kurs)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs)" 
+                                            class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Kurs Info Compact -->
-                            <div class="mt-3 flex flex-wrap items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
-                                x-show="kurs !== 'IDR' && kurs !== ''"
-                                x-transition>
-                                
-                                <div x-show="convertedPrice" class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                                    <span class="opacity-70">Estimasi:</span>
-                                    <span x-text="formatRupiah(convertedPrice)"></span>
+                            <!-- Harga Hotel -->
+                            <div class="max-w-md">
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                    Harga Hotel (per malam) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative" x-data="{ 
+                                    displayHarga: '',
+                                    formatDisplay() {
+                                        let val = this.harga.toString().replace(/\D/g, '');
+                                        this.displayHarga = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                                    },
+                                    updateRaw(val) {
+                                        this.harga = val.replace(/\D/g, '');
+                                        this.formatDisplay();
+                                    }
+                                }" x-init="formatDisplay()">
+                                    <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbol">
+                                        Rp
+                                    </span>
+                                    <input type="hidden" name="harga_hotel" x-model="harga">
+                                    <input type="text" x-model="displayHarga" @input="updateRaw($event.target.value)" placeholder="2.500.000" required
+                                        class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                                </div>
+
+                                <!-- Kurs Info Compact -->
+                                <div class="mt-3 flex flex-wrap items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
+                                    x-show="convertedPrice"
+                                    x-transition>
+                                    
+                                    <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                        <span class="opacity-70">Estimasi:</span>
+                                        <span x-text="formatRupiah(convertedPrice)"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Biaya Makan Section -->
+                            <div class="space-y-4 border-t border-gray-100 pt-6 dark:border-gray-800">
+                                <div class="flex items-center gap-2">
+                                    <label class="relative inline-flex cursor-pointer items-center">
+                                        <input type="checkbox" x-model="hasBiayaMakan" class="peer sr-only">
+                                        <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
+                                    </label>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
+                                </div>
+
+                                <div x-show="hasBiayaMakan" x-cloak x-transition class="mt-4 space-y-4">
+                                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-2xl">
+                                        <!-- Currency Selector for Biaya Makan -->
+                                        <div>
+                                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                                Mata Uang (Makan)
+                                            </label>
+                                            <select name="kurs_biaya_makan" x-model="kursMakan" 
+                                                class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                                                <option value="IDR">IDR - Rupiah</option>
+                                                <option value="USD">USD - Dollar</option>
+                                                <option value="SAR">SAR - Rial</option>
+                                                <option value="MYR">MYR - Ringgit</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Custom Kurs for Biaya Makan -->
+                                        <div x-show="kursMakan !== 'IDR'" x-transition>
+                                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                                Kurs <span x-text="kursMakan"></span> Hari Ini <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                                    Rp
+                                                </span>
+                                                <input type="text" name="custom_kurs_biaya_makan" :value="formatNumber(custom_kurs_makan)" @input="$el.value = $el.value.replace(/\D/g, ''); custom_kurs_makan = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(custom_kurs_makan)"
+                                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="0" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Biaya Makan Input -->
+                                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-2xl">
+                                        <div>
+                                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                                Biaya Makan (per hari)
+                                            </label>
+                                            <div class="relative" x-data="{ 
+                                                displayBiayaMakanLocal: '',
+                                                formatDisplayLocal() {
+                                                    let val = this.biayaMakan.toString().replace(/\D/g, '');
+                                                    this.displayBiayaMakanLocal = val ? new Intl.NumberFormat('id-ID').format(val) : '';
+                                                },
+                                                updateRawLocal(val) {
+                                                    this.biayaMakan = val.replace(/\D/g, '');
+                                                    this.formatDisplayLocal();
+                                                }
+                                            }" x-init="formatDisplayLocal(); $watch('biayaMakan', () => formatDisplayLocal())">
+                                                <span class="absolute top-1/2 left-4 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400 font-medium" x-text="currencySymbolMakan">
+                                                    Rp
+                                                </span>
+                                                <input type="hidden" name="biaya_makan" x-model="biayaMakan">
+                                                <input type="text" x-model="displayBiayaMakanLocal" @input="updateRawLocal($event.target.value)" placeholder="0" 
+                                                    class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                                            </div>
+
+                                            <!-- Kurs Info Compact for Biaya Makan -->
+                                            <div class="mt-3 flex flex-wrap items-center gap-4 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-2 rounded-lg border border-blue-100 dark:border-blue-900/30"
+                                                x-show="kursMakan !== 'IDR' && kursMakan !== '' && biayaMakan > 0"
+                                                x-transition>
+                                                
+                                                <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                                    <span class="opacity-70">Estimasi:</span>
+                                                    <span x-text="formatRupiah(biayaMakan * exchangeRateMakan)"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

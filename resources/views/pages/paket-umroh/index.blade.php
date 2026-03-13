@@ -43,9 +43,16 @@
         const serviceTotal = p.layanans.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
         
         const h1_mekkah = (parseFloat(p.hotel_mekkah1?.harga_hotel) || 0) * (parseInt(p.hari_mekkah_1) || 0);
+        const m1_mekkah = (parseFloat(p.hotel_mekkah1?.biaya_makan) || 0) * (parseInt(p.hari_mekkah_1) || 0);
+        
         const h1_madinah = (parseFloat(p.hotel_madinah1?.harga_hotel) || 0) * (parseInt(p.hari_madinah_1) || 0);
+        const m1_madinah = (parseFloat(p.hotel_madinah1?.biaya_makan) || 0) * (parseInt(p.hari_madinah_1) || 0);
+        
         const h1_transit = (parseFloat(p.hotel_transit1?.harga_hotel) || 0) * (parseInt(p.hari_transit_1) || 0);
+        const m1_transit = (parseFloat(p.hotel_transit1?.biaya_makan) || 0) * (parseInt(p.hari_transit_1) || 0);
+        
         const hotelTotal1 = h1_mekkah + h1_madinah + h1_transit;
+        const mealTotal1 = m1_mekkah + m1_madinah + m1_transit;
         
         const base = maskapaiPrice + serviceTotal;
         
@@ -54,16 +61,39 @@
             maskapaiPrice,
             layanans: p.layanans,
             serviceTotal,
-            hotels: [
-                { name: p.hotel_mekkah1?.nama_hotel, nights: p.hari_mekkah_1, price: p.hotel_mekkah1?.harga_hotel, total: h1_mekkah },
-                { name: p.hotel_madinah1?.nama_hotel, nights: p.hari_madinah_1, price: p.hotel_madinah1?.harga_hotel, total: h1_madinah },
-                { name: p.hotel_transit1?.nama_hotel, nights: p.hari_transit_1, price: p.hotel_transit1?.harga_hotel, total: h1_transit }
-            ].filter(h => h.name),
+            hotelRows: [
+                { 
+                    name: p.hotel_mekkah1?.nama_hotel, 
+                    nights: p.hari_mekkah_1, 
+                    price: p.hotel_mekkah1?.harga_hotel, 
+                    total: h1_mekkah,
+                    mealPrice: p.hotel_mekkah1?.biaya_makan,
+                    mealTotal: m1_mekkah
+                },
+                { 
+                    name: p.hotel_madinah1?.nama_hotel, 
+                    nights: p.hari_madinah_1, 
+                    price: p.hotel_madinah1?.harga_hotel, 
+                    total: h1_madinah,
+                    mealPrice: p.hotel_madinah1?.biaya_makan,
+                    mealTotal: m1_madinah
+                },
+                { 
+                    name: p.hotel_transit1?.nama_hotel, 
+                    nights: p.hari_transit_1, 
+                    price: p.hotel_transit1?.harga_hotel, 
+                    total: h1_transit,
+                    mealPrice: p.hotel_transit1?.biaya_makan,
+                    mealTotal: m1_transit
+                }
+            ].filter(r => r.name),
             hotelTotal: hotelTotal1,
+            mealTotal: mealTotal1,
             base,
-            quad: base + (hotelTotal1 / 4),
-            triple: base + (hotelTotal1 / 3),
-            double: base + (hotelTotal1 / 2)
+            quad: base + (hotelTotal1 / 4) + mealTotal1,
+            triple: base + (hotelTotal1 / 3) + mealTotal1,
+            double: base + (hotelTotal1 / 2) + mealTotal1,
+            jualPrice: this.hppType === "double" ? p.harga_double_1 : (this.hppType === "triple" ? p.harga_triple_1 : p.harga_quad_1)
         };
       },
       get filteredPakets() {
@@ -421,21 +451,35 @@
                             </div>
                         </div>
 
-                        <!-- Hotels -->
-                        <div class="bg-gray-50 dark:bg-white/[0.03] p-3.5 rounded-xl space-y-2.5">
-                            <h4 class="font-bold text-gray-800 dark:text-white border-b pb-1.5 dark:border-gray-800 text-[11px] uppercase tracking-wider" x-text="'Biaya Hotel (' + hppType.charAt(0).toUpperCase() + hppType.slice(1) + ')'"></h4>
-                            <template x-for="hotel in hppBreakdown.hotels">
-                                <div class="flex justify-between text-xs">
-                                    <div class="flex flex-col">
-                                        <span class="text-gray-500 dark:text-gray-400 line-clamp-1" x-text="hotel.name"></span>
-                                        <span class="text-[10px] text-gray-400" x-text="'(' + formatPrice(hotel.price) + ' / ' + (hppType === 'double' ? '2' : hppType === 'triple' ? '3' : '4') + ') x ' + hotel.nights + ' hari'"></span>
+                        <!-- Hotels & Meals -->
+                        <div class="bg-gray-50 dark:bg-white/[0.03] p-3.5 rounded-xl space-y-3">
+                            <h4 class="font-bold text-gray-800 dark:text-white border-b pb-1.5 dark:border-gray-800 text-[11px] uppercase tracking-wider" x-text="'Rincian Akomodasi (' + hppType.charAt(0).toUpperCase() + hppType.slice(1) + ')'"></h4>
+                            <template x-for="row in hppBreakdown.hotelRows">
+                                <div class="space-y-1.5">
+                                    <div class="flex justify-between text-xs">
+                                        <div class="flex flex-col">
+                                            <span class="text-gray-500 dark:text-gray-400 font-medium line-clamp-1" x-text="row.name"></span>
+                                            <span class="text-[10px] text-gray-400" x-text="'(' + formatPrice(row.price) + ' / ' + (hppType === 'double' ? '2' : hppType === 'triple' ? '3' : '4') + ') x ' + row.nights + ' hari'"></span>
+                                        </div>
+                                        <span class="font-medium dark:text-white" x-text="formatPrice((row.price / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4)) * row.nights)"></span>
                                     </div>
-                                    <span class="font-medium dark:text-white" x-text="formatPrice((hotel.price / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4)) * hotel.nights)"></span>
+                                    <template x-if="row.mealPrice > 0">
+                                        <div class="flex justify-between text-xs pl-3 border-l-2 border-emerald-100 dark:border-emerald-900/30">
+                                            <div class="flex flex-col">
+                                                <span class="text-gray-500 dark:text-gray-400 text-[11px]" x-text="'Makan ' + row.name"></span>
+                                                <span class="text-[10px] text-gray-400" x-text="'(' + formatPrice(row.mealPrice) + ' x ' + row.nights + ' hari)'"></span>
+                                            </div>
+                                            <span class="font-medium text-emerald-600 dark:text-emerald-400" x-text="formatPrice(row.mealTotal)"></span>
+                                        </div>
+                                    </template>
                                 </div>
                             </template>
-                            <div class="flex justify-between text-xs font-bold pt-1.5 border-t dark:border-gray-800">
-                                <span class="text-gray-800 dark:text-white">Porsi Hotel per Pax</span>
-                                <span class="text-blue-600 dark:text-blue-400" x-text="formatPrice(hppBreakdown.hotelTotal / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4))"></span>
+                            
+                            <div class="pt-2.5 border-t dark:border-gray-800 space-y-1.5">
+                                <div class="flex justify-between text-xs font-bold pt-1 text-blue-600 dark:text-blue-400 border-t border-dashed dark:border-gray-700">
+                                    <span>Subtotal Akomodasi</span>
+                                    <span x-text="formatPrice((hppBreakdown.hotelTotal / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4)) + hppBreakdown.mealTotal)"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -444,17 +488,29 @@
                             <div x-show="hppType === 'double'" class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase mb-1">Total HPP Double</p>
                                 <p class="text-lg font-bold text-blue-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.double)"></p>
-                                <p class="text-[10px] text-blue-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-blue-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <div class="mt-3 pt-3 border-t border-blue-100 dark:border-blue-900/50 flex justify-between items-center px-2">
+                                    <span class="text-[10px] text-blue-400 uppercase font-bold tracking-wider">Estimasi Keuntungan</span>
+                                    <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400" x-text="formatPrice(hppBreakdown.jualPrice - hppBreakdown.double)"></span>
+                                </div>
                             </div>
                             <div x-show="hppType === 'triple'" class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">Total HPP Triple</p>
                                 <p class="text-lg font-bold text-purple-900 dark:text-purple-100" x-text="formatPrice(hppBreakdown.triple)"></p>
-                                <p class="text-[10px] text-purple-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-purple-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <div class="mt-3 pt-3 border-t border-purple-100 dark:border-purple-900/50 flex justify-between items-center px-2">
+                                    <span class="text-[10px] text-purple-400 uppercase font-bold tracking-wider">Estimasi Keuntungan</span>
+                                    <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400" x-text="formatPrice(hppBreakdown.jualPrice - hppBreakdown.triple)"></span>
+                                </div>
                             </div>
                             <div x-show="hppType === 'quad'" class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase mb-1">Total HPP Quad</p>
                                 <p class="text-lg font-bold text-indigo-900 dark:text-indigo-100" x-text="formatPrice(hppBreakdown.quad)"></p>
-                                <p class="text-[10px] text-indigo-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-indigo-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <div class="mt-3 pt-3 border-t border-indigo-100 dark:border-indigo-900/50 flex justify-between items-center px-2">
+                                    <span class="text-[10px] text-indigo-400 uppercase font-bold tracking-wider">Estimasi Keuntungan</span>
+                                    <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400" x-text="formatPrice(hppBreakdown.jualPrice - hppBreakdown.quad)"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

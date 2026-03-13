@@ -102,6 +102,21 @@
                                 @endif
                             </p>
                         </div>
+
+                        <!-- Biaya Makan -->
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                                Biaya Makan (per hari)
+                            </label>
+                            <p class="text-xl font-semibold text-gray-800 dark:text-white/90">
+                                Rp {{ number_format($hotel->biaya_makan, 0, ',', '.') }}
+                                @if(($hotel->kurs_biaya_makan ?? 'IDR') !== 'IDR' && $hotel->biaya_makan_asing > 0)
+                                    <span class="text-sm font-normal text-gray-500 ml-2">
+                                        ({{ $hotel->kurs_biaya_makan === 'MYR' ? 'RM' : $hotel->kurs_biaya_makan }} {{ number_format($hotel->biaya_makan_asing, 0, ',', '.') }})
+                                    </span>
+                                @endif
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Catatan Hotel -->
