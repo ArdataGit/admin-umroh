@@ -267,16 +267,16 @@
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Lokasi Keberangkatan</p>
                         </th>
                         <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Harga Paket</p>
+                            <p class="whitespace-nowrap font-medium text-gray-500 text-theme-xs dark:text-gray-400">Harga Paket</p>
                         </th>
                         <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp double</p>
+                            <p class="whitespace-nowrap font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp double</p>
                         </th>
                         <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp triple</p>
+                            <p class="whitespace-nowrap font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp triple</p>
                         </th>
                         <th class="px-4 py-3 text-left">
-                            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp quad</p>
+                            <p class="whitespace-nowrap font-medium text-gray-500 text-theme-xs dark:text-gray-400">hpp quad</p>
                         </th>
                         <th class="px-4 py-3 text-left">
                             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Kuota Jamaah</p>
@@ -325,16 +325,16 @@
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="paket.lokasi_keberangkatan"></p>
                             </td>
                              <td class="px-4 py-4">
-                                <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.harga_quad_1)"></p>
+                                <p class="whitespace-nowrap text-gray-500 text-theme-sm dark:text-gray-400" x-text="formatPrice(paket.harga_quad_1)"></p>
                             </td>
                              <td class="px-4 py-4">
-                                <button @click="openHppModal(paket, 'double')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_double1)"></button>
+                                <button @click="openHppModal(paket, 'double')" class="whitespace-nowrap text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_double1)"></button>
                             </td>
                             <td class="px-4 py-4">
-                                <button @click="openHppModal(paket, 'triple')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_triple1)"></button>
+                                <button @click="openHppModal(paket, 'triple')" class="whitespace-nowrap text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_triple1)"></button>
                             </td>
                             <td class="px-4 py-4">
-                                <button @click="openHppModal(paket, 'quad')" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_quad1)"></button>
+                                <button @click="openHppModal(paket, 'quad')" class="whitespace-nowrap text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium underline decoration-dotted" x-text="formatPrice(paket.hpp_quad1)"></button>
                             </td>
                              <td class="px-4 py-4">
                                 <p class="text-gray-500 text-theme-sm dark:text-gray-400" x-text="paket.kuota_jamaah"></p>
