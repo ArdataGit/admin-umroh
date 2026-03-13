@@ -120,6 +120,7 @@ class PaketUmrohController extends Controller
             'harga_quad_1' => 'required|numeric|max:999999999999.99',
             'harga_triple_1' => 'required|numeric|max:999999999999.99',
             'harga_double_1' => 'required|numeric|max:999999999999.99',
+            'is_include_makan_1' => 'nullable|boolean',
 
             // Variant 2 (Optional)
             'jenis_paket_2' => 'nullable|string',
@@ -136,6 +137,7 @@ class PaketUmrohController extends Controller
             'harga_quad_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_triple_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_double_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
+            'is_include_makan_2' => 'nullable|boolean',
 
             'termasuk_paket' => 'nullable|string',
             'tidak_termasuk_paket' => 'nullable|string',
@@ -215,6 +217,7 @@ class PaketUmrohController extends Controller
             'harga_quad_1' => 'required|numeric|max:999999999999.99',
             'harga_triple_1' => 'required|numeric|max:999999999999.99',
             'harga_double_1' => 'required|numeric|max:999999999999.99',
+            'is_include_makan_1' => 'nullable|boolean',
 
             // Variant 2 (Optional)
             'jenis_paket_2' => 'nullable|string',
@@ -229,6 +232,7 @@ class PaketUmrohController extends Controller
             'harga_quad_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_triple_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
             'harga_double_2' => 'nullable|required_with:jenis_paket_2|numeric|max:999999999999.99',
+            'is_include_makan_2' => 'nullable|boolean',
 
             'termasuk_paket' => 'nullable|string',
             'tidak_termasuk_paket' => 'nullable|string',

@@ -21,7 +21,8 @@
                     hpp_d: {{ old('hpp_double1', 0) }},
                     quad_jual: {{ old('harga_quad_1', 0) }},
                     triple_jual: {{ old('harga_triple_1', 0) }},
-                    double_jual: {{ old('harga_double_1', 0) }}
+                    double_jual: {{ old('harga_double_1', 0) }},
+                    is_include_makan: {{ old('is_include_makan_1', 'false') }}
                 },
                 v2: {
                     mekkah_p: 0, mekkah_m: 0, mekkah_d: {{ old('hari_mekkah_2', 0) }},
@@ -32,7 +33,8 @@
                     hpp_d: {{ old('hpp_double2', 0) }},
                     quad_jual: {{ old('harga_quad_2', 0) }},
                     triple_jual: {{ old('harga_triple_2', 0) }},
-                    double_jual: {{ old('harga_double_2', 0) }}
+                    double_jual: {{ old('harga_double_2', 0) }},
+                    is_include_makan: {{ old('is_include_makan_2', 'false') }}
                 },
                 get serviceTotal() {
                     return Object.values(this.service_prices).reduce((a, b) => a + b, 0);
@@ -55,9 +57,11 @@
                     let mealTotal = (mekkah_m * mekkah_d) + (madinah_m * madinah_d) + (transit_m * transit_d);
                     let base = (parseFloat(this.maskapai_price) || 0) + this.serviceTotal;
                     
-                    data.hpp_q = base + (hotelTotal / 4) + mealTotal;
-                    data.hpp_t = base + (hotelTotal / 3) + mealTotal;
-                    data.hpp_d = base + (hotelTotal / 2) + mealTotal;
+                    let finalMeal = data.is_include_makan ? mealTotal : 0;
+                    
+                    data.hpp_q = base + (hotelTotal / 4) + finalMeal;
+                    data.hpp_t = base + (hotelTotal / 3) + finalMeal;
+                    data.hpp_d = base + (hotelTotal / 2) + finalMeal;
                 },
                 formatNumber(num) {
                     if (!num && num !== 0) return '0';
@@ -255,6 +259,17 @@
                             <input type="text" :value="formatNumber(v1.double_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v1.double_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v1.double_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
                             @error('harga_double_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
+
+                        <div class="col-span-1 md:col-span-2 mt-2">
+                             <div class="flex items-center gap-2">
+                                <input type="hidden" name="is_include_makan_1" :value="v1.is_include_makan ? 1 : 0">
+                                <label class="relative inline-flex cursor-pointer items-center">
+                                    <input type="checkbox" x-model="v1.is_include_makan" @change="calculateHPP(1)" class="peer sr-only">
+                                    <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
+                                </label>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
+                             </div>
+                        </div>
                     </div>
             </div>
         </div>
@@ -348,6 +363,17 @@
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double (Jual)</label>
                             <input type="hidden" name="harga_double_2" :value="v2.double_jual">
                             <input type="text" :value="formatNumber(v2.double_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v2.double_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v2.double_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                        </div>
+
+                        <div class="col-span-1 md:col-span-2 mt-2">
+                             <div class="flex items-center gap-2">
+                                <input type="hidden" name="is_include_makan_2" :value="v2.is_include_makan ? 1 : 0">
+                                <label class="relative inline-flex cursor-pointer items-center">
+                                    <input type="checkbox" x-model="v2.is_include_makan" @change="calculateHPP(2)" class="peer sr-only">
+                                    <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
+                                </label>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
+                             </div>
                         </div>
                     </div>
             </div>

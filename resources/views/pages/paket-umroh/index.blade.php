@@ -42,14 +42,15 @@
         const maskapaiPrice = parseFloat(p.maskapai?.harga_tiket) || 0;
         const serviceTotal = p.layanans.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
         
+        const isIncludeMakan = p.is_include_makan_1 == 1;
         const h1_mekkah = (parseFloat(p.hotel_mekkah1?.harga_hotel) || 0) * (parseInt(p.hari_mekkah_1) || 0);
-        const m1_mekkah = (parseFloat(p.hotel_mekkah1?.biaya_makan) || 0) * (parseInt(p.hari_mekkah_1) || 0);
+        const m1_mekkah = isIncludeMakan ? (parseFloat(p.hotel_mekkah1?.biaya_makan) || 0) * (parseInt(p.hari_mekkah_1) || 0) : 0;
         
         const h1_madinah = (parseFloat(p.hotel_madinah1?.harga_hotel) || 0) * (parseInt(p.hari_madinah_1) || 0);
-        const m1_madinah = (parseFloat(p.hotel_madinah1?.biaya_makan) || 0) * (parseInt(p.hari_madinah_1) || 0);
+        const m1_madinah = isIncludeMakan ? (parseFloat(p.hotel_madinah1?.biaya_makan) || 0) * (parseInt(p.hari_madinah_1) || 0) : 0;
         
         const h1_transit = (parseFloat(p.hotel_transit1?.harga_hotel) || 0) * (parseInt(p.hari_transit_1) || 0);
-        const m1_transit = (parseFloat(p.hotel_transit1?.biaya_makan) || 0) * (parseInt(p.hari_transit_1) || 0);
+        const m1_transit = isIncludeMakan ? (parseFloat(p.hotel_transit1?.biaya_makan) || 0) * (parseInt(p.hari_transit_1) || 0) : 0;
         
         const hotelTotal1 = parseFloat(h1_mekkah + h1_madinah + h1_transit) || 0;
         const mealTotal1 = parseFloat(m1_mekkah + m1_madinah + m1_transit) || 0;
@@ -60,6 +61,7 @@
         const dHpp = base + (hotelTotal1 / 2) + mealTotal1;
         
         return {
+            isIncludeMakan,
             maskapai: p.maskapai?.nama_maskapai || "-",
             maskapaiPrice,
             layanans: p.layanans,
@@ -466,7 +468,7 @@
                                         </div>
                                         <span class="font-medium dark:text-white" x-text="formatPrice((row.price / (hppType === 'double' ? 2 : hppType === 'triple' ? 3 : 4)) * row.nights)"></span>
                                     </div>
-                                    <template x-if="row.mealPrice > 0">
+                                    <template x-if="hppBreakdown.isIncludeMakan && row.mealPrice > 0">
                                         <div class="flex justify-between text-xs pl-3 border-l-2 border-emerald-100 dark:border-emerald-900/30">
                                             <div class="flex flex-col">
                                                 <span class="text-gray-500 dark:text-gray-400 text-[11px]" x-text="'Makan ' + row.name"></span>
@@ -491,7 +493,7 @@
                             <div x-show="hppType === 'double'" class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase mb-1">Total HPP Double</p>
                                 <p class="text-lg font-bold text-blue-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.double)"></p>
-                                <p class="text-[10px] text-blue-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <p class="text-[10px] text-blue-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                                 <div class="mt-3 pt-3 border-t border-blue-100 dark:border-blue-900/50 space-y-2">
                                     <div class="flex justify-between items-center px-1 text-[10px] text-blue-400">
                                         <span class="uppercase font-medium">Harga Jual</span>
@@ -509,8 +511,8 @@
                             </div>
                             <div x-show="hppType === 'triple'" class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">Total HPP Triple</p>
-                                <p class="text-lg font-bold text-purple-900 dark:text-purple-100" x-text="formatPrice(hppBreakdown.triple)"></p>
-                                <p class="text-[10px] text-purple-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <p class="text-lg font-bold text-purple-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.triple)"></p>
+                                <p class="text-[10px] text-purple-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                                 <div class="mt-3 pt-3 border-t border-purple-100 dark:border-purple-900/50 space-y-2">
                                     <div class="flex justify-between items-center px-1 text-[10px] text-purple-400">
                                         <span class="uppercase font-medium">Harga Jual</span>
@@ -528,8 +530,8 @@
                             </div>
                             <div x-show="hppType === 'quad'" class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase mb-1">Total HPP Quad</p>
-                                <p class="text-lg font-bold text-indigo-900 dark:text-indigo-100" x-text="formatPrice(hppBreakdown.quad)"></p>
-                                <p class="text-[10px] text-indigo-500 mt-1">Biaya Dasar + Porsi Hotel + Makan</p>
+                                <p class="text-lg font-bold text-indigo-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.quad)"></p>
+                                <p class="text-[10px] text-indigo-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                                 <div class="mt-3 pt-3 border-t border-indigo-100 dark:border-blue-900/50 space-y-2">
                                     <div class="flex justify-between items-center px-1 text-[10px] text-indigo-400">
                                         <span class="uppercase font-medium">Harga Jual</span>

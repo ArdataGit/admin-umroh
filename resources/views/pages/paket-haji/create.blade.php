@@ -13,26 +13,28 @@
                 maskapai_price: 0,
                 service_prices: {},
                 v1: {
-                    mekkah_p: 0, mekkah_d: {{ old('hari_mekkah_1', 0) }},
-                    madinah_p: 0, madinah_d: {{ old('hari_madinah_1', 0) }},
-                    transit_p: 0, transit_d: {{ old('hari_transit_1', 0) }},
+                    mekkah_p: 0, mekkah_m: 0, mekkah_d: {{ old('hari_mekkah_1', 0) }},
+                    madinah_p: 0, madinah_m: 0, madinah_d: {{ old('hari_madinah_1', 0) }},
+                    transit_p: 0, transit_m: 0, transit_d: {{ old('hari_transit_1', 0) }},
                     hpp_q: {{ old('hpp_quad1', 0) }},
                     hpp_t: {{ old('hpp_triple1', 0) }},
                     hpp_d: {{ old('hpp_double1', 0) }},
                     quad_jual: {{ old('harga_quad_1', 0) }},
                     triple_jual: {{ old('harga_triple_1', 0) }},
-                    double_jual: {{ old('harga_double_1', 0) }}
+                    double_jual: {{ old('harga_double_1', 0) }},
+                    is_include_makan: {{ old('is_include_makan_1', 'true') == 'true' ? 'true' : 'false' }}
                 },
                 v2: {
-                    mekkah_p: 0, mekkah_d: {{ old('hari_mekkah_2', 0) }},
-                    madinah_p: 0, madinah_d: {{ old('hari_madinah_2', 0) }},
-                    transit_p: 0, transit_d: {{ old('hari_transit_2', 0) }},
+                    mekkah_p: 0, mekkah_m: 0, mekkah_d: {{ old('hari_mekkah_2', 0) }},
+                    madinah_p: 0, madinah_m: 0, madinah_d: {{ old('hari_madinah_2', 0) }},
+                    transit_p: 0, transit_m: 0, transit_d: {{ old('hari_transit_2', 0) }},
                     hpp_q: {{ old('hpp_quad2', 0) }},
                     hpp_t: {{ old('hpp_triple2', 0) }},
                     hpp_d: {{ old('hpp_double2', 0) }},
                     quad_jual: {{ old('harga_quad_2', 0) }},
                     triple_jual: {{ old('harga_triple_2', 0) }},
-                    double_jual: {{ old('harga_double_2', 0) }}
+                    double_jual: {{ old('harga_double_2', 0) }},
+                    is_include_makan: {{ old('is_include_makan_2', 'true') == 'true' ? 'true' : 'false' }}
                 },
                 get serviceTotal() {
                     return Object.values(this.service_prices).reduce((a, b) => a + b, 0);
@@ -40,18 +42,24 @@
                 calculateHPP(variant) {
                     let data = variant === 1 ? this.v1 : this.v2;
                     let mekkah_p = parseFloat(data.mekkah_p) || 0;
+                    let mekkah_m = data.is_include_makan ? (parseFloat(data.mekkah_m) || 0) : 0;
                     let mekkah_d = parseFloat(data.mekkah_d) || 0;
+                    
                     let madinah_p = parseFloat(data.madinah_p) || 0;
+                    let madinah_m = data.is_include_makan ? (parseFloat(data.madinah_m) || 0) : 0;
                     let madinah_d = parseFloat(data.madinah_d) || 0;
+                    
                     let transit_p = parseFloat(data.transit_p) || 0;
+                    let transit_m = data.is_include_makan ? (parseFloat(data.transit_m) || 0) : 0;
                     let transit_d = parseFloat(data.transit_d) || 0;
 
                     let hotelTotal = (mekkah_p * mekkah_d) + (madinah_p * madinah_d) + (transit_p * transit_d);
+                    let mealTotal = (mekkah_m * mekkah_d) + (madinah_m * madinah_d) + (transit_m * transit_d);
                     let base = (parseFloat(this.maskapai_price) || 0) + this.serviceTotal;
                     
-                    data.hpp_q = base + (hotelTotal / 4);
-                    data.hpp_t = base + (hotelTotal / 3);
-                    data.hpp_d = base + (hotelTotal / 2);
+                    data.hpp_q = base + (hotelTotal / 4) + mealTotal;
+                    data.hpp_t = base + (hotelTotal / 3) + mealTotal;
+                    data.hpp_d = base + (hotelTotal / 2) + mealTotal;
                 },
                 formatNumber(num) {
                     if (!num && num !== 0) return '0';
@@ -167,10 +175,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Mekkah</label>
-                        <select name="hotel_mekkah_1" @change="v1.mekkah_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
+                        <select name="hotel_mekkah_1" @change="v1.mekkah_p = $el.options[$el.selectedIndex].dataset.price || 0; v1.mekkah_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
                             <option value="">Pilih Hotel Mekkah</option>
                             @foreach($hotelsMekkah as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_mekkah_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_mekkah_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -183,10 +191,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Madinah</label>
-                        <select name="hotel_madinah_1" @change="v1.madinah_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
+                        <select name="hotel_madinah_1" @change="v1.madinah_p = $el.options[$el.selectedIndex].dataset.price || 0; v1.madinah_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required>
                             <option value="">Pilih Hotel Madinah</option>
                             @foreach($hotelsMadinah as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_madinah_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_madinah_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -199,10 +207,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Transit</label>
-                        <select name="hotel_transit_1" @change="v1.transit_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                        <select name="hotel_transit_1" @change="v1.transit_p = $el.options[$el.selectedIndex].dataset.price || 0; v1.transit_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(1)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
                             <option value="">Tidak Ada</option>
                             @foreach($hotelsTransit as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_transit_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_transit_1') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -249,6 +257,13 @@
                             <input type="text" :value="formatNumber(v1.double_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v1.double_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v1.double_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" required />
                             @error('harga_double_1') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
+                        <div>
+                            <input type="hidden" name="is_include_makan_1" :value="v1.is_include_makan ? 1 : 0">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" x-model="v1.is_include_makan" @change="calculateHPP(1)" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
+                            </label>
+                        </div>
                     </div>
             </div>
         </div>
@@ -264,10 +279,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Mekkah</label>
-                        <select name="hotel_mekkah_2" @change="v2.mekkah_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                        <select name="hotel_mekkah_2" @change="v2.mekkah_p = $el.options[$el.selectedIndex].dataset.price || 0; v2.mekkah_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
                             <option value="">Pilih Hotel Mekkah</option>
                             @foreach($hotelsMekkah as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_mekkah_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_mekkah_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -280,10 +295,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Madinah</label>
-                        <select name="hotel_madinah_2" @change="v2.madinah_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                        <select name="hotel_madinah_2" @change="v2.madinah_p = $el.options[$el.selectedIndex].dataset.price || 0; v2.madinah_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
                             <option value="">Pilih Hotel Madinah</option>
                             @foreach($hotelsMadinah as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_madinah_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_madinah_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -296,10 +311,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Hotel Transit</label>
-                        <select name="hotel_transit_2" @change="v2.transit_p = $el.options[$el.selectedIndex].dataset.price || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                        <select name="hotel_transit_2" @change="v2.transit_p = $el.options[$el.selectedIndex].dataset.price || 0; v2.transit_m = $el.options[$el.selectedIndex].dataset.meal || 0; calculateHPP(2)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
                             <option value="">Tidak Ada</option>
                             @foreach($hotelsTransit as $hotel)
-                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" {{ old('hotel_transit_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
+                                <option value="{{ $hotel->id }}" data-price="{{ $hotel->harga_hotel }}" data-meal="{{ $hotel->biaya_makan }}" {{ old('hotel_transit_2') == $hotel->id ? 'selected' : '' }}>{{ $hotel->nama_hotel }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -342,6 +357,13 @@
                             <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Harga Double (Jual)</label>
                             <input type="hidden" name="harga_double_2" :value="v2.double_jual">
                             <input type="text" :value="formatNumber(v2.double_jual)" @input="$el.value = $el.value.replace(/\D/g, ''); v2.double_jual = $el.value === '' ? 0 : parseInt($el.value); $el.value = formatNumber(v2.double_jual)" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
+                        </div>
+                        <div>
+                            <input type="hidden" name="is_include_makan_2" :value="v2.is_include_makan ? 1 : 0">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" x-model="v2.is_include_makan" @change="calculateHPP(2)" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
+                            </label>
                         </div>
                     </div>
             </div>

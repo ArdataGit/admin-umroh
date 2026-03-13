@@ -42,14 +42,23 @@
         const maskapaiPrice = parseFloat(p.maskapai?.harga_tiket) || 0;
         const serviceTotal = p.layanans.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
         
+        // Validasi isIncludeMakan dari database/model
+        const isIncludeMakan = p.is_include_makan_1 == 1 || p.is_include_makan_1 === true;
+
         const h1_mekkah = (parseFloat(p.hotel_mekkah1?.harga_hotel) || 0) * (parseInt(p.hari_mekkah_1) || 0);
         const h1_madinah = (parseFloat(p.hotel_madinah1?.harga_hotel) || 0) * (parseInt(p.hari_madinah_1) || 0);
         const h1_transit = (parseFloat(p.hotel_transit1?.harga_hotel) || 0) * (parseInt(p.hari_transit_1) || 0);
         const hotelTotal1 = h1_mekkah + h1_madinah + h1_transit;
+
+        const m1_mekkah = isIncludeMakan ? (parseFloat(p.hotel_mekkah1?.biaya_makan) || 0) * (parseInt(p.hari_mekkah_1) || 0) : 0;
+        const m1_madinah = isIncludeMakan ? (parseFloat(p.hotel_madinah1?.biaya_makan) || 0) * (parseInt(p.hari_madinah_1) || 0) : 0;
+        const m1_transit = isIncludeMakan ? (parseFloat(p.hotel_transit1?.biaya_makan) || 0) * (parseInt(p.hari_transit_1) || 0) : 0;
+        const mealTotal1 = m1_mekkah + m1_madinah + m1_transit;
         
         const base = maskapaiPrice + serviceTotal;
         
         return {
+            isIncludeMakan,
             maskapai: p.maskapai?.nama_maskapai || "-",
             maskapaiPrice,
             layanans: p.layanans,
@@ -59,11 +68,17 @@
                 { name: p.hotel_madinah1?.nama_hotel, nights: p.hari_madinah_1, price: p.hotel_madinah1?.harga_hotel, total: h1_madinah },
                 { name: p.hotel_transit1?.nama_hotel, nights: p.hari_transit_1, price: p.hotel_transit1?.harga_hotel, total: h1_transit }
             ].filter(h => h.name),
+            meals: [
+                { name: "Makan Mekkah", total: m1_mekkah },
+                { name: "Makan Madinah", total: m1_madinah },
+                { name: "Makan Transit", total: m1_transit }
+            ].filter(m => m.total > 0),
             hotelTotal: hotelTotal1,
+            mealTotal: mealTotal1,
             base,
-            quad: base + (hotelTotal1 / 4),
-            triple: base + (hotelTotal1 / 3),
-            double: base + (hotelTotal1 / 2)
+            quad: base + (hotelTotal1 / 4) + mealTotal1,
+            triple: base + (hotelTotal1 / 3) + mealTotal1,
+            double: base + (hotelTotal1 / 2) + mealTotal1
         };
       },
       get filteredPakets() {
@@ -440,22 +455,39 @@
                             </div>
                         </div>
 
+                        <!-- Meals -->
+                        <template x-if="hppBreakdown.isIncludeMakan">
+                            <div class="bg-gray-50 dark:bg-white/[0.03] p-3.5 rounded-xl space-y-2.5">
+                                <h4 class="font-bold text-gray-800 dark:text-white border-b pb-1.5 dark:border-gray-800 text-[11px] uppercase tracking-wider">Biaya Makan</h4>
+                                <template x-for="meal in hppBreakdown.meals">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-gray-500 dark:text-gray-400" x-text="meal.name"></span>
+                                        <span class="font-medium dark:text-white" x-text="formatPrice(meal.total)"></span>
+                                    </div>
+                                </template>
+                                <div class="flex justify-between text-xs font-bold pt-1.5 border-t dark:border-gray-800">
+                                    <span class="text-gray-800 dark:text-white">Subtotal Makan</span>
+                                    <span class="text-blue-600 dark:text-blue-400" x-text="formatPrice(hppBreakdown.mealTotal)"></span>
+                                </div>
+                            </div>
+                        </template>
+
                         <!-- HPP Summary -->
                         <div class="flex justify-center">
                             <div x-show="hppType === 'double'" class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase mb-1">Total HPP Double</p>
                                 <p class="text-lg font-bold text-blue-900 dark:text-blue-100" x-text="formatPrice(hppBreakdown.double)"></p>
-                                <p class="text-[10px] text-blue-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-blue-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                             </div>
                             <div x-show="hppType === 'triple'" class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-purple-600 dark:text-purple-400 font-bold uppercase mb-1">Total HPP Triple</p>
                                 <p class="text-lg font-bold text-purple-900 dark:text-purple-100" x-text="formatPrice(hppBreakdown.triple)"></p>
-                                <p class="text-[10px] text-purple-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-purple-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                             </div>
                             <div x-show="hppType === 'quad'" class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl text-center w-full">
                                 <p class="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase mb-1">Total HPP Quad</p>
                                 <p class="text-lg font-bold text-indigo-900 dark:text-indigo-100" x-text="formatPrice(hppBreakdown.quad)"></p>
-                                <p class="text-[10px] text-indigo-500 mt-1">Biaya Dasar + Porsi Hotel</p>
+                                <p class="text-[10px] text-indigo-500 mt-1" x-text="hppBreakdown.isIncludeMakan ? 'Biaya Dasar + Porsi Hotel + Makan' : 'Biaya Dasar + Porsi Hotel'"></p>
                             </div>
                         </div>
                     </div>

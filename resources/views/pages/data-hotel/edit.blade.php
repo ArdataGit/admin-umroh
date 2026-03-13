@@ -15,7 +15,7 @@
                     kursMakan: '{{ old('kurs_biaya_makan', $hotel->kurs_biaya_makan ?? 'IDR') }}',
                     custom_kurs: {{ old('custom_kurs', ($hotel->kurs != 'IDR' && $hotel->kurs_asing > 0 && $hotel->harga_hotel > 0) ? ($hotel->harga_hotel / $hotel->kurs_asing) : 'null') }},
                     custom_kurs_makan: {{ old('custom_kurs_biaya_makan', ($hotel->kurs_biaya_makan != 'IDR' && $hotel->biaya_makan_asing > 0 && $hotel->biaya_makan > 0) ? ($hotel->biaya_makan / $hotel->biaya_makan_asing) : 'null') }},
-                    hasBiayaMakan: {{ ($hotel->biaya_makan > 0) ? 'true' : 'false' }},
+                    hasBiayaMakan: true,
                     kursUsd: {{ $kursUsd ?? 0 }},
                     kursSar: {{ $kursSar ?? 0 }},
                     kursMyr: {{ $kursMyr ?? 0 }},
@@ -275,15 +275,8 @@
     
                             <!-- Biaya Makan Section -->
                             <div class="space-y-4 border-t border-gray-100 pt-6 dark:border-gray-800">
-                                <div class="flex items-center gap-2">
-                                    <label class="relative inline-flex cursor-pointer items-center">
-                                        <input type="checkbox" x-model="hasBiayaMakan" class="peer sr-only">
-                                        <div class="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:border-gray-600 dark:bg-gray-700"></div>
-                                    </label>
-                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-400">Include Biaya Makan?</span>
-                                </div>
     
-                                <div x-show="hasBiayaMakan" x-cloak x-transition class="mt-4 space-y-4">
+                                <div class="mt-4 space-y-4">
                                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-2xl">
                                         <!-- Currency Selector for Biaya Makan -->
                                         <div>
