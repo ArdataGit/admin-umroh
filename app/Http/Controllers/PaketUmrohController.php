@@ -72,6 +72,7 @@ class PaketUmrohController extends Controller
         $hotelsTransit = Hotel::all();
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
         $layanans = \App\Models\Layanan::where('status_layanan', 'Active')->get();
+        $produks = \App\Models\Produk::all(); // Fetch all products, or add status filter if needed
 
         return view('pages.paket-umroh.create', [
             'title' => 'Tambah Paket Umroh',
@@ -81,7 +82,8 @@ class PaketUmrohController extends Controller
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
             'kotas' => $kotas,
-            'layanans' => $layanans
+            'layanans' => $layanans,
+            'produks' => $produks
         ]);
     }
 
@@ -145,7 +147,9 @@ class PaketUmrohController extends Controller
             'catatan_paket' => 'nullable|string',
             'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
             'layanan_ids' => 'nullable|array',
-            'layanan_ids.*' => 'exists:layanans,id'
+            'layanan_ids.*' => 'exists:layanans,id',
+            'produk_ids' => 'nullable|array',
+            'produk_ids.*' => 'exists:produks,id'
         ]);
 
         $this->paketUmrohService->create($validated);
@@ -175,6 +179,7 @@ class PaketUmrohController extends Controller
         $hotelsTransit = Hotel::all();
         $kotas = Kota::orderBy('nama_kota', 'asc')->get();
         $layanans = \App\Models\Layanan::where('status_layanan', 'Active')->get();
+        $produks = \App\Models\Produk::all(); // Fetch all products
 
         return view('pages.paket-umroh.edit', [
             'title' => 'Edit Paket Umroh',
@@ -184,7 +189,8 @@ class PaketUmrohController extends Controller
             'hotelsMadinah' => $hotelsMadinah,
             'hotelsTransit' => $hotelsTransit,
             'kotas' => $kotas,
-            'layanans' => $layanans
+            'layanans' => $layanans,
+            'produks' => $produks
         ]);
     }
 
@@ -240,7 +246,9 @@ class PaketUmrohController extends Controller
             'catatan_paket' => 'nullable|string',
             'foto_brosur' => 'nullable|image|mimes:jpeg,png,jpg',
             'layanan_ids' => 'nullable|array',
-            'layanan_ids.*' => 'exists:layanans,id'
+            'layanan_ids.*' => 'exists:layanans,id',
+            'produk_ids' => 'nullable|array',
+            'produk_ids.*' => 'exists:produks,id'
         ]);
 
         $paket = $this->paketUmrohService->update($id, $validated);

@@ -166,6 +166,20 @@
             </div>
         </div>
         <div>
+            <h4 class="mb-2 font-semibold text-gray-800 dark:text-white">Produk Terkait</h4>
+            <div class="rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                @if($paketUmroh->produks->count() > 0)
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach($paketUmroh->produks as $produk)
+                            <li>{{ $produk->nama_produk }} ({{ $produk->kode_produk }})</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="italic text-gray-500">Tidak ada produk terkait.</p>
+                @endif
+            </div>
+        </div>
+        <div>
             <h4 class="mb-2 font-semibold text-gray-800 dark:text-white">Termasuk Paket</h4>
             <div class="rounded-lg bg-gray-50 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300 whitespace-pre-line">{{ $paketUmroh->termasuk_paket }}</div>
         </div>

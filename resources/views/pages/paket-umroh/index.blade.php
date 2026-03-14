@@ -41,6 +41,7 @@
         const p = this.hppTarget;
         const maskapaiPrice = parseFloat(p.maskapai?.harga_tiket) || 0;
         const serviceTotal = p.layanans.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
+        const produkTotal = (p.produks || []).reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
         
         const isIncludeMakan = p.is_include_makan_1 == 1;
         const h1_mekkah = (parseFloat(p.hotel_mekkah1?.harga_hotel) || 0) * (parseInt(p.hari_mekkah_1) || 0);
@@ -55,7 +56,7 @@
         const hotelTotal1 = parseFloat(h1_mekkah + h1_madinah + h1_transit) || 0;
         const mealTotal1 = parseFloat(m1_mekkah + m1_madinah + m1_transit) || 0;
         
-        const base = maskapaiPrice + serviceTotal;
+        const base = maskapaiPrice + serviceTotal + produkTotal;
         const qHpp = base + (hotelTotal1 / 4) + mealTotal1;
         const tHpp = base + (hotelTotal1 / 3) + mealTotal1;
         const dHpp = base + (hotelTotal1 / 2) + mealTotal1;
@@ -66,6 +67,8 @@
             maskapaiPrice,
             layanans: p.layanans,
             serviceTotal,
+            produks: p.produks || [],
+            produkTotal,
             hotelRows: [
                 { 
                     name: p.hotel_mekkah1?.nama_hotel, 
@@ -409,7 +412,7 @@
     </div>
 
     <!-- Delete Modal -->
-    <div x-show="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" x-cloak>
+    <div x-show="showDeleteModal" class="fixed inset-0 z-999999 flex items-center justify-center bg-black/50" x-cloak>
         <div class="bg-white p-6 rounded-xl shadow-lg w-96 dark:bg-gray-900 border dark:border-gray-800">
             <h3 class="text-lg font-bold text-gray-800 dark:text-white">Hapus Paket?</h3>
             <p class="text-gray-600 dark:text-gray-400 mt-2">Hapus paket <span x-text="deleteTarget?.name" class="font-bold"></span>?</p>
@@ -421,16 +424,16 @@
     </div>
 
     <!-- HPP Breakdown Modal -->
-    <div x-show="showHppModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" x-cloak x-transition>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:bg-gray-900 border dark:border-gray-800 max-h-[90vh] overflow-y-auto" @click.away="showHppModal = false">
-            <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-900 z-10">
-                <h3 class="text-lg font-bold text-gray-800 dark:text-white">Breakdown HPP</h3>
+    <div x-show="showHppModal" class="fixed inset-0 z-999999 flex items-center justify-center bg-black/50 p-4" x-cloak x-transition>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:bg-gray-900 border dark:border-gray-800 max-h-[85vh] overflow-y-auto custom-scrollbar" @click.away="showHppModal = false">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-900 z-10">
+                <h3 class="text-base font-bold text-gray-800 dark:text-white">Breakdown HPP</h3>
                 <button @click="showHppModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
-            <div class="p-5">
+            <div class="p-4">
                 <template x-if="hppBreakdown">
                     <div class="space-y-5">
                         <div class="text-center mb-2">
@@ -448,6 +451,12 @@
                                 <div class="flex justify-between text-xs">
                                     <span class="text-gray-500 dark:text-gray-400" x-text="'Layanan: ' + layanan.nama_layanan"></span>
                                     <span class="font-medium dark:text-white" x-text="formatPrice(layanan.harga_jual)"></span>
+                                </div>
+                            </template>
+                            <template x-for="produk in hppBreakdown.produks" :key="produk.id">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-gray-500 dark:text-gray-400" x-text="'Produk: ' + produk.nama_produk"></span>
+                                    <span class="font-medium dark:text-white" x-text="formatPrice(produk.harga_jual)"></span>
                                 </div>
                             </template>
                             <div class="flex justify-between text-xs font-bold pt-1.5 border-t dark:border-gray-800">
@@ -552,8 +561,8 @@
                 </template>
             </div>
             
-            <div class="p-5 border-t border-gray-100 dark:border-gray-800 flex justify-center">
-                <button @click="showHppModal = false" class="w-full py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium text-sm transition-colors">Tutup</button>
+            <div class="p-4 border-t border-gray-100 dark:border-gray-800 flex justify-center sticky bottom-0 bg-white dark:bg-gray-900">
+                <button @click="showHppModal = false" class="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium text-sm transition-colors">Tutup</button>
             </div>
         </div>
     </div>

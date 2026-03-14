@@ -7,83 +7,8 @@
 ]" />
 
 <div class="grid grid-cols-12 gap-4 md:gap-6">
-    <div class="col-span-12">
-        <form action="{{ route('paket-umroh.update', $paketUmroh->id) }}" method="POST" enctype="multipart/form-data" 
-            x-data="{ 
-                formatNumber(num) {
-                    if (!num && num !== 0) return '';
-                    return new Intl.NumberFormat('id-ID').format(Math.round(num));
-                },
-                maskapai_price: {{ $paketUmroh->maskapai->harga_tiket ?? 0 }},
-                service_prices: {
-                    @foreach($paketUmroh->layanans as $layanan)
-                        {{ $layanan->id }}: {{ $layanan->harga_jual }},
-                    @endforeach
-                },
-                v1: {
-                    mekkah_p: {{ $paketUmroh->hotelMekkah1->harga_hotel ?? 0 }},
-                    mekkah_m: {{ $paketUmroh->hotelMekkah1->biaya_makan ?? 0 }},
-                    mekkah_d: {{ $paketUmroh->hari_mekkah_1 ?? 0 }},
-                    madinah_p: {{ $paketUmroh->hotelMadinah1->harga_hotel ?? 0 }},
-                    madinah_m: {{ $paketUmroh->hotelMadinah1->biaya_makan ?? 0 }},
-                    madinah_d: {{ $paketUmroh->hari_madinah_1 ?? 0 }},
-                    transit_p: {{ $paketUmroh->hotelTransit1->harga_hotel ?? 0 }},
-                    transit_m: {{ $paketUmroh->hotelTransit1->biaya_makan ?? 0 }},
-                    transit_d: {{ $paketUmroh->hari_transit_1 ?? 0 }},
-                    hpp_q: {{ $paketUmroh->hpp_quad1 ?? 0 }},
-                    hpp_t: {{ $paketUmroh->hpp_triple1 ?? 0 }},
-                    hpp_d: {{ $paketUmroh->hpp_double1 ?? 0 }},
-                    quad_jual: {{ $paketUmroh->harga_quad_1 ?? 0 }},
-                    triple_jual: {{ $paketUmroh->harga_triple_1 ?? 0 }},
-                    double_jual: {{ $paketUmroh->harga_double_1 ?? 0 }},
-                    is_include_makan: {{ old('is_include_makan_1', $paketUmroh->is_include_makan_1 ? 'true' : 'false') }}
-                },
-                v2: {
-                    mekkah_p: {{ $paketUmroh->hotelMekkah2->harga_hotel ?? 0 }},
-                    mekkah_m: {{ $paketUmroh->hotelMekkah2->biaya_makan ?? 0 }},
-                    mekkah_d: {{ $paketUmroh->hari_mekkah_2 ?? 0 }},
-                    madinah_p: {{ $paketUmroh->hotelMadinah2->harga_hotel ?? 0 }},
-                    madinah_m: {{ $paketUmroh->hotelMadinah2->biaya_makan ?? 0 }},
-                    madinah_d: {{ $paketUmroh->hari_madinah_2 ?? 0 }},
-                    transit_p: {{ $paketUmroh->hotelTransit2->harga_hotel ?? 0 }},
-                    transit_m: {{ $paketUmroh->hotelTransit2->biaya_makan ?? 0 }},
-                    transit_d: {{ $paketUmroh->hari_transit_2 ?? 0 }},
-                    hpp_q: {{ $paketUmroh->hpp_quad2 ?? 0 }},
-                    hpp_t: {{ $paketUmroh->hpp_triple2 ?? 0 }},
-                    hpp_d: {{ $paketUmroh->hpp_double2 ?? 0 }},
-                    quad_jual: {{ $paketUmroh->harga_quad_2 ?? 0 }},
-                    triple_jual: {{ $paketUmroh->harga_triple_2 ?? 0 }},
-                    double_jual: {{ $paketUmroh->harga_double_2 ?? 0 }},
-                    is_include_makan: {{ old('is_include_makan_2', $paketUmroh->is_include_makan_2 ? 'true' : 'false') }}
-                },
-                get serviceTotal() {
-                    return Object.values(this.service_prices).reduce((a, b) => a + b, 0);
-                },
-                calculateHPP(variant) {
-                    const ctx = variant === 1 ? this.v1 : this.v2;
-                    const mekkah_p = parseFloat(ctx.mekkah_p) || 0;
-                    const mekkah_m = parseFloat(ctx.mekkah_m) || 0;
-                    const mekkah_d = parseFloat(ctx.mekkah_d) || 0;
-                    
-                    const madinah_p = parseFloat(ctx.madinah_p) || 0;
-                    const madinah_m = parseFloat(ctx.madinah_m) || 0;
-                    const madinah_d = parseFloat(ctx.madinah_d) || 0;
-                    
-                    const transit_p = parseFloat(ctx.transit_p) || 0;
-                    const transit_m = parseFloat(ctx.transit_m) || 0;
-                    const transit_d = parseFloat(ctx.transit_d) || 0;
-
-                    const hotelTotal = (mekkah_p * mekkah_d) + (madinah_p * madinah_d) + (transit_p * transit_d);
-                    const mealTotal = (mekkah_m * mekkah_d) + (madinah_m * madinah_d) + (transit_m * transit_d);
-                    const base = (parseFloat(this.maskapai_price) || 0) + this.serviceTotal;
-                    
-                    const finalMeal = ctx.is_include_makan ? mealTotal : 0;
-                    
-                    ctx.hpp_q = base + (hotelTotal / 4) + finalMeal;
-                    ctx.hpp_t = base + (hotelTotal / 3) + finalMeal;
-                    ctx.hpp_d = base + (hotelTotal / 2) + finalMeal;
-                }
-            }" x-init="calculateHPP(1); calculateHPP(2)">
+    <div class="col-span-12" x-data="paketUmrohEdit()">
+        <form action="{{ route('paket-umroh.update', $paketUmroh->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -184,6 +109,60 @@
             @if($layanans->isEmpty())
                 <p class="text-sm text-gray-500 italic">Tidak ada layanan aktif tersedia.</p>
             @endif
+        </div>
+
+        <!-- Edit Produk -->
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 mb-6">
+            <h3 class="mb-6 text-xl font-semibold text-gray-800 dark:text-white">Daftar Produk (Include)</h3>
+            
+            <div class="relative mb-4">
+                <input type="text" x-model="searchProdukQuery" @input="filterProduks" placeholder="Cari Produk..." class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white" />
+                <div x-show="showProdukSearchResults && filteredProduks.length > 0" @click.away="showProdukSearchResults = false" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg dark:bg-gray-800 dark:border-gray-700 max-h-60 overflow-y-auto">
+                    <ul>
+                        <template x-for="produk in filteredProduks" :key="produk.id">
+                            <li @click="addProduk(produk)" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-sm text-gray-800 dark:text-gray-300 flex justify-between">
+                                <span x-text="produk.nama_produk + (produk.kode_produk ? ' (' + produk.kode_produk + ')' : '')"></span>
+                                <span x-text="'Harga: Rp ' + formatNumber(produk.harga_jual)"></span>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th class="px-4 py-3 min-w-[200px]">Nama Produk</th>
+                            <th class="px-4 py-3">Harga</th>
+                            <th class="px-4 py-3 text-center w-16">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="(item, index) in selectedProduksList" :key="index">
+                            <tr class="border-b dark:border-gray-700">
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                                    <span x-text="item.nama_produk"></span>
+                                    <input type="hidden" name="produk_ids[]" :value="item.id">
+                                </td>
+                                <td class="px-4 py-3">
+                                    Rp <span x-text="formatNumber(item.harga_jual)"></span>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <button type="button" @click="removeProduk(index)" class="text-red-500 hover:text-red-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr x-show="selectedProduksList.length === 0">
+                            <td colspan="3" class="px-4 py-6 text-center text-gray-500">Belum ada produk dipilih. Cari dan tambahkan produk di atas.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Variant 1 -->
@@ -436,3 +415,121 @@
     </div>
 </div>
 @endsection
+
+<script>
+    function paketUmrohEdit() {
+        return {
+            formatNumber(num) {
+                if (!num && num !== 0) return "";
+                return new Intl.NumberFormat("id-ID").format(Math.round(num));
+            },
+            maskapai_price: {{ $paketUmroh->maskapai->harga_tiket ?? 0 }},
+            service_prices: {
+                @foreach($paketUmroh->layanans as $layanan)
+                    {{ $layanan->id }}: {{ $layanan->harga_jual }},
+                @endforeach
+            },
+            v1: {
+                mekkah_p: {{ $paketUmroh->hotelMekkah1->harga_hotel ?? 0 }},
+                mekkah_m: {{ $paketUmroh->hotelMekkah1->biaya_makan ?? 0 }},
+                mekkah_d: {{ $paketUmroh->hari_mekkah_1 ?? 0 }},
+                madinah_p: {{ $paketUmroh->hotelMadinah1->harga_hotel ?? 0 }},
+                madinah_m: {{ $paketUmroh->hotelMadinah1->biaya_makan ?? 0 }},
+                madinah_d: {{ $paketUmroh->hari_madinah_1 ?? 0 }},
+                transit_p: {{ $paketUmroh->hotelTransit1->harga_hotel ?? 0 }},
+                transit_m: {{ $paketUmroh->hotelTransit1->biaya_makan ?? 0 }},
+                transit_d: {{ $paketUmroh->hari_transit_1 ?? 0 }},
+                hpp_q: {{ $paketUmroh->hpp_quad1 ?? 0 }},
+                hpp_t: {{ $paketUmroh->hpp_triple1 ?? 0 }},
+                hpp_d: {{ $paketUmroh->hpp_double1 ?? 0 }},
+                quad_jual: {{ $paketUmroh->harga_quad_1 ?? 0 }},
+                triple_jual: {{ $paketUmroh->harga_triple_1 ?? 0 }},
+                double_jual: {{ $paketUmroh->harga_double_1 ?? 0 }},
+                is_include_makan: {{ old("is_include_makan_1", $paketUmroh->is_include_makan_1 ? "true" : "false") }}
+            },
+            v2: {
+                mekkah_p: {{ $paketUmroh->hotelMekkah2->harga_hotel ?? 0 }},
+                mekkah_m: {{ $paketUmroh->hotelMekkah2->biaya_makan ?? 0 }},
+                mekkah_d: {{ $paketUmroh->hari_mekkah_2 ?? 0 }},
+                madinah_p: {{ $paketUmroh->hotelMadinah2->harga_hotel ?? 0 }},
+                madinah_m: {{ $paketUmroh->hotelMadinah2->biaya_makan ?? 0 }},
+                madinah_d: {{ $paketUmroh->hari_madinah_2 ?? 0 }},
+                transit_p: {{ $paketUmroh->hotelTransit2->harga_hotel ?? 0 }},
+                transit_m: {{ $paketUmroh->hotelTransit2->biaya_makan ?? 0 }},
+                transit_d: {{ $paketUmroh->hari_transit_2 ?? 0 }},
+                hpp_q: {{ $paketUmroh->hpp_quad2 ?? 0 }},
+                hpp_t: {{ $paketUmroh->hpp_triple2 ?? 0 }},
+                hpp_d: {{ $paketUmroh->hpp_double2 ?? 0 }},
+                quad_jual: {{ $paketUmroh->harga_quad_2 ?? 0 }},
+                triple_jual: {{ $paketUmroh->harga_triple_2 ?? 0 }},
+                double_jual: {{ $paketUmroh->harga_double_2 ?? 0 }},
+                is_include_makan: {{ old("is_include_makan_2", $paketUmroh->is_include_makan_2 ? "true" : "false") }}
+            },
+            get serviceTotal() {
+                return Object.values(this.service_prices).reduce((a, b) => a + b, 0);
+            },
+            get produkTotal() {
+                return this.selectedProduksList.reduce((a, b) => a + (parseFloat(b.harga_jual) || 0), 0);
+            },
+            calculateHPP(variant) {
+                const ctx = variant === 1 ? this.v1 : this.v2;
+                const mekkah_p = parseFloat(ctx.mekkah_p) || 0;
+                const mekkah_m = parseFloat(ctx.mekkah_m) || 0;
+                const mekkah_d = parseFloat(ctx.mekkah_d) || 0;
+                
+                const madinah_p = parseFloat(ctx.madinah_p) || 0;
+                const madinah_m = parseFloat(ctx.madinah_m) || 0;
+                const madinah_d = parseFloat(ctx.madinah_d) || 0;
+                
+                const transit_p = parseFloat(ctx.transit_p) || 0;
+                const transit_m = parseFloat(ctx.transit_m) || 0;
+                const transit_d = parseFloat(ctx.transit_d) || 0;
+
+                const hotelTotal = (mekkah_p * mekkah_d) + (madinah_p * madinah_d) + (transit_p * transit_d);
+                const mealTotal = (mekkah_m * mekkah_d) + (madinah_m * madinah_d) + (transit_m * transit_d);
+                const base = (parseFloat(this.maskapai_price) || 0) + this.serviceTotal + this.produkTotal;
+                
+                const finalMeal = ctx.is_include_makan ? mealTotal : 0;
+                
+                ctx.hpp_q = base + (hotelTotal / 4) + finalMeal;
+                ctx.hpp_t = base + (hotelTotal / 3) + finalMeal;
+                ctx.hpp_d = base + (hotelTotal / 2) + finalMeal;
+            },
+            produks: @json($produks),
+            searchProdukQuery: '',
+            showProdukSearchResults: false,
+            filteredProduks: [],
+            selectedProduksList: @json($paketUmroh->produks),
+            init() {
+                this.filteredProduks = this.produks;
+            },
+            filterProduks() {
+                if (this.searchProdukQuery === '') {
+                    this.showProdukSearchResults = false;
+                    return;
+                }
+                const query = this.searchProdukQuery.toLowerCase();
+                this.filteredProduks = this.produks.filter(p => 
+                    p.nama_produk.toLowerCase().includes(query) || 
+                    (p.kode_produk && p.kode_produk.toLowerCase().includes(query))
+                );
+                this.showProdukSearchResults = true;
+            },
+            addProduk(produk) {
+                const existing = this.selectedProduksList.find(p => p.id === produk.id);
+                if (!existing) {
+                    this.selectedProduksList.push(produk);
+                }
+                this.searchProdukQuery = '';
+                this.showProdukSearchResults = false;
+                this.calculateHPP(1);
+                this.calculateHPP(2);
+            },
+            removeProduk(index) {
+                this.selectedProduksList.splice(index, 1);
+                this.calculateHPP(1);
+                this.calculateHPP(2);
+            }
+        }
+    }
+</script>

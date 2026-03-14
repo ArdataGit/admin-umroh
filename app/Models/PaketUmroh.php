@@ -92,4 +92,9 @@ class PaketUmroh extends Model
     {
         return $this->belongsToMany(Layanan::class, 'paket_umroh_layanan', 'paket_umroh_id', 'layanan_id');
     }
+
+    public function produks()
+    {
+        return $this->belongsToMany(Produk::class, 'paket_umroh_produk', 'paket_umroh_id', 'produk_id');
+    }
 }
